@@ -98,6 +98,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',san
 .bscheck-item:hover{background:#f0f2f5}
 .bscheck-done{background:#e8f5e9;border-color:#c3e6cb}
 .bscheck-done span{color:#1b5e20;opacity:.85}
+.mob-back{display:none;align-items:center;gap:6px;padding:6px 0;margin-bottom:10px;background:none;border:none;color:var(--p);font-size:13px;font-weight:700;cursor:pointer;width:100%}
 @media print{
   body{height:auto;overflow:visible}
   #app{height:auto}
@@ -109,8 +110,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',san
   .rssec,.btnpdf{display:none}
 }
 @media(max-width:768px){
-  #lp{width:220px}
-  .hi-inputs{display:none}
+  body{height:auto;overflow-y:auto}
+  #app{height:auto;min-height:100vh;overflow:visible}
+  #hdr{padding:8px 10px;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+  .hdr-title{font-size:13px}
+  .hdr-sub{display:none}
+  .hi-inputs{order:10;width:100%;gap:5px;display:flex;flex-wrap:wrap}
+  .hi-inputs input{flex:1;min-width:calc(50% - 3px);font-size:11px;padding:5px 7px}
+  .hdr-acts{gap:4px}
+  .btn{padding:5px 8px;font-size:10px}
+  .save-ind{display:none}
+  #prg{padding:5px 10px}
+  .prg-lbl{font-size:9px;min-width:55px}
+  #nav{position:sticky;top:0;z-index:10;flex-wrap:wrap}
+  .tab{padding:8px 7px;font-size:10px}
+  #flt{gap:3px;padding:4px 6px}
+  .fb{padding:3px 5px;font-size:9px}
+  #ct{flex-direction:column;height:auto;overflow:visible}
+  #lp{width:100%;max-height:none;overflow-y:visible;border-right:none;border-bottom:1px solid var(--bd)}
+  #rp{padding:12px 10px}
+  .rsb{padding:10px 16px;font-size:13px}
+  .li{padding:10px}
+  .mob-back{display:flex!important}
+  #ct.mob-detail #lp{display:none}
+  #ct.mob-list #rp{display:none}
+  .dcard{border-radius:8px}
+  .ig.ignotes{min-width:100%}
+  .irow{flex-direction:column}
 }
 </style>
 </head>
@@ -256,9 +282,14 @@ const PDF_MAP={
   'FP-OPSFIN-102':'FP_OPSFIN-102_Inventory.pdf',
   'FP-OPSFIN-103':'FP_OPSFIN-103_FFE Reserve Management.pdf',
   'FP-OPSFIN-104':'FP_OPSFIN-104_Profit and Loss Variance Analysis and Forecast Review.pdf',
+  'FP-OPSFIN-105':'FP_OPSFIN-105_Local Ledger to PeopleSoft Reconciliation.pdf',
   'FP-OPSFIN-110':'FP_OPSFIN-110_House Funds.pdf',
   'FP-OPSFIN-111':'FP_OPSFIN-111_General Cashiering.pdf',
+  'FP-OPSFIN-112':'FP_OPSFIN-112_General Cashier\'s Office, Main Vault, and Drop Safe Security.pdf',
   'FP-OPSFIN-113':'FP_OPSFIN-113_Guest Refunds and Paid Outs.pdf',
+  'FP-OPSFIN-114':'FP_OPSFIN-114_Petty Cash.pdf',
+  'FP-OPSFIN-115':'FP_OPSFIN-115_Foreign Currency Exchange.pdf',
+  'FP-OPSFIN-116':'FP_OPSFIN-116_Safety Deposit Box Audits.pdf',
   'FP-OPSFIN-120':'FP_OPSFIN-120_Accounts Receivable Credit Arrangements.pdf',
   'FP-OPSFIN-121':'FP_OPSFIN-121_Accounts Receivable Billing, Collections, and Payment Receipt.pdf',
   'FP-OPSFIN-122':'FP_OPSFIN-122_Accounts Receivable Deposits.pdf',
@@ -277,9 +308,35 @@ const PDF_MAP={
   'FP-OPSFIN-145':'FP_OPSFIN-145_Barter Agreements.pdf',
   'FP-OPSFIN-146':'FP_OPSFIN-146_Hotel Contract Execution and Spending.pdf',
   'FP-OPSFIN-150':'FP_OPSFIN-150_Payroll Controls.pdf',
+  'FP-OPSFIN-160':'FP_OPSFIN-160_Policy Waivers.pdf',
+  'FP-OPSFIN-170':'FP_OPSFIN-170_Fraud and Theft Reporting.pdf',
+  'FP-FIN-001':'FP-FIN-001_Fixed Asset Accounting Policy.pdf',
+  'FP-FIN-044':'FP-FIN-044_Loyalty Programs Accounting Policy.pdf',
+  'FP-FIN-203':'FP-FIN-203 - Global Bank Account Policy.pdf',
+  'FP-RM-001':'FP-RM-001-Global Provider Insurance Policy.pdf',
+  'FP-RM-015':'FP-RM-015_Safe Deposit Box and Guestroom Safe.pdf',
+  'FP-RM-016':'FP-RM-016-EMEA and APAC Travel Safety and Security Policy.pdf',
+  'HWI-COMM-001':'HWI-COMM-001 External Communications Policy.pdf',
+  'HWI-HSM-001':'HWI-HSM-001-Business Travel and Expense Reimbursement Policy.pdf',
+  'HWI-HSM-002':'HWI-HSM-002-Global Corporate Procurement Policy.pdf',
+  'HWI-HSM-003':'HWI-HSM-003-Global Hotel Procurement Policy.pdf',
+  'HWI-HSM-004':'HWI-HSM-004-Purchasing Card Program Policy.pdf',
+  'HWI-LG-002':'HWI-LG-002_Public Communications, Public Disclosure and Regulation FD Policy.pdf',
+  'HWI-LG-003':'HWI-LG-003_Insider Trading Policy.pdf',
+  'SOP-OPSFIN-200':'SOP-OPSFIN-200_Cost Allocations.pdf',
   'SOP-OPSFIN-201':'SOP-OPSFIN-201_Bank Account Reconciliations.pdf',
+  'SOP-OPSFIN-202':'SOP-OPSFIN-202_Pre-Opening Expenses.pdf',
+  'SOP-OPSFIN-206':'SOP-OPSFIN-206_American Express Fine Hotels and Resorts (FHR) Credits - Americas.pdf',
+  'SOP-OPSFIN-211':'SOP-OPSFIN-211_General Cashiering Handling Bank Deposit – APAC.pdf',
+  'SOP-OPSFIN-212':'SOP-OPSFIN-212_APAC Banking Portal.pdf',
+  'SOP-OPSFIN-230':'SOP-OPSFIN-230_Travel Agency Commissions.pdf',
   'SOP-OPSFIN-231':'SOP-OPSFIN-231_Other Revenue Controls.pdf',
-  'SOP-OPSFIN-234':'SOP-OPSFIN-234_Rooms Statistics.pdf'
+  'SOP-OPSFIN-232':'SOP-OPSFIN-232_Tray Ledger Balancing.pdf',
+  'SOP-OPSFIN-233':'SOP-OPSFIN-233_Food and Beverage Statistics.pdf',
+  'SOP-OPSFIN-234':'SOP-OPSFIN-234_Rooms Statistics.pdf',
+  'SOP-OPSFIN-240':'SOP-OPSFIN-240_Accounting for Operating Equipment and Uniforms.pdf',
+  'SOP-OPSFIN-250':'SOP-OPSFIN-250_Manual Payroll Checks.pdf',
+  'SOP-OPSFIN-260':'SOP-OPSFIN-260_APAC Hilton Honors F&B Offer – Discounts and Points Allocation_Jan 2022.pdf'
 };
 
 const PDF_FOLDER='Pollicies%20%26%20Procedures%20(GPIs)/1.%20Hilton%20Policy%20and%20Procedure/';
@@ -416,10 +473,20 @@ function mkLI(item,num){
     +'</div>';
 }
 
+function isMob(){return window.innerWidth<=768;}
+function setMobView(v){
+  var ct=document.getElementById('ct');
+  if(!ct)return;
+  ct.classList.remove('mob-list','mob-detail');
+  if(isMob())ct.classList.add('mob-'+v);
+}
+function backToList(){setMobView('list');}
+
 function selItem(id){
   curId=id;
   buildLP();
   buildRP();
+  setMobView('detail');
 }
 
 function buildRP(){
@@ -453,7 +520,8 @@ function buildRP(){
   var sIdx=si.findIndex(function(i){return i.id===item.id;});
   var rbg=item.risk==='Key'?'rgba(220,53,69,.25)':'rgba(253,126,20,.25)';
   var rfc=item.risk==='Key'?'#ff8a93':'#ffc07a';
-  var html='<div class="dcard">'
+  var html='<button class="mob-back" onclick="backToList()">&#8592; 목록으로</button>'
+    +'<div class="dcard">'
     +'<div class="dhdr">'
     +'<div class="dnum">#'+(sIdx+1)+'</div>'
     +'<div class="dta"><div class="dsec">'+esc(item.section)
@@ -484,7 +552,7 @@ function buildRP(){
 }
 
 function selSec(s){
-  viewMode='section'; curSec=s; curFlt='all';
+  viewMode='section'; curSec=s; curFlt='all'; setMobView('list');
   document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('act','kact');});
   document.getElementById('flt-all').classList.add('act');
   buildNav(); buildLP();
@@ -496,7 +564,7 @@ function selSec(s){
 }
 
 function selFindings(){
-  viewMode='findings'; curFlt='all';
+  viewMode='findings'; curFlt='all'; setMobView('list');
   buildNav(); buildLP();
   var items=getItems();
   if(items.length>0)selItem(items[0].id);
@@ -772,11 +840,11 @@ var bsData=[
 
 // ===== BS GUIDE FUNCTIONS =====
 function selBSGuide(){
-  viewMode='bsguide'; curFlt='all'; curBsId=null;
+  viewMode='bsguide'; curFlt='all'; curBsId=null; setMobView('list');
   document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('act','kact');});
   var ball=document.getElementById('flt-all');if(ball)ball.classList.add('act');
   buildNav(); buildBSLP();
-  if(bsData.length>0)selBSItem(bsData[0].id);
+  if(bsData.length>0&&!isMob())selBSItem(bsData[0].id);
   else{document.getElementById('rp').innerHTML='<div class="empty"><div class="empty-icon">&#9776;</div><div class="empty-tx">Select an item</div></div>';}
 }
 
@@ -784,6 +852,7 @@ function selBSItem(id){
   curBsId=id;
   buildBSLP();
   buildBSRP();
+  setMobView('detail');
 }
 
 function buildBSLP(){
@@ -863,7 +932,8 @@ function buildBSRP(){
   var doneCount=item.checks.filter(function(c,i){return chks[i];}).length;
   var pct=item.checks.length?Math.round(doneCount/item.checks.length*100):0;
 
-  var html='<div class="dcard">'
+  var html='<button class="mob-back" onclick="backToList()">&#8592; 목록으로</button>'
+    +'<div class="dcard">'
     +'<div class="dhdr" style="gap:8px">'
     +'<div style="min-width:0;flex:1">'
     +'<div style="font-size:10px;opacity:.6;margin-bottom:3px">'+esc(item.cat)+' #'+item.num+(item.account?' &bull; GL: '+esc(item.account):'')+'</div>'
@@ -932,7 +1002,8 @@ function setBSNote(id,val){bsNotes[id]=val;saveDbc();}
 // INIT
 loadStore(); buildNav(); updPrg(); buildLP();
 var initItems=getItems();
-if(initItems.length>0)selItem(initItems[0].id);
+if(initItems.length>0&&!isMob())selItem(initItems[0].id);
+setMobView('list');
 setInterval(save,30000);
 </script>
 </body>
