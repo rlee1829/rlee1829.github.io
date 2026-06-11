@@ -67,7 +67,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',san
 .dcard{background:#fff;border-radius:10px;box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .dhdr{background:var(--p);color:#fff;padding:13px 18px;display:flex;align-items:center;gap:10px}
 .dnum{font-size:18px;font-weight:700;color:var(--g);opacity:.9}
-.dsec{font-size:10px;opacity:.65;margin-bottom:2px}
+.dsec{font-size:13px;opacity:.9;margin-bottom:2px;font-weight:600}
 .dta{flex:1}
 .dts{font-size:10px;opacity:.55;text-align:right;flex-shrink:0}
 .dbody{padding:16px 18px}
@@ -138,7 +138,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',san
   .dcard{border-radius:8px}
   .ig.ignotes{min-width:100%}
   .irow{flex-direction:column}
+  #db .db-row{flex-wrap:wrap}
+  #db .db-kcard{min-width:80px;padding:10px 12px}
+  #db .db-kval{font-size:20px}
+  #db .db-tbl th,#db .db-tbl td{padding:4px 5px;font-size:11px}
+  #db .db-sbar{min-width:80px}
 }
+/* ── OVERVIEW DASHBOARD ── */
+#db{display:none;flex:1;overflow-y:auto;padding:18px 22px;background:var(--bg);flex-direction:column;gap:14px}
+#app.dash-mode #ct{display:none!important}
+#app.dash-mode #db{display:flex!important}
+.db-row{display:flex;gap:10px;flex-wrap:wrap}
+.db-kcard{background:#fff;border-radius:10px;box-shadow:var(--sh);padding:14px 18px;flex:1;min-width:100px;text-align:center}
+.db-kval{font-size:30px;font-weight:800;color:var(--p);line-height:1.1}
+.db-klbl{font-size:10px;font-weight:700;color:var(--mu);margin-top:5px;text-transform:uppercase;letter-spacing:.5px}
+.db-ksub{font-size:10px;color:var(--mu);margin-top:2px}
+.db-card{background:#fff;border-radius:10px;box-shadow:var(--sh);overflow:hidden}
+.db-ctitle{background:var(--p);color:#fff;padding:10px 16px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px}
+.db-ctitle span{font-size:10px;opacity:.7;font-weight:400}
+.db-legend{margin-left:auto;display:flex;gap:10px;font-size:10px;font-weight:400}
+.db-ldot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px;vertical-align:middle}
+.db-tbody{padding:12px 16px}
+.db-tbl{width:100%;border-collapse:collapse}
+.db-tbl th{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;padding:5px 8px;border-bottom:2px solid var(--bd);text-align:left;white-space:nowrap}
+.db-tbl td{padding:7px 8px;border-bottom:1px solid #f0f2f5;font-size:12px;vertical-align:middle}
+.db-tbl tr:last-child td{border-bottom:none}
+.db-tbl tr:hover td{background:#f8f9fa}
+.db-sbar{height:14px;border-radius:7px;background:#f0f2f5;overflow:hidden;display:flex;min-width:140px;flex:1}
+.db-sbar-y{background:var(--yc);height:100%;transition:flex .4s}
+.db-sbar-n{background:var(--nc);height:100%;transition:flex .4s}
+.db-sbar-na{background:var(--ac);height:100%;transition:flex .4s}
+.db-sbar-p{background:#dee2e6;height:100%;transition:flex .4s}
+.db-pct{font-weight:700;font-size:12px;white-space:nowrap}
+.db-cnt{font-size:12px;font-weight:700;text-align:center;min-width:24px}
+.db-cnt-y{color:var(--yc)}.db-cnt-n{color:var(--nc)}.db-cnt-na{color:var(--ac)}.db-cnt-p{color:#adb5bd}
+.tab.tab-ov{background:#f0f2f5;border-right:2px solid var(--bd);font-size:11px}
+.tab.tab-ov.active{background:#e8edf8;color:var(--p)}
 </style>
 </head>
 <body>
@@ -190,6 +225,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',san
   <div id="lp"></div>
   <div id="rp"><div class="empty"><div class="empty-icon">&#128203;</div><div class="empty-tx">Select an item from the list</div></div></div>
 </div>
+<div id="db"></div>
 </div>
 <script>
 
@@ -376,7 +412,8 @@ function getItems(){
 }
 
 function buildNav(){
-  var html='';
+  var ovcls=(viewMode==='dash')?' active':'';
+  var html='<div class="tab tab-ov'+ovcls+'" onclick="selDash()">&#9783; Overview</div>';
   SECS.forEach(function(s){
     var si=auditData.filter(function(i){return i.section===s;});
     var done=si.filter(function(i){return results[i.id];}).length;
@@ -555,7 +592,9 @@ function buildRP(){
 }
 
 function selSec(s){
-  viewMode='section'; curSec=s; curFlt='all'; setMobView('list');
+  viewMode='section'; curSec=s; curFlt='all';
+  document.getElementById('app').classList.remove('dash-mode');
+  setMobView('list');
   document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('act','kact');});
   document.getElementById('flt-all').classList.add('act');
   buildNav(); buildLP();
@@ -567,7 +606,9 @@ function selSec(s){
 }
 
 function selFindings(){
-  viewMode='findings'; curFlt='all'; setMobView('list');
+  viewMode='findings'; curFlt='all';
+  document.getElementById('app').classList.remove('dash-mode');
+  setMobView('list');
   buildNav(); buildLP();
   var items=getItems();
   if(items.length>0)selItem(items[0].id);
@@ -846,8 +887,208 @@ var bsData=[
 ];
 
 // ===== BS GUIDE FUNCTIONS =====
+function selDash(){
+  viewMode='dash';
+  document.getElementById('app').classList.add('dash-mode');
+  buildNav();
+  buildDash();
+}
+
+function buildDash(){
+  var db=document.getElementById('db');
+  if(!db)return;
+
+  // ── Main 80 items ──
+  var total=auditData.length;
+  var yc=auditData.filter(function(i){return results[i.id]==='yes';}).length;
+  var nc=auditData.filter(function(i){return results[i.id]==='no';}).length;
+  var ac=auditData.filter(function(i){return results[i.id]==='na';}).length;
+  var done=yc+nc+ac;
+  var pend=total-done;
+  var compPct=Math.round(done/total*100);
+  var yesPct=done>0?Math.round(yc/done*100):0;
+
+  // ── Per-section rows ──
+  var legend='<div class="db-legend">'
+    +'<span><span class="db-ldot" style="background:var(--yc)"></span>Yes</span>'
+    +'<span><span class="db-ldot" style="background:var(--nc)"></span>No</span>'
+    +'<span><span class="db-ldot" style="background:var(--ac)"></span>N/A</span>'
+    +'<span><span class="db-ldot" style="background:#dee2e6"></span>Pending</span>'
+    +'</div>';
+
+  var secRows='';
+  SECS.forEach(function(s){
+    var si=auditData.filter(function(i){return i.section===s;});
+    var sy=si.filter(function(i){return results[i.id]==='yes';}).length;
+    var sn=si.filter(function(i){return results[i.id]==='no';}).length;
+    var sa=si.filter(function(i){return results[i.id]==='na';}).length;
+    var st=si.length;
+    var sd=sy+sn+sa;
+    var sp=st>0?Math.round(sd/st*100):0;
+    var syp=sd>0?Math.round(sy/sd*100):0;
+    var spColor=sp===100?'var(--yc)':sp>=50?'var(--hc)':'var(--mu)';
+    var sypColor=syp>=80?'var(--yc)':syp>=50?'var(--hc)':'var(--nc)';
+    secRows+='<tr>'
+      +'<td style="font-weight:600;white-space:nowrap"><span style="cursor:pointer;color:var(--p);text-decoration:underline" onclick="selSec(\''+s.replace(/'/g,"\\'")+'\')">'
+      +esc(s)+'</span></td>'
+      +'<td style="width:99%"><div style="display:flex;align-items:center;gap:8px">'
+      +'<div class="db-sbar">'
+      +(sy>0?'<div class="db-sbar-y" style="flex:'+sy+'"></div>':'')
+      +(sn>0?'<div class="db-sbar-n" style="flex:'+sn+'"></div>':'')
+      +(sa>0?'<div class="db-sbar-na" style="flex:'+sa+'"></div>':'')
+      +(sd<st?'<div class="db-sbar-p" style="flex:'+(st-sd)+'"></div>':'')
+      +'</div>'
+      +'<span style="font-size:10px;color:'+spColor+';font-weight:700;white-space:nowrap">'+sp+'%</span>'
+      +'</div></td>'
+      +'<td class="db-pct" style="color:'+sypColor+'">'+syp+'%</td>'
+      +'<td class="db-cnt db-cnt-y">'+sy+'</td>'
+      +'<td class="db-cnt db-cnt-n">'+sn+'</td>'
+      +'<td class="db-cnt db-cnt-na">'+sa+'</td>'
+      +'<td class="db-cnt db-cnt-p">'+(st-sd)+'</td>'
+      +'<td style="font-size:11px;color:var(--mu);text-align:center">'+st+'</td>'
+      +'</tr>';
+  });
+
+  // ── BS Guide ──
+  var bsTotal=typeof bsData!=='undefined'?bsData.length:0;
+  var bsYc=0,bsNc=0,bsAc=0;
+  if(typeof bsData!=='undefined'){
+    bsYc=bsData.filter(function(i){return bsResults[i.id]==='yes';}).length;
+    bsNc=bsData.filter(function(i){return bsResults[i.id]==='no';}).length;
+    bsAc=bsData.filter(function(i){return bsResults[i.id]==='na';}).length;
+  }
+  var bsDone=bsYc+bsNc+bsAc;
+  var bsPend=bsTotal-bsDone;
+  var bsComp=bsTotal>0?Math.round(bsDone/bsTotal*100):0;
+  var bsYesPct=bsDone>0?Math.round(bsYc/bsDone*100):0;
+
+  var bsRows='';
+  if(typeof bsData!=='undefined'){
+    [['ASSETS',1,21],['LIABILITIES',22,99]].forEach(function(g){
+      var gitems=bsData.filter(function(i){return i.num>=g[1]&&i.num<=g[2];});
+      var gy=gitems.filter(function(i){return bsResults[i.id]==='yes';}).length;
+      var gn=gitems.filter(function(i){return bsResults[i.id]==='no';}).length;
+      var ga=gitems.filter(function(i){return bsResults[i.id]==='na';}).length;
+      var gt=gitems.length;
+      var gd=gy+gn+ga;
+      var gcp=gt>0?Math.round(gd/gt*100):0;
+      var gyp=gd>0?Math.round(gy/gd*100):0;
+      var gcpColor=gcp===100?'var(--yc)':gcp>=50?'var(--hc)':'var(--mu)';
+      var gypColor=gyp>=80?'var(--yc)':gyp>=50?'var(--hc)':'var(--nc)';
+      bsRows+='<tr>'
+        +'<td style="font-weight:600;white-space:nowrap"><span style="cursor:pointer;color:var(--p);text-decoration:underline" onclick="selBSGuide()">'
+        +esc(g[0])+'</span><span style="font-size:10px;color:var(--mu);margin-left:4px">('+gt+')</span></td>'
+        +'<td style="width:99%"><div style="display:flex;align-items:center;gap:8px">'
+        +'<div class="db-sbar">'
+        +(gy>0?'<div class="db-sbar-y" style="flex:'+gy+'"></div>':'')
+        +(gn>0?'<div class="db-sbar-n" style="flex:'+gn+'"></div>':'')
+        +(ga>0?'<div class="db-sbar-na" style="flex:'+ga+'"></div>':'')
+        +(gd<gt?'<div class="db-sbar-p" style="flex:'+(gt-gd)+'"></div>':'')
+        +'</div>'
+        +'<span style="font-size:10px;color:'+gcpColor+';font-weight:700;white-space:nowrap">'+gcp+'%</span>'
+        +'</div></td>'
+        +'<td class="db-pct" style="color:'+gypColor+'">'+gyp+'%</td>'
+        +'<td class="db-cnt db-cnt-y">'+gy+'</td>'
+        +'<td class="db-cnt db-cnt-n">'+gn+'</td>'
+        +'<td class="db-cnt db-cnt-na">'+ga+'</td>'
+        +'<td class="db-cnt db-cnt-p">'+(gt-gd)+'</td>'
+        +'<td style="font-size:11px;color:var(--mu);text-align:center">'+gt+'</td>'
+        +'</tr>';
+    });
+  }
+
+  var tblHead='<thead><tr>'
+    +'<th>Section / Category</th>'
+    +'<th>Progress<span style="font-weight:400;margin-left:6px;font-size:9px">(Completion %)</span></th>'
+    +'<th style="white-space:nowrap">Yes %</th>'
+    +'<th style="color:var(--yc)">Y</th>'
+    +'<th style="color:var(--nc)">N</th>'
+    +'<th style="color:var(--ac)">NA</th>'
+    +'<th style="color:#adb5bd">Pend</th>'
+    +'<th style="color:var(--mu)">Total</th>'
+    +'</tr></thead>';
+
+  db.innerHTML=
+    // ── KPI row ──
+    '<div class="db-row">'
+    +'<div class="db-kcard" style="border-top:3px solid var(--p)">'
+    +'<div class="db-kval">'+compPct+'%</div>'
+    +'<div class="db-klbl">Completion</div>'
+    +'<div class="db-ksub">'+done+' / '+total+' answered</div>'
+    +'</div>'
+    +'<div class="db-kcard" style="border-top:3px solid var(--yc)">'
+    +'<div class="db-kval" style="color:var(--yc)">'+yesPct+'%</div>'
+    +'<div class="db-klbl">Yes Rate</div>'
+    +'<div class="db-ksub">of answered items</div>'
+    +'</div>'
+    +'<div class="db-kcard" style="border-top:3px solid var(--yc)">'
+    +'<div class="db-kval" style="color:var(--yc);font-size:24px">'+yc+'</div>'
+    +'<div class="db-klbl">Yes</div>'
+    +'</div>'
+    +'<div class="db-kcard" style="border-top:3px solid var(--nc)">'
+    +'<div class="db-kval" style="color:var(--nc);font-size:24px">'+nc+'</div>'
+    +'<div class="db-klbl">No (Findings)</div>'
+    +'</div>'
+    +'<div class="db-kcard" style="border-top:3px solid var(--ac)">'
+    +'<div class="db-kval" style="color:var(--ac);font-size:24px">'+ac+'</div>'
+    +'<div class="db-klbl">N/A</div>'
+    +'</div>'
+    +'<div class="db-kcard" style="border-top:3px solid #dee2e6">'
+    +'<div class="db-kval" style="color:#adb5bd;font-size:24px">'+pend+'</div>'
+    +'<div class="db-klbl">Pending</div>'
+    +'</div>'
+    +'</div>'
+
+    // ── Section table ──
+    +'<div class="db-card">'
+    +'<div class="db-ctitle">CPA 2026 Audit — Section Progress <span>(80 items)</span>'
+    +legend+'</div>'
+    +'<div class="db-tbody">'
+    +'<table class="db-tbl">'+tblHead+'<tbody>'+secRows+'</tbody></table>'
+    +'</div></div>'
+
+    // ── BS Guide ──
+    +(bsTotal>0?
+    '<div class="db-card">'
+    +'<div class="db-ctitle">BS Guide — Balance Sheet Review <span>('+bsTotal+' items)</span>'
+    +legend+'</div>'
+    +'<div class="db-tbody">'
+    +'<div class="db-row" style="margin-bottom:12px">'
+    +'<div class="db-kcard" style="border-top:3px solid var(--p);padding:10px 14px">'
+    +'<div class="db-kval" style="font-size:22px">'+bsComp+'%</div>'
+    +'<div class="db-klbl" style="font-size:9px">Completion</div>'
+    +'<div class="db-ksub">'+bsDone+' / '+bsTotal+'</div>'
+    +'</div>'
+    +'<div class="db-kcard" style="border-top:3px solid var(--yc);padding:10px 14px">'
+    +'<div class="db-kval" style="font-size:22px;color:var(--yc)">'+bsYesPct+'%</div>'
+    +'<div class="db-klbl" style="font-size:9px">Yes Rate</div>'
+    +'</div>'
+    +'<div class="db-kcard" style="border-top:3px solid var(--yc);padding:10px 14px">'
+    +'<div class="db-kval" style="font-size:22px;color:var(--yc)">'+bsYc+'</div>'
+    +'<div class="db-klbl" style="font-size:9px">Yes</div>'
+    +'</div>'
+    +'<div class="db-kcard" style="border-top:3px solid var(--nc);padding:10px 14px">'
+    +'<div class="db-kval" style="font-size:22px;color:var(--nc)">'+bsNc+'</div>'
+    +'<div class="db-klbl" style="font-size:9px">No</div>'
+    +'</div>'
+    +'<div class="db-kcard" style="border-top:3px solid var(--ac);padding:10px 14px">'
+    +'<div class="db-kval" style="font-size:22px;color:var(--ac)">'+bsAc+'</div>'
+    +'<div class="db-klbl" style="font-size:9px">N/A</div>'
+    +'</div>'
+    +'<div class="db-kcard" style="border-top:3px solid #dee2e6;padding:10px 14px">'
+    +'<div class="db-kval" style="font-size:22px;color:#adb5bd">'+bsPend+'</div>'
+    +'<div class="db-klbl" style="font-size:9px">Pending</div>'
+    +'</div>'
+    +'</div>'
+    +'<table class="db-tbl">'+tblHead+'<tbody>'+bsRows+'</tbody></table>'
+    +'</div></div>'
+    :'');
+}
+
 function selBSGuide(){
-  viewMode='bsguide'; curFlt='all'; curBsId=null; setMobView('list');
+  viewMode='bsguide'; curFlt='all'; curBsId=null;
+  document.getElementById('app').classList.remove('dash-mode');
+  setMobView('list');
   document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('act','kact');});
   var ball=document.getElementById('flt-all');if(ball)ball.classList.add('act');
   buildNav(); buildBSLP();
