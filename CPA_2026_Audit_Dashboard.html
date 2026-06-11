@@ -1,0 +1,939 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPA 2026 Peer Audit Dashboard</title>
+<style>
+:root{--p:#1a2456;--g:#c8a96e;--gl:#e8d4a0;--bg:#f0f2f5;--tx:#1a1a2e;--mu:#6c757d;--bd:#dee2e6;--kc:#dc3545;--hc:#fd7e14;--yc:#198754;--nc:#dc3545;--ac:#6c757d;--sh:0 2px 8px rgba(0,0,0,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;height:100vh;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100vh}
+/* HEADER */
+#hdr{background:var(--p);color:#fff;padding:10px 16px;flex-shrink:0;display:flex;align-items:center;gap:12px;border-bottom:2px solid var(--g)}
+.hdr-brand{flex-shrink:0}
+.hdr-title{font-size:15px;font-weight:700;color:var(--g);white-space:nowrap}
+.hdr-sub{font-size:10px;opacity:.6;margin-top:1px}
+.hi-inputs{display:flex;gap:7px;flex-wrap:wrap;flex:1}
+.hi-inputs input{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 9px;border-radius:4px;font-size:11px;min-width:110px;font-family:inherit}
+.hi-inputs input:focus{outline:none;background:rgba(255,255,255,.2);border-color:var(--g)}
+.hi-inputs input::placeholder{color:rgba(255,255,255,.45)}
+.hdr-acts{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.btn{padding:5px 11px;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:all .15s}
+.btn-g{background:var(--g);color:var(--p)}.btn-g:hover{background:var(--gl)}
+.btn-o{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4)}.btn-o:hover{background:rgba(255,255,255,.1)}
+.save-ind{font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap}
+/* PROGRESS */
+#prg{background:#fff;padding:7px 16px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.prg-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.prg-lbl{font-size:11px;font-weight:700;color:var(--p);white-space:nowrap}
+.prg-track{flex:1;height:8px;background:#e9ecef;border-radius:4px;overflow:hidden}
+.prg-fill{height:100%;background:linear-gradient(90deg,var(--p),var(--g));border-radius:4px;transition:width .4s;width:0%}
+.prg-stats{display:flex;gap:14px;flex-wrap:wrap}
+.prg-s{display:flex;align-items:center;gap:3px;font-size:11px}
+.pdot{width:7px;height:7px;border-radius:50%;display:inline-block}
+/* NAV */
+#nav{background:#fff;border-bottom:2px solid var(--bd);flex-shrink:0;display:flex;align-items:stretch}
+#tabs{display:flex;overflow-x:auto;scrollbar-width:none;flex:1}
+#tabs::-webkit-scrollbar{display:none}
+.tab{padding:8px 11px;cursor:pointer;font-size:11px;font-weight:600;color:var(--mu);border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.tab:hover{color:var(--p)}.tab.active{color:var(--p);border-bottom-color:var(--g)}
+.tab.ftab{border-left:1px solid var(--bd)}
+.tn{background:#e9ecef;color:var(--mu);font-size:9px;padding:1px 4px;border-radius:8px;font-weight:700}
+.tab.active .tn{background:var(--gl);color:var(--p)}
+#flt{display:flex;align-items:center;gap:4px;padding:5px 10px;border-left:1px solid var(--bd);flex-shrink:0}
+.fb{padding:3px 7px;border:1px solid var(--bd);border-radius:3px;background:#fff;cursor:pointer;font-size:10px;font-weight:600;color:var(--mu);transition:all .15s}
+.fb:hover{border-color:var(--p);color:var(--p)}
+.fb.act{background:var(--p);color:#fff;border-color:var(--p)}
+.fb.kact{background:var(--kc);color:#fff;border-color:var(--kc)}
+/* CONTENT */
+#ct{display:flex;flex:1;overflow:hidden}
+/* LEFT */
+#lp{width:275px;flex-shrink:0;overflow-y:auto;border-right:1px solid var(--bd);background:#fafbfc}
+.lsl{padding:6px 10px 4px;font-size:9px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;background:#f0f2f5;border-top:1px solid var(--bd);position:sticky;top:0;z-index:1}
+.li{padding:7px 10px;cursor:pointer;border-bottom:1px solid #f0f2f5;display:flex;align-items:flex-start;gap:6px;transition:background .1s}
+.li:hover{background:#f0f2f5}.li.act{background:#e8edf8;border-left:3px solid var(--p)}
+.ldot{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px}
+.dy{background:var(--yc)}.dn{background:var(--nc)}.dna{background:var(--ac)}.dnone{background:#dee2e6;color:var(--mu)}
+.lbadge{padding:1px 4px;border-radius:2px;font-size:9px;font-weight:700;flex-shrink:0;margin-top:2px}
+.bk{background:#fde8ea;color:var(--kc)}.bh{background:#fff0e6;color:var(--hc)}
+.ltx{font-size:11px;line-height:1.4;color:var(--tx);flex:1;word-break:break-word}
+.li.act .ltx{font-weight:600}
+/* RIGHT */
+#rp{flex:1;overflow-y:auto;padding:18px 22px;background:var(--bg)}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60%;color:var(--mu);gap:10px}
+.empty-icon{font-size:44px}.empty-tx{font-size:13px}
+.dcard{background:#fff;border-radius:10px;box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
+.dhdr{background:var(--p);color:#fff;padding:13px 18px;display:flex;align-items:center;gap:10px}
+.dnum{font-size:18px;font-weight:700;color:var(--g);opacity:.9}
+.dsec{font-size:10px;opacity:.65;margin-bottom:2px}
+.dta{flex:1}
+.dts{font-size:10px;opacity:.55;text-align:right;flex-shrink:0}
+.dbody{padding:16px 18px}
+.fl{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;margin-top:13px}
+.fl:first-child{margin-top:0}
+.tbox{background:#f8f9fa;border-radius:5px;padding:9px 12px;font-size:12px;line-height:1.7;color:var(--tx);white-space:pre-wrap;border:1px solid #eee}
+.polrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:5px}
+.poltag{background:#e8edf8;color:var(--p);padding:5px 11px;border-radius:4px;font-size:11px;font-weight:600;flex:1}
+.btnpdf{display:inline-block;padding:5px 13px;background:var(--kc);color:#fff;border-radius:4px;font-size:11px;font-weight:600;text-decoration:none;transition:background .15s;white-space:nowrap}
+.btnpdf:hover{background:#b02a37}
+.nopdf{color:var(--mu);font-size:11px;padding:4px 0}
+.rssec{margin-top:16px;padding-top:14px;border-top:1px solid #f0f2f5}
+.rsrow{display:flex;align-items:center;gap:7px;margin-bottom:12px}
+.rslbl{font-size:12px;font-weight:700;color:var(--tx);margin-right:3px}
+.rsb{padding:7px 20px;border:2px solid;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;background:#fff;transition:all .15s}
+.rby{border-color:var(--yc);color:var(--yc)}.rby.act{background:var(--yc);color:#fff}
+.rbn{border-color:var(--nc);color:var(--nc)}.rbn.act{background:var(--nc);color:#fff}
+.rbna{border-color:var(--ac);color:var(--ac)}.rbna.act{background:var(--ac);color:#fff}
+.irow{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.ig{display:flex;flex-direction:column;gap:4px}
+.ig.igsamp{min-width:240px;flex:1}.ig.ignotes{flex:2;min-width:280px}
+.ig label{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
+.ig input{padding:6px 9px;border:1px solid var(--bd);border-radius:4px;font-size:12px;font-family:inherit}
+.ig input:focus{outline:none;border-color:var(--p)}
+.ig textarea{padding:7px 9px;border:1px solid var(--bd);border-radius:4px;font-size:12px;resize:vertical;min-height:65px;font-family:inherit;line-height:1.5}
+.ig textarea:focus{outline:none;border-color:var(--p)}
+.bscheck-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
+.bscheck-item{display:flex;align-items:flex-start;padding:8px 10px;border-radius:5px;background:#f8f9fa;border:1px solid #eee;cursor:pointer;font-size:12px;line-height:1.5;color:var(--tx);transition:background .12s}
+.bscheck-item:hover{background:#f0f2f5}
+.bscheck-done{background:#e8f5e9;border-color:#c3e6cb}
+.bscheck-done span{color:#1b5e20;opacity:.85}
+@media print{
+  body{height:auto;overflow:visible}
+  #app{height:auto}
+  #hdr,#prg,#nav{display:none}
+  #ct{display:block;overflow:visible}
+  #lp{display:none}
+  #rp{padding:0;overflow:visible}
+  .dcard{break-inside:avoid;box-shadow:none;border:1px solid #ccc;margin-bottom:10px}
+  .rssec,.btnpdf{display:none}
+}
+@media(max-width:768px){
+  #lp{width:220px}
+  .hi-inputs{display:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-title">CPA 2026 Peer Audit</div>
+    <div class="hdr-sub">Hilton Internal Audit Checklist</div>
+  </div>
+  <div class="hi-inputs">
+    <input id="hi-hotel" placeholder="Hotel Name" oninput="saveHI()">
+    <input id="hi-date" type="date" oninput="saveHI()">
+    <input id="hi-auditor" placeholder="Auditor" oninput="saveHI()">
+    <input id="hi-period" placeholder="Period (e.g. Apr-Jun 2026)" oninput="saveHI()">
+  </div>
+  <div class="hdr-acts">
+    <span class="save-ind" id="si">&#10003; Saved</span>
+    <button class="btn btn-o" id="lang-btn" onclick="toggleLang()">KO</button>
+    <button class="btn btn-g" onclick="exportCSV()">&#8659; Excel</button>
+    <button class="btn btn-o" onclick="window.print()">&#128438; Print</button>
+    <button class="btn btn-o" onclick="resetAll()" title="Reset all results">&#8635;</button>
+  </div>
+</div>
+<div id="prg">
+  <div class="prg-row">
+    <div class="prg-lbl">Main Audit</div>
+    <div class="prg-track"><div class="prg-fill" id="pf"></div></div>
+    <div class="prg-lbl" id="ptx">0 / 80</div>
+  </div>
+  <div class="prg-stats" id="ps"></div>
+  <div class="prg-row" style="margin-top:5px">
+    <div class="prg-lbl" style="color:#1a2456;font-size:10px">BS Guide</div>
+    <div class="prg-track" style="height:5px"><div class="prg-fill" id="bs-pf" style="background:linear-gradient(90deg,#1a2456,#c8a96e)"></div></div>
+    <div class="prg-lbl" id="bs-ptx" style="color:#1a2456;font-size:10px">0 / 39</div>
+  </div>
+  <div class="prg-stats" id="bs-ps" style="margin-top:2px;font-size:10px"></div>
+</div>
+<div id="nav">
+  <div id="tabs"></div>
+  <div id="flt">
+    <button class="fb act" id="flt-all" onclick="setFlt('all')">All</button>
+    <button class="fb" id="flt-key" onclick="setFlt('key')">Key</button>
+    <button class="fb" id="flt-pend" onclick="setFlt('pend')">Pending</button>
+  </div>
+</div>
+<div id="ct">
+  <div id="lp"></div>
+  <div id="rp"><div class="empty"><div class="empty-icon">&#128203;</div><div class="empty-tx">Select an item from the list</div></div></div>
+</div>
+</div>
+<script>
+
+const auditData = [
+  {"id":1,"section":"AP","risk":"HR","wsEN":"Fixed rents and percentage/performance rent are accounted for on an accruals basis each month.","wsKR":"고정 임차료 및 수수료/실적 연동 임차료는 매월 Accrual(발생주의) 기준으로 계상해야 한다.","tsEN":"Obtain the journal entries for rent of 2 most recent completed months and verify the control as defined in the Work Step column.","tsKR":"가장 최근 완료된 2개월분 임차료에 대한 Journal entry(대체분개 전표)를 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-144 Tenant Leases & Concessionaire Agreements"},
+  {"id":2,"section":"AP","risk":"HR","wsEN":"There is a standard naming convention for suppliers set-up to ensure that same supplier is not set up twice in the system. If any generic account being used, verify that there is monitoring of the use of the account by Finance.","wsKR":"시스템상에 동일한 공급업체가 중복 등록되지 않도록 공급업체 등록 시 표준 명명 규칙을 적용해야 한다. Generic account(공용 계정)를 사용하는 경우, Finance(재경부)에서 해당 계정의 사용을 모니터링하고 있는지 확인해야 한다.","tsEN":"Obtain the latest Master Vendor Report and verify that there is no repeated vendor name or generic vendor name.","tsKR":"최신의 Master Vendor Report를 확보하여 중복된 공급업체명 또는 Generic vendor name(공용 공급업체명)이 존재하지 않는지 확인해야 한다.","pol":"FP-OPSFIN-141 Accounts Payable Supplier Set-Up & Payment"},
+  {"id":3,"section":"AP","risk":"HR","wsEN":"Suppliers set-up in the procurement system is done by Team Member who does not receive goods; and the suppliers set-up in the account payable system is done by Team Member who does not have access to process account payable payments (i.e., check runs, electronic transfer, etc.)","wsKR":"Procurement system(구매 시스템)에서의 공급업체 등록은 물품 수령을 하지 않는 Team Member(팀원)가 수행해야 하며, Accounts payable(미지급금) 시스템에서의 공급업체 등록은 Accounts payable payment(미지급금 지급 처리 - 예: 수표 발행, 전자 송금 등) 권한이 없는 Team Member가 수행해야 한다.","tsEN":"Identify the Team Member performing each of the tasks mentioned and ensure that there is no segregation of duties conflict.","tsKR":"명시된 각 업무를 수행하는 Team Member를 확인하고, SOD(직무분장) 상충이 발생하지 않는지 확인해야 한다.","pol":"FP-OPSFIN-141 Accounts Payable Supplier Set-Up & Payment"},
+  {"id":4,"section":"AP","risk":"HR","wsEN":"A system generated accounts payable aging report is produced and approved by the Finance Leader or Operations Leader on a monthly basis.","wsKR":"시스템에서 생성된 Accounts payable aging report(미지급금 연령 분석 보고서)는 매월 Finance Leader 또는 Operations Leader의 승인을 받아야 한다.","tsEN":"Obtain accounts payable aging report for 2 most recent completed months and verify the control as defined in the Work Step column.","tsKR":"가장 최근 완료된 2개월분의 Accounts payable aging report를 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-141 Accounts Payable Supplier Set-Up & Payment"},
+  {"id":5,"section":"AP","risk":"HR","wsEN":"Confirmed that expense claims are approved by the Department Head and the Finance Leader (GM Expense forms - Finance Leader and VP Ops in Regional Office) and submitted within one month of the expense being incurred; and the payment of expense claims are processed through the standard account payable process.\nAlso review the travel advance forms to ensure that the forms are signed by the Team Member receiving the travel advance and are approved by either the Finance Leader or Operations Leader and any advance in excess of USD $2,500 are approved by the Regional Finance Director.","wsKR":"Expense claim(경비 청구서)이 Department Head(부서장)와 Finance Leader의 승인을 받았고(GM Expense form은 Finance Leader와 지역 사무소의 VP Ops 승인 필요), 비용 발생 후 1개월 이내에 제출되었으며, Expense claim 지급이 표준 Accounts payable 프로세스를 통해 처리되는지 확인해야 한다. 또한 Travel advance form(출장 전도금 신청서)을 검토하여 전도금을 수령하는 Team Member의 서명이 있고 Finance Leader 또는 Operations Leader의 승인을 받았는지 확인해야 하며, USD 2,500을 초과하는 전도금은 RDF의 승인을 받아야 한다.","tsEN":"Note: This question is not applicable to hotels using Concur. Select 3 expense claims (include the expense claims from Operations Leader and Finance Leader) submitted and verify the control as defined in the Work Step column.","tsKR":"주: 이 질문은 Concur(컨커)를 사용하는 호텔에는 적용되지 않는다. 제출된 Expense claim 중 3건을 선정하여(Operations Leader 및 Finance Leader의 Expense claim 포함), Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-143 Manual Expense Reports and Travel Advance Guidance"},
+  {"id":6,"section":"AP","risk":"HR","wsEN":"Confirm that the following for goods receiving are in place: \ni) All goods are received in a designated receiving area and where possible, this should be a restricted area accessible to authorized Team Members and not directly accessible to guests.\nii) There is a written internal procedure for after hour deliveries.\niii) Verify that the Team Member who places the order is not the one doing the physical goods receiving nor the receiving in the procurement system.","wsKR":"물품 수령(입고)과 관련하여 다음 사항이 준수되고 있는지 확인해야 한다: i) 모든 물품은 지정된 검수 구역에서 수령해야 하며, 가능한 한 권한이 있는 Team Member만 출입할 수 있고 고객이 직접 접근할 수 없는 제한 구역이어야 한다. ii) 영업시간 외 납품에 대한 서면화된 내부 절차가 있어야 한다. iii) 주문을 넣은 Team Member가 현물 검수 및 Procurement system(구매 시스템)상의 입고 처리를 직접 수행하지 않는지 확인해야 한다.","tsEN":"i) Verify that there is written internal procedure established for the mentioned process","tsKR":"i) 언급된 프로세스에 대해 서면화된 내부 절차가 마련되어 있는지 확인해야 한다. ii) 명시된 각 업무를 수행하는 Team Member를 확인하고, SOD(직무분장) 상충이 발생하지 않는지 확인해야 한다.","pol":"FP-OPSFIN-140 Accounts Payable Ordering and Receiving"},
+  {"id":7,"section":"AP","risk":"Key","wsEN":"Obtain the most recent section of the lease agreement or management agreement for the determination of payments and the support for the calculation of lease rent expense (for leased hotels) or management fees (for managed hotels) for latest two (2) months. Verify the accuracy of the calculation of JV and payment and it reviewed and approved by the Finance Leader (or equivalent).","wsKR":"지급액 결정을 위한 Lease agreement(임대차 계약서) 또는 Management agreement(위탁경영 계약서)의 최신 조항과, 최근 2개월 동안의 Lease rent expense(임차료 비용 - 임대 호텔의 경우) 또는 Management fee(위탁수수료 - 위탁경영 호텔의 경우)의 계산 근거 자료를 확보해야 한다. JV(대체분개) 및 지급액 계산의 정확성을 검증하고, Finance Leader(또는 이에 준하는 자)의 검토 및 승인을 받았는지 확인해야 한다.","tsEN":"Verify the control as defined in the Work Step column.","tsKR":"Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"Key Controls"},
+  {"id":8,"section":"AP","risk":"HR","wsEN":"The Master Vendor Change Report is printed monthly and reviewed by the Finance Leader (or designee/ independent to receiving and AP function) to confirm that all updates (including bank details) are accurate and approved.","wsKR":"Master vendor change report를 매월 출력하여 Finance Leader(또는 검수 및 AP 업무로부터 독립적인 지정자)가 검토함으로써, 은행 계좌 정보를 포함한 모든 업데이트 내용이 정확하고 승인되었는지 확인해야 한다.","tsEN":"Obtain the Master Vendor Change Reports for 2 most recent completed months and verify that review was performed monthly (Sun system: Names and Addresses; Chart of Accounts and Bank Details; and Navision system: Vendor Change Audit Log).","tsKR":"가장 최근 완료된 2개월분의 Master Vendor Change Report를 확보하여 검토가 매월 수행되었는지 확인해야 한다. (Sun 시스템의 경우: 성명 및 주소, 계정 과목 및 은행 정보 / Navision 시스템의 경우: 공급업체 변동 감사 로그). CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-141 Accounts Payable Supplier Set-Up & Payment"},
+  {"id":9,"section":"AP","risk":"Key","wsEN":"Obtain the payment run report with a listing of all invoice payments for one (1) vendor payment run from two (2) different months. Verify that the Finance Leader has reviewed and approved the payment run report prior to releasing the amounts for payment. Review and approval is evidenced by the Finance Leader's comments (if any), signature and date on the report.","wsKR":"서로 다른 2개 월의 공급업체 지급 실행 건에서 각 1회분에 해당하는 모든 송장 지급 내역이 포함된 Payment run report(지급 실행 보고서)를 확보해야 한다. 대금 지급을 위해 금액을 송금(release)하기 전에 Finance Leader가 해당 Payment run report를 검토하고 승인했는지 확인해야 한다. 검토 및 승인은 보고서에 기재된 Finance Leader의 의견(있는 경우), 서명 및 날짜로 입증된다.","tsEN":"Obtain two payment run report from different month and verify the control as defined in the Work Step column.","tsKR":"서로 다른 월에서 지급 실행 보고서 2건을 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-141 Accounts Payable Supplier Set-Up & Payment"},
+  {"id":10,"section":"AP","risk":"Key","wsEN":"Validate the review by the Finance Leader (or designee) at month end included a review of all open purchase orders (whether or not they were received) and investigation of any significant aged open PO (i.e. 6 months)  with documented resolution. Ensure that the accrual is only recognized if goods or service have been received/ provided but haven't been invoiced.\nThe “Goods Received Without Invoice” report (or equivalent) was reviewed by the Finance Leader (or designee) and retained as support for the monthly accrual journal entry. \nNote:Open PO report should be run without date filters- i.e. should be run to include all prior months and not just for the current month.","wsKR":"월말 시점에 Finance Leader(또는 지정자)의 검토에 모든 Open purchase order(미결 구매 주문 - 입고 여부 불문)에 대한 검토가 포함되었는지, 그리고 장기 미결 상태인 중요 Open PO(예: 6개월 이상)에 대해 조사하고 그 해결 결과를 문서화했는지 검증해야 한다. Accrual은 물품이나 서비스가 실제로 수령/제공되었으나 아직 송장이 발행되지 않은 경우에만 인식되도록 해야 한다. “Goods Received Without Invoice”(미송장 입고) 보고서(또는 이에 준하는 보고서)를 Finance Leader(또는 지정자)가 검토하고, 이를 월간 Accrual journal entry(미지급 계상 대체분개 전표)의 증빙 자료로 보관해야 한다. (주: Open PO 보고서는 날짜 필터 없이 실행해야 한다. 즉, 당월뿐만 아니라 이전의 모든 월을 포함하여 출력해야 한다.)","tsEN":"Obtain Open PO report and “Goods Received Without Invoice” report for 2 most recent completed months and verify the control as defined in the Work Step column.","tsKR":"가장 최근 완료된 2개월분의 Open PO 보고서와 “Goods Received Without Invoice” 보고서를 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 월을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-142 Accounts Payable Prepayments and Accruals"},
+  {"id":11,"section":"AP","risk":"HR","wsEN":"For purchases above $5,000 USD from a vendor not approved via HSM or corporate program (i.e., a local supplier or supplier without a national contract), three competitive quotes/bids are obtained and be included for reference prior to approval.","wsKR":"HSM 또는 Corporate program(본사 프로그램)을 통해 승인되지 않은 공급업체(예: 로컬 공급업체 또는 전국 계약이 없는 공급업체)로부터 USD 5,000를 초과하여 구매하는 경우, 승인 전에 3곳 이상의 경쟁 견적/입찰서를 확보하여 참조 자료로 첨부해야 한다.","tsEN":"Select 3 purchases above $5,000 USD (PO/Contracts) and verify the control as defined in the Work Step column. If competitive quotes was not conducted, verify HSM approval has been obtained.","tsKR":"USD 5,000를 초과하는 3건의 구매(PO/계약) 건을 선정하여 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. 경쟁 입찰이 진행되지 않은 경우, HSM의 승인을 받았는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-140 Accounts Payable Ordering and Receiving"},
+  {"id":12,"section":"AP","risk":"Key","wsEN":"Confirm the details of the payment run report (i.e. vendor name, amount, bank account, etc.) were reconciled to the vendor invoices.","wsKR":"Payment run report의 세부 내역(즉, 공급업체명, 금액, 은행 계좌 등)이 공급업체 Invoice(송장)와 대조 및 일치되었는지 확인해야 한다.","tsEN":"From the payment run reports obtained,verify the control as defined in the Work Step Column","tsKR":"확보한 Payment run report에서 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-141 Accounts Payable Supplier Set-Up & Payment"},
+  {"id":13,"section":"AP","risk":"Key","wsEN":"Obtain the month-end AP accrual listing for two (2) months. Verify that the Finance Leader (or designee) reviewed and approved the month end AP accrual JV which includes supporting documentation for the accrual amount. The review should include comments and tick marks as evidence of review, verifying that all goods and services received during the month are accurately accrued.","wsKR":"2개월분의 월말 AP accrual listing을 확보해야 한다. Finance Leader(또는 지정자)가 Accrual 금액의 증빙 자료가 포함된 월말 AP accrual JV를 검토하고 승인했는지 확인해야 한다. 해당 검토는 검토의 증거로서 의견(comments) 및 체크 표시(tick marks)를 포함해야 하며, 당월 중 수령한 모든 물품 및 서비스가 정확하게 Accrual 되었음을 검증해야 한다.","tsEN":"Obtain the month-end AP accruals listing for 2 most recent completed months and verify the control as defined in the Work Step column.","tsKR":"가장 최근 완료된 2개월분의 월말 AP accrual listing을 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 월 및 샘플/전표 번호를 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-142 Accounts Payable Prepayments and Accruals"},
+  {"id":14,"section":"AR","risk":"HR","wsEN":"Check that guest and group deposits are maintained in the Property Management System (PMS).","wsKR":"고객 및 단체의 예약 Deposit(보증금)이 Property Management System(PMS - 자산 관리 시스템) 상에서 관리되고 있는지 확인해야 한다.","tsEN":"Select 3 Sales contract and verify the control as defined in the Work Step column.","tsKR":"3건의 판매 계약(Sales contract)을 선정하여 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-122 Accounts Receivable Deposits"},
+  {"id":15,"section":"AR","risk":"HR","wsEN":"The High Balance Report must be checked at least daily with appropriate action taken and be signed / dated by either the Front Office Manager or designee.","wsKR":"High Balance Report(고액 잔액 보고서)는 적어도 매일 확인하여 적절한 조치를 취해야 하며, Front Office Manager(프런트 오피스 매니저) 또는 지정자가 서명하고 날짜를 기재해야 한다.","tsEN":"Select 3 days and obtain High Balance report to verify that the report was reviewed daily by the appropriate Team Member.","tsKR":"3일을 선정하고 High Balance Report를 확보하여 적절한 Team Member에 의해 보고서가 매일 검토되었는지 확인해야 한다.","pol":"FP-OPSFIN-121 Accounts Receivable Billing, Collections, & Payment Receipt"},
+  {"id":16,"section":"AR","risk":"HR","wsEN":"Reconciliation is performed daily between the credit card system settlement totals and revenue stream totals per the PMS/POS systems. Variances are highlighted to Finance Leader and resolved.","wsKR":"신용카드 시스템의 일일 결제 총액과 PMS/POS 시스템에 따른 Revenue(매출) 흐름 총액 간의 Reconciliation(대조)을 매일 수행해야 한다. 차이가 발생하는 경우 Finance Leader에게 보고하고 해결해야 한다.","tsEN":"Select 3 days and verify that credit card reconciliations were performed and variances being resolved.","tsKR":"3일을 선정하여 신용카드 Reconciliation이 수행되었고 차이 내역이 해결되었는지 확인해야 한다.","pol":"FP-OPSFIN-123 Credit Card Balancing, Refunds, & Chargebacks"},
+  {"id":17,"section":"AR","risk":"HR","wsEN":"All Client Accounts with credit facilities are set up in the Accounts Receivable system. If any generic account being used, verify that there is monitoring of the use of the account by Finance.","wsKR":"신용 거래 한도(Credit facilities)가 있는 모든 Client Account(고객 계정)는 Accounts Receivable(외상 매출금) 시스템에 설정되어야 한다. Generic account(공용 계정)를 사용하는 경우, Finance(재경부)에서 해당 계정의 사용을 모니터링하고 있는지 확인해야 한다.","tsEN":"Obtain the AR Accounts Listing (e.g., ARACCNTS in OnQ) and  AR Aging Report generated from the PMS for the most recent month. Select 3 active AR accounts and verify that the client accounts' credit facilities are in place. Also verify that any generic account is properly monitored.","tsKR":"PMS에서 가장 최근 월에 생성된 AR 계정 리스트(예: OnQ의 ARACCNTS) 및 AR Aging Report를 확보해야 한다. 활성화된 3개의 AR 계정을 선정하여 해당 고객 계정의 Credit facility(신용 거래 한도)가 올바르게 설정되어 있는지 확인해야 한다. 또한 Generic account가 적절히 모니터링되고 있는지 확인해야 한다.","pol":"FP-OPSFIN-120 Accounts Receivable Credit Arrangements"},
+  {"id":18,"section":"AR","risk":"HR","wsEN":"A Monthly Credit Meeting is undertaken and the Operations Leader and Finance Leader are present at each meeting to discuss the credit meeting topics per policy which covers review of AR aging, house accounts, group masters, review of previous meeting minutes, etc.  Minutes are taken, showing the team members present.","wsKR":"매월 Credit Meeting(여신 회의)을 개최해야 하며, 매 회의마다 Operations Leader와 Finance Leader가 참석하여 AR aging(외상 매출금 연령 분석), House account(사내 이용 계정), Group master(단체 마스터 계정) 검토, 이전 회의록 검토 등 규정에 따른 Credit meeting 주제를 논의해야 한다. 회의록을 작성하고 참석한 Team Member들을 명시해야 한다.","tsEN":"Obtain the Credit Meeting minutes for 2 most recent completed months and verify the control as defined in the Work Step column.","tsKR":"가장 최근 완료된 2개월분의 Credit Meeting 회의록을 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-120 Accounts Receivable Credit Arrangements"},
+  {"id":19,"section":"AR","risk":"HR","wsEN":"If the refunds are initiated through a credit card terminal, then ensure that Team Members allowed to process refunds in the credit card terminal are sufficiently restricted (i.e. Supervisor or Manager at a minimum).","wsKR":"Refund(환불)가 신용카드 단말기를 통해 진행되는 경우, 신용카드 단말기에서 Refund를 처리할 수 있는 Team Member의 권한이 충분히 제한되어 있는지(즉, 최소 Supervisor 또는 Manager 이상) 확인해야 한다.","tsEN":"Discuss with DOF to understand Credit card terminal setup and obtain the list of TMs authorized to process refunds. Verify the control as defined in the Work Step column.","tsKR":"DOF와의 면담을 통해 신용카드 단말기 설정 현황을 파악하고, Refund 처리 권한이 있는 Team Member 목록을 확보해야 한다. Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-123 Credit Card Balancing, Refunds, & Chargebacks"},
+  {"id":20,"section":"AR","risk":"HR","wsEN":"Deposits are maintained as per policy and agreed contractual terms. Any variations to the policies are approved and documented. Check that political events are fully paid in advance and social events/ promotional conferences have 50% deposit prior to the event.","wsKR":"Deposit(보증금)은 규정 및 합의된 계약 조건에 따라 관리되어야 한다. 규정에서 벗어난 모든 예외 사항은 승인을 받고 문서화해야 한다. 정치 관련 행사는 사전에 전액 선납되어야 하며, 사교 행사 및 판촉 컨퍼런스는 행사 전에 50%의 Deposit이 수납되었는지 확인해야 한다.","tsEN":"Select 3 Sales contract(include the Political events. Social events/promotional conference if passible) and verify the control as defined in the Work Step column.","tsKR":"3건의 판매 계약을 선정하여(가능한 경우 정치 관련 행사, 사교 행사/판촉 컨퍼런스 포함) Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-122 Accounts Receivable Deposits"},
+  {"id":21,"section":"AR","risk":"HR","wsEN":"A independent Finance Team Members( cannot have system access to post refunds to credit cards) is maintaining and auditing a record of all credit card refund.","wsKR":"독립된 Finance Team Member(신용카드로 Refund를 포스팅할 수 있는 시스템 접근 권한이 없는 자)가 모든 신용카드 Refund 내역을 유지 관리하고 Audit(감사)해야 한다.","tsEN":"Obtain the monthly audited credit card refund documents for  2 most recent completed months and verify the control as defined in the Work Step column.","tsKR":"가장 최근 완료된 2개월분의 월간 감사된 신용카드 Refund 서류를 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-123 Credit Card Balancing, Refunds, & Chargebacks"},
+  {"id":22,"section":"AR","risk":"HR","wsEN":"All Credit application forms have a proper credit worthiness evaluation (from the sources defined in the policy) and has been approved as per Credit Approval Matrix prior to the commencement of the stay/ event . One-off credits or exceptions are approved as per policy. All credit application form (authorized by Hotel Management) are on-file.","wsKR":"모든 Credit application form(신용 거래 신청서)은 투숙 또는 행사 시작 전에 규정에 정의된 정보원을 통해 적절한 신용 등급 평가를 거쳐야 하며, 여신 승인 전결 규정(Credit Approval Matrix)에 따라 승인되어야 한다. 일회성 여신 또는 예외 사항은 규정에 따라 승인되어야 한다. 호텔 경영진이 승인한 모든 Credit application form은 서류로 보관되어야 한다.","tsEN":"Select three debtor accounts newly created in this year (including both recurring and one-time customers) from the AR Account Listing and verify their authorized credit application forms as defined in the Work Step column.","tsKR":"AR 계정 리스트에서 올해 새로 개설된 3개의 채무자 계정(정기 고객 및 일회성 고객 모두 포함)을 선정하여, Work Step 열에 정의된 대로 승인된 Credit application form이 구비되어 있는지 확인해야 한다. CPA 검증 목적으로 사용된 AR 리스트의 해당 월과 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-120 Accounts Receivable Credit Arrangements"},
+  {"id":23,"section":"AR","risk":"HR","wsEN":"Annual credit review: Hotel Management is to review the listing of all direct bill clients and confirm if credit should be granted for another annual period. This listing is to be signed by the Finance Leader, Commercial Leader, and General Manager, and kept on file.","wsKR":"Annual credit review(연례 여신 검토): 호텔 경영진은 모든 Direct bill(후불) 고객 리스트를 검토하여 다음 1년 동안 여신을 계속 부여할지 여부를 확정해야 한다. 이 리스트는 Finance Leader, Commercial Leader, 그리고 GM의 서명을 받아 파일로 보관해야 한다.","tsEN":"Obtain the annual credit review documentation and verify that the review include the required information (i.e. approved credit, business volume, and payment history) and approved by the appropriate management.","tsKR":"Annual credit review 서류를 확보하여 해당 검토에 필수 정보(즉, 승인된 여신 한도, 거래 규모, 지급 이력)가 포함되어 있고 적절한 경영진의 승인을 받았는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-120 Accounts Receivable Credit Arrangements"},
+  {"id":24,"section":"AR","risk":"HR","wsEN":"Full credit card details are not maintained on paper or electronically at the hotel. (The only secure place to store full credit card details is in designated fields within PMS which are designed to store full credit card details securely. All credit card authorization forms or other document in DocMX/Email /other location containing full credit card details currently in use must be removed and cannot be used going forward).","wsKR":"전체 신용카드 세부 정보는 호텔 내의 종이 문서나 전자 매체에 보관되어서는 안 된다. (전체 신용카드 정보를 보관할 수 있는 유일하게 안전한 장소는 전체 신용카드 정보를 안전하게 저장하도록 설계된 PMS 내의 지정된 필드뿐이다. 현재 사용 중인 DocMX, 이메일 또는 기타 위치에 전체 신용카드 정보가 포함된 모든 신용카드 승인 서식이나 기타 문서는 복구 불가능하게 삭제해야 하며 향후 사용할 수 없다.)","tsEN":"Understand the process of maintaining credit card details and verify the control as defined in the Work Step column. Sample check 3 Credit Card Authorization forms/POS Receipts to ensure full credit card details is not mentioned.","tsKR":"신용카드 세부 정보의 유지 관리 프로세스를 파악하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. 3건의 신용카드 승인 서식(Credit Card Authorization form)/POS 영수증을 샘플 점검하여 전체 신용카드 세부 정보가 기재되어 있지 않은지 확인해야 한다. CPA 검증 목적으로 테스트 요약을 테스트 노트 필드에 입력해야 한다.","pol":"FP-OPSFIN-124 Credit Card Data Handling"},
+  {"id":25,"section":"AR","risk":"Key","wsEN":"Is the bad debt provision calculation reviewed, approved and dated by the Finance Leader monthly? Any deviations or exceptions from policy are noted on the calculation worksheet and appropriate backup and additional exception approvals are attached. \nNote: 1) Items for consideration should include chargebacks, returned checks, aged house and group accounts (older than current month) where applicable\n2) Confirm that credits were added back to the totals (by aged categories) prior to calculating the reserve amount","wsKR":"Bad debt provision(대손충당금) 계산이 매월 Finance Leader에 의해 검토 및 승인되고 날짜가 기재되었는지 확인해야 한다. 규정에서의 모든 일탈이나 예외 사항은 계산 워크시트에 기록되어야 하며, 적절한 증빙 자료와 추가적인 예외 승인서가 첨부되어야 한다. (주: i) 고려해야 할 항목에는 해당하는 경우 차지백, 부도 수표, 기간이 경과한 House account 및 Group account(당월보다 오래된 계정)가 포함되어야 한다. ii) 충당금 금액을 계산하기 전에 대변 잔액(credits)이 연령별 범주의 총액에 다시 가산되었는지 확인해야 한다.)","tsEN":"Obtain the bad debt provision calculation for 2 most recent completed months, irrespective of whether the provision amount is zero. Verify the controls as defined in the Work Step column.","tsKR":"대손충당금 설정 금액이 ZERO(0)인지 여부와 관계없이, 가장 최근 완료된 2개월분의 대손충당금 계산 내역을 확보해야 한다. Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 월을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-125 Bad Debts Provision & Write-Offs"},
+  {"id":26,"section":"Balance Sheet","risk":"HR","wsEN":"Review all the Clearing Accounts and the ZERO balance accounts with activitie:\ni) Validate all clearing accounts are being used for the purpose they were created, and balances clear the following month. \nii) Confirm movements have been reviewed and proper support and details have been included in the BS account reconciliations for each account.","wsKR":"거래 내역이 존재하는 모든 Clearing Account(일시 대체 계정) 및 잔액이 ZERO(0)인 계정을 검토해야 한다: i) 모든 Clearing account가 개설 목적에 맞게 사용되고 있으며, 잔액이 다음 달에 정산(clear)되는지 검증해야 한다. ii) 계정의 변동 내역이 검토되었고, 각 계정의 BS(대차대조표) 계정 조정 명세서에 적절한 증빙자료와 세부 내역이 포함되어 있는지 확인해야 한다.","tsEN":"From the Balance Sheet reconciliations obtained, verify the control as defined in the Work Step Column.","tsKR":"확보한 Balance Sheet reconciliation에서 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-100	Balance Sheet Account Reconciliations"},
+  {"id":27,"section":"Balance Sheet","risk":"Key","wsEN":"Obtain all of the latest Balance Sheet (BS) account reconciliations available. \ni) Validate that the reconciliations includes a lead sheet with identified variances, appropriate back up and comments\nii) Verify that all reconciliations were reviewed/ approved by an independent person timely with the authority levels provided in FP-OPSFIN-100 (i.e. by Business Day 20 of the subsequent month).","wsKR":"이용 가능한 최신의 Balance Sheet(BS) 계정 조정 명세서를 모두 확보해야 한다. i) 계정 조정 명세서에 파악된 차이 내역, 적절한 증빙 자료 및 의견이 포함된 Lead sheet(총괄표)가 있는지 검증해야 한다. ii) 모든 계정 조정 명세서가 FP-OPSFIN-100에 규정된 권한 수준에 따라 독립적인 담당자에 의해 적시에(즉, 익월 20영업일까지) 검토 및 승인되었는지 확인해야 한다.","tsEN":"From the Balance Sheet reconciliations obtained, verify the control as defined in the Work Step Column.","tsKR":"확보한 Balance Sheet reconciliation에서 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-100	Balance Sheet Account Reconciliations"},
+  {"id":28,"section":"Balance Sheet","risk":"Key","wsEN":"Confirm that the supporting documentation is attached / cross-referenced, sufficient to explain activity / changes and the ending balance agrees to the GL for any BS accounts not specifically reviewed within other Balance Sheet questions. In addition, confirm that the account balances are properly classified as assets and liabilities.","wsKR":"다른 Balance Sheet 관련 점검 항목에서 구체적으로 검토되지 않은 모든 BS 계정에 대하여, 거래 내역 및 변동 사항을 설명하기에 충분한 증빙 자료가 첨부되거나 상호 참조되었는지, 그리고 기말 잔액이 GL(총계정원장)과 일치하는지 확인해야 한다. 또한 계정 잔액이 자산 및 부채로 올바르게 분류되었는지 확인해야 한다.","tsEN":"From the Balance Sheet reconciliations obtained, identify the relevant account and verify the control as defined in the Work Step Column.","tsKR":"확보한 Balance Sheet reconciliation에서 관련 계정을 파악하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트 노츠 필드에 테스트한 월을 입력하고, 이슈가 발견된 경우 해당 계정 번호를 테스트 시트에 명시해야 한다.","pol":"Balance Sheet Guide"},
+  {"id":29,"section":"Balance Sheet","risk":"HR","wsEN":"Review all Accrual accounts and the supporting documentation to validate that the accrual expense are reasonable, and the accrual is only recorded for goods and services received during the month.","wsKR":"모든 Accrual 계정 및 관련 증빙 자료를 검토하여 Accrual 비용 계상이 합리적인지, 그리고 당월 중 수령한 물품 및 서비스에 대해서만 Accrual이 기록되었는지 검증해야 한다.","tsEN":"From the Balance Sheet reconciliations obtained, identify the relevant account and verify the control as defined in the Work Step Column.","tsKR":"확보한 Balance Sheet reconciliation에서 관련 계정을 파악하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트 노츠 필드에 테스트한 월을 입력하고, 이슈가 발견된 경우 해당 계정 번호를 테스트 시트에 명시해야 한다.","pol":"FP-OPSFIN-142 Accounts Payable Prepayments and Accruals"},
+  {"id":30,"section":"Balance Sheet","risk":"HR","wsEN":"Confirm that there are no owner related accounts with aged balances or any other amounts which requires a follow-up. If any, is that be properly supported and reported to regional management?","wsKR":"소유주(Owner) 관련 계정에 장기 미결 잔액이나 후속 조치가 필요한 기타 금액이 없는지 확인해야 한다. 해당하는 금액이 있다면 적절한 증빙 자료가 구비되어 있고 Regional management(지역 경영진)에 보고되었는지 확인해야 한다.","tsEN":"From the Balance Sheet reconciliations obtained, identify the relevant account and verify the control as defined in the Work Step Column.","tsKR":"확보한 Balance Sheet reconciliation에서 관련 계정을 파악하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"Balance Sheet Guide"},
+  {"id":31,"section":"Balance Sheet","risk":"HR","wsEN":"Validate that all Deferred Income Accounts (Memberships, Annual Fees, Attrition and Cancellation, etc.) are properly supported. Review how revenues are recognized to verify appropriateness.","wsKR":"모든 Deferred Income Account(이연수익 계정 - 회원권, 연회비, 위약금 및 취소 수수료 등)에 적절한 증빙 자료가 있는지 검증해야 한다. Revenue가 어떻게 인식되는지 검토하여 그 적절성을 검증해야 한다.","tsEN":"From the Balance Sheet reconciliations obtained, identify the relevant account and verify the control as defined in the Work Step Column.","tsKR":"확보한 Balance Sheet reconciliation에서 관련 계정을 파악하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"SOP-OPSFIN-231 Other Revenue Controls"},
+  {"id":32,"section":"Balance Sheet","risk":"HR","wsEN":"Validate that a detailed schedule exists for tracking Gift Card/ Certificates and is used as support for completion of the applicable balance sheet reconciliations and agrees to the BS account reconciliation lead sheet.","wsKR":"Gift Card/Certificate(기프트 카드/상품권)를 추적하기 위한 세부 명세서가 존재하고, 이것이 해당 Balance sheet reconciliation(대차대조표 계정 조정 명세서)의 완료를 위한 증빙으로 사용되며 BS 계정 조정 Lead sheet와 일치하는지 검증해야 한다.","tsEN":"From the Balance Sheet reconciliations obtained, verify the control as defined in the Work Step Column.","tsKR":"확보한 Balance Sheet reconciliation에서 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-133	Gift Certificates"},
+  {"id":33,"section":"Balance Sheet","risk":"HR","wsEN":"Confirm that Owner Distributions and Contributions are properly supported, communicated and tracked. Verify the basis for distributions and contributions made in the last 30 days. Verify whether the distributions were in accordance with the Management Contract.","wsKR":"Owner Distribution(소유주 배당) 및 Contribution(출자)이 적절히 증빙되고, 소통되며, 추적되고 있는지 확인해야 한다. 최근 30일 이내에 이루어진 Distribution 및 Contribution의 산정 근거를 검증해야 한다. Distribution이 Management Contract(위탁경영 계약서)에 부합하게 이루어졌는지 검증해야 한다.","tsEN":"From the Balance Sheet reconciliations obtained, identify the relevant account and verify the control as defined in the Work Step Column.","tsKR":"확보한 Balance Sheet reconciliation에서 관련 계정을 파악하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"Balance Sheet Guide"},
+  {"id":34,"section":"Balance Sheet","risk":"HR","wsEN":"Validate that all Prepaid/ Depreciation/ Amortization schedules are sufficient in detail to track useful life and deduct applicable consumption of Goods and Services, and cover all the hotel's prepayments. Ensure that that schedule contain the following and be reconciled to the General Ledger monthly.\ni) Description of expense and applicable general ledger code\nii) Supplier\niii) Period which the expense is to be charged over\niv) Total amount, monthly amount charged to the P&L, and remaining prepaid balance","wsKR":"모든 Prepayment(선급비용)/감가상각/무형자산상각 명세서가 내용연수를 추적하고 관련 물품 및 서비스의 소비분을 차감하기에 충분할 정도로 상세하며, 호텔의 모든 선급 항목을 포괄하고 있는지 검증해야 한다. 해당 명세서에 다음 사항이 포함되어 있고 매월 General Ledger(총계정원장)와 대조 일치하는지 확인해야 한다: i) 비용 명세 및 해당 General ledger 코드, ii) 공급업체, iii) 비용이 배분될 기간, iv) 총액, 매월 손익계산서(P&L)에 반영되는 금액 및 남은 Prepayment 잔액.","tsEN":"From the Balance Sheet reconciliations obtained, identify the relevant account and verify the control as defined in the Work Step Column.","tsKR":"확보한 Balance Sheet reconciliation에서 관련 계정을 파악하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트 노츠 필드에 테스트한 월을 입력하고, 이슈가 발견된 경우 해당 계정 번호를 테스트 시트에 명시해야 한다.","pol":"FP-OPSFIN-142 Accounts Payable Prepayments and Accruals"},
+  {"id":35,"section":"Balance Sheet","risk":"HR","wsEN":"Review all Other Receivable Accounts and its reconciliation support to confirm outstanding balances are appropriate and properly documented. Validate that any delinquent other receivable amounts are properly supported and collection protocol is in place.","wsKR":"Other Receivable Account(기타 미수금 계정) 및 해당 조정 증빙 자료를 검토하여 미결 잔액이 적절하고 올바르게 문서화되어 있는지 확인해야 한다. 연체된 기타 미수금 금액에 대해 적절한 증빙이 뒷받침되고 있으며 채권 회수 프로토콜이 마련되어 있는지 검증해야 한다.","tsEN":"From the Balance Sheet reconciliations obtained, identify the relevant account and verify the control as defined in the Work Step Column.","tsKR":"확보한 Balance Sheet reconciliation에서 관련 계정을 파악하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트 노츠 필드에 테스트한 월을 입력하고, 이슈가 발견된 경우 해당 계정 번호를 테스트 시트에 명시해야 한다.","pol":"Balance Sheet Guide"},
+  {"id":36,"section":"Balance Sheet","risk":"HR","wsEN":"Review all the Other Liability Accounts. Validate that the appropriate rationale and support is attached to the reconciliation.","wsKR":"모든 Other Liability Account(기타 부채 계정)를 검토해야 한다. 해당 계정 조정 명세서에 적절한 근거 및 증빙 자료가 첨부되어 있는지 검증해야 한다.","tsEN":"From the Balance Sheet reconciliations obtained, identify the relevant account and verify the control as defined in the Work Step Column.","tsKR":"확보한 Balance Sheet reconciliation에서 관련 계정을 파악하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트 노츠 필드에 테스트한 월을 입력하고, 이슈가 발견된 경우 해당 계정 번호를 테스트 시트에 명시해야 한다.","pol":"Balance Sheet Guide"},
+  {"id":37,"section":"Cash","risk":"Key","wsEN":"Select a sample of 1 EFT for a vendor payment run from two (2) months. Confirm that for each EFT selected, two separate parties initiated and approved the EFT and validate the supporting documentation for the release of the EFT.","wsKR":"2개 월의 공급업체 지급 실행 건에서 각각 1건의 EFT(전자 자금 이체) 샘플을 선정해야 한다. 선정된 각 EFT에 대해 서로 다른 두 당사자가 EFT를 기안(initiate)하고 승인(approve)했는지 확인하고, EFT 집행을 위한 증빙 자료를 검증해야 한다.","tsEN":"Obtain EFT samples to verify the control as defined in the Work Step column.","tsKR":"EFT 샘플을 확보하여 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"Key Controls"},
+  {"id":38,"section":"Cash","risk":"HR","wsEN":"Is each House Fund totaling USD 2k or greater being audited every month? Are at least 50% of House Funds Audited each month? Is each House Fund audited at least once every 3 months (or banked into cash machines and reviewed daily)?","wsKR":"총액이 USD 2,000 이상인 각 House Fund가 매월 실사/감사되고 있는지 확인해야 한다. 매월 전체 House Fund의 최소 50% 이상이 Audit(감사)되는지 확인해야 한다. 각 House Fund가 최소 3개월에 한 번씩 Audit되는지(또는 현금 자동지급기에 입금되어 매일 검토되는지) 확인해야 한다.","tsEN":"Obtain house funds audit sheets for continuous 3 months and verify the control as defined in the Work Step column.","tsKR":"연속된 3개월분의 House fund audit sheet를 확보하여 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-110 House Funds"},
+  {"id":39,"section":"Cash","risk":"HR","wsEN":"Is the cash pick up performed by a professional security firm and/or the bank directly and is this performed at least once per week. Each deposit per day container/tamper proof bag is logged and signed for separately by the armored car service/professional security firm.","wsKR":"현금 수거(호송)가 전문 보안업체 및/또는 은행에 의해 직접 수행되고 있으며 최소 주 1회 이상 수행되는지 확인해야 한다. 매일의 입금용 용기/봉인 백(tamper proof bag)은 현금 수송 차량 서비스/전문 보안업체에 의해 개별적으로 기록되고 서명되어야 한다.","tsEN":"Review the cash collection agreement with the bank or a professional security firm to verify frequency and process.","tsKR":"은행 또는 전문 보안업체와의 현금 수거 계약서를 검토하여 수거 빈도와 프로세스를 확인해야 한다. 샘플 일을 지정하여 은행 입금 수거 프로세스를 현장에서 실사(witness)해야 한다.","pol":"FP-OPSFIN-111 General Cashiering"},
+  {"id":40,"section":"Cash","risk":"HR","wsEN":"Is the General Cashier Report prepared for each day? Also confirm that a separate deposit slip is completed for each day’s total monies and a separate container/tamper proof bag is made for each day’s deposits.","wsKR":"General Cashier Report(총출납원 보고서)가 매일 작성되는지 확인해야 한다. 또한 매일의 총 현금 금액에 대해 별도의 입금 의뢰서(deposit slip)가 작성되고, 매일의 입금액에 대해 별도의 용기/봉인 백이 작성되는지 확인해야 한다.","tsEN":"Select 3 days General cashier reports and bank deposit slip to verify the control as defined in the Work Step column.","tsKR":"3일분의 General cashier report와 은행 입금 의뢰서를 선정하여 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-111 General Cashiering"},
+  {"id":41,"section":"Cash","risk":"Key","wsEN":"Obtain the bank mandate for Electronic Funds Transfer (EFTs) and verify that the individuals authorized to initiate and approve EFTs is appropriate based on the Team Members' role and responsibilities.","wsKR":"EFT(전자 자금 이체)에 대한 Bank mandate(은행 권한 위임장)를 확보하여, EFT를 기안하고 승인할 권한이 있는 개인이 해당 Team Member의 역할 및 책임에 비추어 적절한지 확인해야 한다.","tsEN":"Obtain screenshot of the current e-banking setup for EFT and verify the control as defined in the Work Step Column.","tsKR":"EFT에 대한 현재 전자 뱅킹 설정 스크린샷을 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트 요약을 테스트 노트 필드에 입력해야 한다.","pol":"Key Controls"},
+  {"id":42,"section":"Cash","risk":"HR","wsEN":"All Refunds are done in the same method as the original payment (e.g. cash to cash / credit card to credit card, Wechat/Alipay to Wechat/Alipay, etc.)\nAll credit card refunds are posted to the same credit card number as originally charged and recorded in the PMS.","wsKR":"모든 Refund(환불)는 최초 결제와 동일한 방식(예: 현금은 현금으로, 신용카드는 신용카드로, 위챗/알리페이는 위챗/알리페이로 등)으로 처리되어야 한다. 모든 신용카드 Refund는 최초에 결제되어 PMS에 기록된 것과 동일한 신용카드 번호로 포스팅되어야 한다.","tsEN":"Select 3 refunds from system generate refund report from PMS (e.g. REFUNDRT from OnQ) or DocMX Bill Query/Manual EFT and verify the control as defined in the Work Step column.","tsKR":"PMS에서 생성된 시스템 환불 보고서(예: OnQ의 REFUNDRT) 또는 DocMX Bill Query/수동 EFT에서 3건의 Refund 건을 선정하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-113 Guest Refunds & Paid Outs"},
+  {"id":43,"section":"Financial Close","risk":"HR","wsEN":"Without approval from Regional Finance Director and/or VP of Operations Finance, Operations Area Vice President, Hilton Asset Management, and Owner Relations in writing:\ni) FF&E reserve is only used for funding FF&E purchase \nii) No loans or distributions to any party incurred","wsKR":"RDF 및/또는 VP of Operations Finance, Operations Area Vice President, Hilton Asset Management, 그리고 Owner Relations의 서면 승인이 없는 한 다음 사항이 준수되어야 한다: i) FF&E reserve(적립금)는 오직 FF&E 구매 자금으로만 사용되어야 한다. ii) 어떤 당사자에게도 대여금 지급이나 배당이 발생해서는 안 된다.","tsEN":"Obtain the FF&E bank account reconciliation and FF&E bank account disbursement listing, and verify the control as defined in the Work Step column.","tsKR":"FF&E 은행 계정 조정 명세서와 FF&E 은행 계정 출금 목록(disbursement listing)을 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-103	FFE Reserve Management"},
+  {"id":44,"section":"Financial Close","risk":"Key","wsEN":"Obtain the Trial Balance Reconcilation report between local G/L system to Peoplesoft for two (2) months. Verify that the Finance Leader reviewed the Reconciliation with dated signature and ensure all discrepancies are investigated, documented and resolved before month end close. The final reconciliation file must be submitted to File Exchange by Working Day 4.","wsKR":"로컬 G/L 시스템과 Peoplesoft 간의 Trial Balance Reconciliation(시산표 조정 보고서) 2개월분을 확보해야 한다. Finance Leader가 날짜가 포함된 서명과 함께 Reconciliation을 검토했는지 확인하고, 월말 결제 마감 전에 모든 불일치 사항이 조사, 문서화 및 해결되었는지 확인해야 한다. 최종 조정 파일은 제4영업일(Working Day 4)까지 File Exchange에 제출되어야 한다.","tsEN":"Obtain the Trial Balance Reconcilation for 2 most recent completed months and verify the control as defined in the Work Step column.","tsKR":"가장 최근 완료된 2개월분의 Trial Balance Reconciliation을 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"Key Controls"},
+  {"id":45,"section":"Financial Close","risk":"HR","wsEN":"Cash reconciliations are completed and reviewed by the Finance Leader (or equivalent) on a weekly basis. Confirm that all reconciling items are investigated, resolved and recorded.","wsKR":"Cash reconciliation(현금 대조/은행 계정 조정)은 주 단위로 완료되어야 하며 Finance Leader(또는 이에 준하는 자)의 검토를 받아야 한다. 모든 조정 대상 항목들이 조사, 해결 및 기록되었는지 확인해야 한다.","tsEN":"Obtain 2 week's Bank Reconciliations (one from the current month and another from the previous month) and verify the control as defined in the Work Step column.","tsKR":"2주분의 Bank Reconciliation(하나는 당월분, 다른 하나는 전월분)을 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"SOP-OPSFIN-201 Bank Account Reconciliations"},
+  {"id":46,"section":"Financial Close","risk":"Key","wsEN":"For the selected month, confirm that the journal entry is reviewed / approved prior to month-end close. Validate that the supporting documentation is attached / cross-referenced, provides a sufficient basis for the journal entry, and agrees to the journal entry amount.\nNote: Check that CheckSCM journals are approved by appropriate and independent personnel.","wsKR":"선정된 월에 대하여, Journal entry(대체분개 전표)가 월말 마감 전에 검토/승인되었는지 확인해야 한다. 증빙 자료가 첨부되거나 상호 참조되었는지, Journal entry의 충분한 근거를 제공하는지, 분개 금액과 일치하는지 검증해야 한다. (주: CheckSCM journal은 적절하고 독립적인 담당자에 의해 승인되었는지 확인해야 한다.)","tsEN":"Select a sample of three (3) journal entries, ensuring at least one (1) is a CheckSCM journal entry, and verify the control as defined in the Work Step column.","tsKR":"최소 1건의 CheckSCM journal entry가 포함되도록 하여 3건의 Journal entry 샘플을 선정하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-101	Journal Entries"},
+  {"id":47,"section":"Financial Close","risk":"HR","wsEN":"Confirm that the variance analysis between the actual count and system balances have been performed by the Finance team and all differences have been investigated and followed up appropriately.  Confirm that the inventory adjustments resulted from inventory count were approved by Finance Leader and adjusted in the applicable month.","wsKR":"실제 재고 조사 실사량과 시스템 잔액 간의 Variance analysis(차이 분석)가 Finance 팀에 의해 수행되었는지, 그리고 모든 차이점이 적절하게 조사되고 후속 조치되었는지 확인해야 한다. 재고 실사로 인해 발생한 Inventory adjustment(재고 조정)가 Finance Leader의 승인을 받았고 해당 월에 조정 반영되었는지 확인해야 한다.","tsEN":"From the inventory counts documentation obtained, review the follow up procedure for variances.","tsKR":"확보한 재고 실사 서류에서 차이 내역에 대한 후속 조치 절차를 검토해야 한다.","pol":"FP-OPSFIN-102 Inventory"},
+  {"id":48,"section":"Financial Close","risk":"HR","wsEN":"The inventory count is performed properly as following:\ni) All counts are to be carried out in pairs (Counter 1 & Counter 2 at minimum): Counter 1 being Storekeeping TM or F&B TM, and Counter 2 being Finance Team Member or independent Team Member as approved by Finance Leader.\nii) the count sheet should list the items to be counted without the quantities pre-populated.\niii) Upon completion of the count, all members of the count team must approve the count sheets to confirm that they agree with the quantities counted and recorded, as evidenced by signature and date. \niv) inventory count result is entered by an independent team member not involved in the physical count.","wsKR":"재고 실사(재고 조사)가 다음과 같이 올바르게 수행되는지 확인해야 한다: i) 모든 실사는 최소 2인 1조(실사자 1 및 실사자 2)로 수행되어야 한다. 실사자 1은 창고 관리 Team Member 또는 F&B Team Member이어야 하며, 실사자 2는 Finance Team Member 또는 Finance Leader가 승인한 독립적인 Team Member이어야 한다. ii) 실사표(count sheet)에는 수량이 미리 입력되지 않은 상태로 실사 대상 품목만 나열되어야 한다. iii) 실사가 완료되면, 실사 팀의 모든 구성원이 서명 및 날짜를 기재하여 실사 및 기록된 수량에 동의함을 실사표상에 승인해야 한다. iv) 재고 실사 결과는 실제 현물 실사에 참여하지 않은 독립적인 Team Member에 의해 시스템에 입력되어야 한다.","tsEN":"Obtain the inventory count documentation (e.g. count sheet, variance report, follow-up, etc.) for one month and verify the control as defined in the Work Step column.","tsKR":"1개월분의 재고 실사 서류(예: 실사표, 차이 보고서, 후속 조치 등)를 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-102 Inventory"},
+  {"id":49,"section":"Financial Close","risk":"HR","wsEN":"A monthly checklist of recurring and standard journals indicating the description/title of the journal entry and the Team Member preparing the Journal Entry is maintained and used to ensure that all recurring and standard Journal Entries are recorded. Confirm that the checklist is signed and dated by the Finance Leader prior to the completion of month-end close.","wsKR":"모든 반복 분개 및 표준 분개 전표가 누락 없이 기록되도록 하기 위해, Journal entry의 내용/제목 및 Journal entry 작성 Team Member를 명시한 '반복 및 표준 분개 전표 월간 체크리스트'를 유지 관리하고 사용해야 한다. 해당 체크리스트가 월말 마감 완료 전에 Finance Leader의 서명 및 날짜 기재와 함께 승인되었는지 확인해야 한다.","tsEN":"Obtain the checklist for 2 most recent completed months and verify that review was performed prior to month-end close.","tsKR":"가장 최근 완료된 2개월분의 체크리스트를 확보하여 월말 마감 전에 검토가 수행되었는지 확인해야 한다.","pol":"FP-OPSFIN-101	Journal Entries"},
+  {"id":50,"section":"Financial Close","risk":"Key","wsEN":"Obtain the two most recent samples of the 012 MPR report and verify that:\ni) Meaningful commentary is indicated for all performance metrics and variances identiĥed in the report, and any material or unusual variances were investigated.\nii) The report is approved by the Finance Leader (or Operations Leader as designee) and retained along with any supporting documentation","wsKR":"가장 최근의 012 MPR(월간 실적 보고서) 보고서 샘플 2건을 확보하여 다음 사항을 검증해야 한다: i) 보고서에서 파악된 모든 실적 지표 및 Variance(차이)에 대해 의미 있는 설명/의견이 기재되어 있는지 확인하고, 모든 중대하거나 비정상적인 Variance에 대해 조사가 이루어졌는지 확인해야 한다. ii) 해당 보고서가 Finance Leader(또는 위임받은 Operations Leader)에 의해 승인되었고 모든 관련 증빙 자료와 함께 보관되어 있는지 확인해야 한다.","tsEN":"Obtain the two most recent samples of 012 MPR reports and verify the control as defined in the Work Step Column.","tsKR":"가장 최근의 012 MPR 보고서 샘플 2건을 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-104 Profit and Loss Variance Analysis and Forecast Review"},
+  {"id":51,"section":"Financial Close","risk":"HR","wsEN":"Confirm that month-end reconciliations are performed per the following minimum guidelines and ensure that evidence of review and approval by the Finance Leader (or equivalent) at month-end is retained:\ni) Bank reconciliations cannot be completed by an individual who is a signatory on the account.\nii) The reconciliation format must be “Bank to Book”, i.e., reconciling the general ledger balance to the bank balance.\niii) Include the bank statement or a printout from the electronic banking program as supporting documentation to the reconciliation.\niv) Include a list of outstanding checks. All outstanding checks will be voided after 6 months unless restricted per local banking laws. The Finance Leader is responsible for verifying that the hotel is compliant with all local unclaimed property mandates.\nv) Amounts which have been posted to the general ledger, but are not reflected in the bank account at month-end, must have supporting documentation attached to the reconciliation.\nvi) Amounts on the bank statement which have not been posted to the general ledger before month-end must have supporting documentation attached to the reconciliation.","wsKR":"월말 Reconciliation이 다음의 최소 지침에 따라 수행되는지 확인하고, 월말 결산 시 Finance Leader(또는 이에 준하는 자)의 검토 및 승인 증적이 보관되어 있는지 확인해야 한다: i) Bank reconciliation은 해당 계좌의 서명권자가 작성할 수 없다. ii) 조정 양식은 반드시 “Bank to Book”(은행 잔액에서 장부 잔액으로), 즉 은행 잔액에 총계정원장 잔액을 맞추어 대조하는 방식이어야 한다. iii) 은행 거래명세서 또는 전자 금융 프로그램의 출력물을 Reconciliation의 대조 증빙 자료로 포함해야 한다. iv) 미결제 수표(outstanding checks) 목록을 포함해야 한다. 모든 미결제 수표는 현지 은행법에 따른 제한이 없는 한 6개월 후에 무효 처리되어야 한다. Finance Leader는 호텔이 미청구 자산에 관한 모든 현지 법적 명령을 준수하고 있는지 확인할 책임이 있다. v) 총계정원장에는 전기되었으나 월말 시점에 은행 계좌에 반영되지 않은 금액은 Reconciliation에 증빙 자료를 첨부해야 한다. vi) 월말 전에 총계정원장에는 전기되지 않은 은행 거래명세서상의 금액은 Reconciliation에 증빙 자료를 첨부해야 한다.","tsEN":"Obtain the month-end Bank Reconciliation documentation for one most recent month and verify the control as defined in the Work Step column.","tsKR":"가장 최근 1개월분의 월말 Bank Reconciliation 서류를 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"SOP-OPSFIN-201 Bank Account Reconciliations"},
+  {"id":52,"section":"Financial Close","risk":"Key","wsEN":"Hotel Management should conduct P&L Meetings monthly to review the prior month’s results and discuss the topics per policy required. Minutes summarizing the attendees (with mandatory attendance of the Finance Leader and Operation Leader), discussions, decisions, and action items should be recorded during the meeting and documented by month-end. These records, including any supporting documentation, should be retained.","wsKR":"호텔 경영진은 매월 P&L Meeting(손익 검토 회의)을 개최하여 전월 실적을 검토하고 규정에서 요구하는 주제를 논의해야 한다. 참석자(Finance Leader 및 Operations Leader 참석 필수), 논의 사항, 결정 사항 및 Action item(조치 항목)을 요약한 회의록을 회의 중에 기록하고 월말까지 문서화해야 한다. 증빙 자료를 포함한 이러한 기록들은 보관되어야 한다.","tsEN":"Obtain the P&L meeting minutes for 2 most recent completed months and verify the control as defined in the Work Step column.","tsKR":"가장 최근 완료된 2개월분의 P&L Meeting 회의록을 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-104 Profit and Loss Variance Analysis and Forecast Review"},
+  {"id":53,"section":"ITGC","risk":"Key","wsEN":"Access rights are removed within 48 hours when no longer required by a user due to a position change or separation from the Company.","wsKR":"직무 변경이나 퇴사로 인해 사용자의 접근 권한이 더 이상 필요하지 않게 된 경우, 48시간 이내에 해당 접근 권한이 제거되는지 확인해야 한다.","tsEN":"Obtain 3 sample user termination forms from the past 2 months and verify the control as defined in the Work Step column. Also, obtain 2 samples of the weekly \"catch-all\" from the previous month to confirm that this practice is in place.","tsKR":"지난 2개월 이내의 퇴사자 양식(user termination forms) 3건을 샘플로 확보하여 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. 또한, 전월의 주간 'catch-all' 샘플 2건을 확보하여 이 관행이 정상적으로 정착되어 작동하고 있는지 확인해야 한다.","pol":"IT General Controls"},
+  {"id":54,"section":"ITGC","risk":"Key","wsEN":"Review the generic users accounts for all following applicable systems: GL System, OnQ OA, Payroll System, PROPPLAN, POS, PMS, Procurement System, DocMX and Bank Portal.\nIf there is any generic user, validate that business justification and proper approvals are in place. Generic user should only be for Vendor Support/ troubleshoot and not accessible by the property.","wsKR":"다음의 모든 해당 시스템에 대하여 Generic user account(공용 사용자 계정)를 검토해야 한다: GL 시스템, OnQ OA, 급여 시스템, PROPPLAN, POS, PMS, 구매 시스템, DocMX 및 은행 포털. 만약 Generic user가 존재한다면 업무상 정당한 사유가 있고 적절한 승인을 받았는지 검증해야 한다. Generic user는 벤더사 지원/트러블슈팅 목적으로만 사용되어야 하며, 호텔 현장(property)에서 접근할 수 없어야 한다.","tsEN":"Obtain the latest Quarterly User Access Review (for applications not included in IDM - Hotel UAR Certification),  verify the control as defined in the Work Step Column.","tsKR":"IDM에 포함되지 않은 애플리케이션에 대한 최신의 분기별 사용자 접근 권한 검토 자료(Hotel UAR Certification)를 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"IT General Controls"},
+  {"id":55,"section":"ITGC","risk":"Key","wsEN":"Validate that the system generated reports are used for User Access Review, validate that access to the systems, including user profile group assigned, are correct and has been reviewed and approved by the application owner for all following applicable systems: GL System, OnQ OA, Payroll System, PROPPLAN, POS, PMS, Procurement System, DocMX and Bank Portal. Note: Please refer to the UAR Guide for the applicable system generated reports.","wsKR":"User Access Review(UAR - 사용자 접근 권한 검토)에 시스템 생성 보고서가 사용되는지 검증하고, 할당된 사용자 프로필 그룹을 포함하여 해당 시스템에 대한 접근 권한이 올바른지 확인해야 하며, 다음의 모든 해당 시스템에 대해 애플리케이션 소유자(Application Owner)의 검토 및 승인을 받았는지 검증해야 한다: GL 시스템, OnQ OA, 급여 시스템, PROPPLAN, POS, PMS, 구매 시스템, DocMX 및 은행 포털. (주: 해당 시스템 생성 보고서는 UAR 가이드를 참조할 것.)","tsEN":"Obtain the latest Quarterly User Access Review (for applications not included in IDM - Hotel UAR Certification),  verify the control as defined in the Work Step Column.","tsKR":"IDM에 포함되지 않은 애플리케이션에 대한 최신의 분기별 사용자 접근 권한 검토 자료(Hotel UAR Certification)를 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"IT General Controls"},
+  {"id":56,"section":"ITGC","risk":"Key","wsEN":"Validate that the UAR reviewer(s) are not also system administrators for all following applicable systems: GL System, OnQ OA, Payroll System, PROPPLAN, POS, PMS, Procurement System,  DocMX and Bank Portal. Note: Please validate that the UARs for OA and PROPPLAN are reviewed by either AFC or GM.","wsKR":"다음의 모든 해당 시스템에 대하여 UAR(사용자 접근 권한 검토) 검토자가 시스템 관리자(System Administrator)를 겸임하고 있지 않은지 검증해야 한다: GL 시스템, OnQ OA, 급여 시스템, PROPPLAN, POS, PMS, 구매 시스템, DocMX 및 은행 포털. (주: OA 및 PROPPLAN에 대한 UAR은 재경부장 또는 GM이 검토하는지 검증할 것.)","tsEN":"Obtain the latest Quarterly User Access Review (for applications not included in IDM - Hotel UAR Certification),  verify the control as defined in the Work Step Column.","tsKR":"IDM에 포함되지 않은 애플리케이션에 대한 최신의 분기별 사용자 접근 권한 검토 자료(Hotel UAR Certification)를 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"IT General Controls"},
+  {"id":57,"section":"ITGC","risk":"Key","wsEN":"Validate the latest Quarterly User Access Review (UAR) is completed. Confirm the review was completed timely (within the first 15 days days of subsequent month to the quarter end) for all following applicable systems: GL System, OnQ OA, Payroll System, PROPPLAN, POS, PMS, Procurement System, DocMX and Bank Portal.","wsKR":"최신의 분기별 User Access Review(UAR)가 완료되었는지 검증해야 한다. 다음의 모든 해당 시스템에 대하여 검토가 적시에(분기 종료 후 익월 첫 15일 이내) 완료되었는지 확인해야 한다: GL 시스템, OnQ OA, 급여 시스템, PROPPLAN, POS, PMS, 구매 시스템, DocMX 및 은행 포털.","tsEN":"Obtain the latest Quarterly User Access Review,  verify the control as defined in the Work Step Column.","tsKR":"최신의 분기별 사용자 접근 권한 검토 자료를 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"IT General Controls"},
+  {"id":58,"section":"MA Compliance","risk":"HR","wsEN":"Is hotel's FF&E bank account and funding in full compliance with MA/BAMA? \ni) a dedicated bank account has been established as per MA,\nii) the applicable FF&E reserve accounts are funded per the Management or Lease Agreement,\niii) the balance of the FF&E bank account is regularly reconciled with the corresponding BS account andand promptly investigate any variances.","wsKR":"호텔의 FF&E 은행 계좌 및 자금 적립이 위탁경영계약(MA)/BAMA에 완전히 준수되고 있는지 확인해야 한다: i) MA에 따라 전용 은행 계좌가 개설되어 있는지, ii) 위탁경영 또는 임대차 계약에 따라 해당 FF&E 적립 계좌에 자금이 기여(fund)되어 있는지, iii) FF&E 은행 계좌의 잔액이 대응하는 BS 계정과 정기적으로 대조 일치되며 차이가 발생 시 즉시 조사되는지 확인해야 한다.","tsEN":"Identify the MA terms on FF&E and verify that the hotel's FF&E bank account setup and manage as per MA.","tsKR":"FF&E에 관한 MA 조항을 파악하고, 호텔의 FF&E 은행 계좌가 MA에 따라 설정 및 관리되고 있는지 확인해야 한다. CPA 검증 목적으로 테스트 요약을 테스트 노트 필드에 입력해야 한다.","pol":"Management Agreement"},
+  {"id":59,"section":"MA Compliance","risk":"HR","wsEN":"Confirm that no direct payments outside the scope of the MA have been made by the owner from the Bank account in the last 12 months?","wsKR":"지난 12개월 동안 소유주(Owner)가 MA(위탁경영계약) 범위 외의 직접 지급을 은행 계좌에서 처리하지 않았는지 확인해야 한다.","tsEN":"Review the Balance Sheet Account balances relating to owner (i.e. owner distribution, receivable from owner, etc.)  to identify any payment made by owner from the bank account or any payments to vendors on behalf of the owners.","tsKR":"소유주와 관련된 Balance Sheet 계정 잔액(즉, 소유주 배당, 소유주로부터의 미수금 등)을 검토하여 소유주가 은행 계좌에서 직접 지급한 내역이나 소유주를 대신하여 벤더에게 지급한 내역이 있는지 파악해야 한다.","pol":"Red Flag Report"},
+  {"id":60,"section":"MA Compliance","risk":"HR","wsEN":"Review the current list of authorized bank signatories and confirm the members of each Group are appropriate and there are no employees who should not be an authorized signatory. Also, confirm that payments approval is in accordance with the Management Agreement, e.g. Owner approval is not required or practice unless guided by the MA.","wsKR":"현재의 은행 서명 권한자 명단을 검토하여 각 그룹의 구성원이 적절한지, 서명 권한자가 되어서는 안 되는 직원이 포함되어 있지 않은지 확인해야 한다. 또한 지급 승인이 MA(위탁경영계약)에 부합하게 이루어지는지 확인해야 한다. 예를 들어, MA의 지침이 없는 한 소유주(Owner) 승인은 요구되지 않거나 관행으로 시행되지 않아야 한다.","tsEN":"Obtain the current list of authorized bank signatories (issued by the bank) for all operational bank accounts and verify the control as defined in the Work Step Column.","tsKR":"모든 운영 은행 계좌에 대해 (은행에서 발행한) 현재의 승인된 은행 서명 권한자 명단을 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"Management Agreement"},
+  {"id":61,"section":"MA Compliance","risk":"HR","wsEN":"Is FF&E provision/treatment made as per MA/BAMA FF&E concept and recorded in the books per regional FF&E accounting treatment guideline?","wsKR":"FF&E 충당금 적립 및 처리가 MA/BAMA의 FF&E 개념에 따라 이루어지고 있으며, 지역 FF&E 회계 처리 가이드라인에 따라 장부에 기록되고 있는지 확인해야 한다.","tsEN":"Obtain the latest MA/BAMA FF&E terms to confirm the applicable FF&E concept. Select 2 months to verify FF&E provision has been calculated correctly, and all GL entries & BS related accounts were recorded correctly per regional guideline.","tsKR":"최신의 MA/BAMA FF&E 조항을 확보하여 해당 FF&E 개념을 확인해야 한다. 2개 월을 선정하여 FF&E 충당금이 정확하게 계산되었는지, 그리고 모든 GL 전표 및 BS 관련 계정이 지역 가이드라인에 따라 올바르게 기록되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"Management Agreement"},
+  {"id":62,"section":"Management","risk":"HR","wsEN":"Review that the hotel has obtained adequate licenses required for hotel operations (e.g. liquor license, hazardous waste management, e-waste management, air/ water license, Fire NOC, etc.","wsKR":"호텔 운영에 필요한 적절한 허가 및 면허(예: 주류 판매 허가, 지정폐기물 관리, 전자폐기물 관리, 대기/수질 인허가, 소방안전증명서 등)를 취득했는지 검토해야 한다.","tsEN":"Obtain the list of required licenses by the hotel and verify the control as defined in the Work Step Column.","tsKR":"호텔에서 요구하는 필수 허가 및 면허 목록을 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"General Control Environment"},
+  {"id":63,"section":"Management","risk":"Key","wsEN":"i) Check that the SOD matrix is completed by the Finance Leader or ADOF semi-annually (Q2 and Q4), or when a change in role / duty occurs, to ensure proper segregation of duties throughout the fiscal year.\nii) Review the latest SOD matrix and check that the activities are divided / segregated to reduce the risk of error or inappropriate actions. For conflicting duties, review that the compensating plan has been approved by the RFD.","wsKR":"i) 회계연도 전반에 걸쳐 올바른 직무 분리가 유지되도록 SOD(직무분장) 매트릭스가 Finance Leader 또는 ADOF에 의해 연 2회(2분기 및 4분기) 또는 역할/직무 변동 발생 시 작성되는지 확인해야 한다. ii) 최신 SOD 매트릭스를 검토하여 오류나 부적절한 행위의 위험을 줄이기 위해 업무가 제대로 분담/분리되어 있는지 확인해야 한다. 직무 상충이 있는 경우, 보완적인 통제 계획이 RDF에 의해 승인되었는지 검토해야 한다.","tsEN":"Obtain the last two completed SOD matrix and  verify the control as defined in the Work Step Column.","tsKR":"최근 완료된 두 건의 SOD 매트릭스를 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"Key Controls"},
+  {"id":64,"section":"Payroll","risk":"HR","wsEN":"Search for duplicate bank accounts is done as part of the Payroll Change Report review and any instances noted are investigated.","wsKR":"Payroll Change Report(급여 변동 보고서) 검토의 일환으로 중복된 은행 계좌에 대한 조사가 수행되고 있으며, 발견된 모든 사례에 대해 조사가 이루어지는지 확인해야 한다.","tsEN":"From the Payroll Change Reports obtained above, and verify the control as defined in the Work Step Column.","tsKR":"위에서 확보한 Payroll Change Report를 바탕으로 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-150	Payroll Controls"},
+  {"id":65,"section":"Payroll","risk":"Key","wsEN":"Review the Payroll Change Report for one (1) pay period from two (2) months and confirm that the Payroll Change Report was reviewed and approved by the Finance Leader. All payroll records must be kept in a secured and locked location, with access restricted to authorized Team Members (i.e., Finance, Human Resources, etc.).","wsKR":"2개 월 이내의 1개 급여 지급 기간에 대한 Payroll Change Report(급여 변동 보고서)를 검토하고, 해당 보고서가 Finance Leader에 의해 검토 및 승인되었는지 확인해야 한다. 모든 급여 기록은 권한이 부여된 Team Member(즉, 재경부, 인사부 등)로 접근이 제한된 안전하고 잠금장치가 있는 장소에 보관되어야 한다.","tsEN":"ENTER SAMPLES TESTED IN TEST SHEET FOR CPA VALIDATION PURPOSE","tsKR":"CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-150	Payroll Controls"},
+  {"id":66,"section":"Payroll","risk":"Key","wsEN":"All payroll changes (starters, leavers, pay / salary increases, bank detail changes, etc.) on the Payroll Change Report agree to the approved change forms / Personnel Action Forms (PAFs), etc. Any discrepancies between the Payroll Change Report and supporting documentation are documented and resolved before the subsequent pay period end.","wsKR":"Payroll Change Report(급여 변동 보고서)에 기록된 모든 급여 변경 사항(신규 입사자, 퇴사자, 급여/급료 인상, 은행 계좌 정보 변경 등)이 승인된 변동 신청서/인사 발령 서식 등과 일치하는지 확인해야 한다. Payroll Change Report와 증빙 서류 간의 모든 불일치 사항은 문서화되어야 하며 다음 급여 지급 기간이 종료되기 전에 해결되어야 한다.","tsEN":"From the Payroll Change Reports obtained above, select 5 changes from each report and verify the control as defined in the Work Step Column.","tsKR":"위에서 확보한 Payroll Change Report에서 보고서당 5개의 변경 사항을 선정하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-150	Payroll Controls"},
+  {"id":67,"section":"Payroll","risk":"Key","wsEN":"Review the Payroll Register(or equivant report) for each pay period from two (2) months and confirm that payroll Register was reviewed and approved by the Finance Leader (or designee) prior to authorizing the release for payment.","wsKR":"2개 월 이내의 각 급여 지급 기간에 대한 Payroll Register(급여 대장 또는 이에 준하는 보고서)를 검토하고, 대금 지급 승인 집행 전에 Finance Leader(또는 지정자)의 검토 및 승인을 받았는지 확인해야 한다.","tsEN":"Obtain the Payroll Register(or equivant report) and verify the control as defined in the Work Step Column.","tsKR":"Payroll Register(또는 이에 준하는 보고서)를 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-150	Payroll Controls"},
+  {"id":68,"section":"Procurement","risk":"HR","wsEN":"Validate that all purchase commitments via purchase orders, contracts, service agreements, leases, or other form of contractual agreement are documented on forms approved by the Legal Department or legal firm approved by Hilton (where available) or have otherwise received Legal approval.","wsKR":"구매 주문서, 계약서, 서비스 계약서, 임대차 계약서 또는 기타 형태의 계약적 합의를 통한 모든 Purchase commitment(구매 확약)가 법무 부서 또는 힐튼이 승인한 법무법인의 승인을 받은 서식으로 문서화되었거나 별도의 법무 승인을 받았는지 검증해야 한다.","tsEN":"For the three contracts selected, verify that the Hilton standard template was used or the agreements were approved by Legal.","tsKR":"선정된 3건의 계약에 대해 힐튼 표준 템플릿이 사용되었는지 또는 법무 부서의 승인을 받았는지 확인해야 한다. 주: 프리 오프닝(개관 전) 기간에 체결된 계약은 테스트에 포함하지 않는다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"HWI-HSM-003 Global Hotel Procurement Policy"},
+  {"id":69,"section":"Procurement","risk":"HR","wsEN":"Where a sole source supplier is used for the purchase of goods/services with a potential total value of US$5,000 or higher (outside of HSM's program), the party responsible for the purchase must notify HSM about why competitive bidding was not performed, include the estimated annual dollar amount of purchases from the supplier.","wsKR":"잠재적 총 가치가 USD 5,000 이상인 물품/서비스 구매 시 단독 소스 공급업체(Sole source supplier - HSM 프로그램 외 항목)를 사용하는 경우, 구매 담당자는 경쟁 입찰을 실시하지 않은 사유를 HSM에 통지해야 하며 해당 공급업체로부터의 예상 연간 구매 금액을 포함해야 한다.","tsEN":"Identify and select 3 purchases which sole supplier is used and verify that there is appropriate documentation and approval.","tsKR":"단독 소스 공급업체가 사용된 3건의 구매 건을 식별 및 선정하고, 적절한 문서화 및 승인이 구비되어 있는지 확인해야 한다. 단독 소스 공급업체와의 기존 구매 내역이 없는 경우, 경영진이 해당 요구사항을 인지하고 있는지 확인해야 한다.","pol":"HWI-HSM-003 Global Hotel Procurement Policy"},
+  {"id":70,"section":"Procurement","risk":"HR","wsEN":"Confirm that all contracts are executed in the name of the Hotel owner and are approved in accordance with the Hotel Operations Approval Matrix (Note exclusions and exceptions). Standard Contract Approval Form should be used as per regional guidelines, where possible.","wsKR":"모든 계약이 호텔 소유주(Owner)의 명의로 체결되었는지 확인하고, Hotel Operations Approval Matrix(호텔 운영 승인 전결 매트릭스)에 따라 승인되었는지 확인해야 한다(제외 조항 및 예외 사항에 유의할 것). 가능한 경우 지역 가이드라인에 따라 표준 계약 승인 서식을 사용해야 한다.","tsEN":"Select 3 high value& high risk active contracts and verify the control as defined in the Work Step Column.","tsKR":"금액이 크고 리스크가 높은 활성화된 계약 3건을 선정하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. 주: 프리 오프닝(개관 전) 기간에 체결된 계약은 테스트에 포함하지 않는다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-146	Hotel Contract Execution and Spending"},
+  {"id":71,"section":"Procurement","risk":"HR","wsEN":"Prior to commencing work, all suppliers must provide Certificates of Insurance evidencing that they are carrying the types of coverage with the limits specified in the applicable contracts and as guided by Hilton Global Provider Insurance Checklist.\nConfirm that either Certificate of Insurance is maintained or waiver is taken from the appropriate authority: High Risk Category - the waiver is taken from Risk Management; Low and medium risk category - the waiver is taken from Regional Finance Director.","wsKR":"업무를 시작하기 전에 모든 공급업체는 관련 계약에 명시된 한도 및 '힐튼 글로벌 제공업체 보험 체크리스트'의 지침에 따른 유형의 보험 보장을 유지하고 있음을 입증하는 보험 증명서(Certificate of Insurance)를 제출해야 한다. 보험 증명서가 보관되어 있거나 적절한 승인 권한자로부터 면제(waiver) 조치를 받았는지 확인해야 한다: 고위험 범주(High Risk Category)의 면제는 리스크 관리 팀에서 승인하며, 저위험 및 중위험 범주의 면제는 RDF로부터 승인받아야 한다.","tsEN":"Select 3 vendors from high risk category and verify that the required insurance coverage and Certificate of Insurance was obtained.","tsKR":"고위험 범주(High risk category)에서 3개의 벤더를 선정하여 필수 보험 보장 범위 및 보험 증명서가 확보되었는지 확인해야 한다. 보험 보장 범위가 힐튼 글로벌 제공업체 보험 체크리스트에 따른 요구 보장 범위보다 낮은 경우, 리스크 범주를 기반으로 면제(waiver)를 받았는지 확인해야 한다. 주: 프리 오프닝(개관 전) 기간에 체결된 계약은 테스트에 포함하지 않는다. CPA 검증 목적으로 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-RM-001 Global Provider Insurance Policy"},
+  {"id":72,"section":"Revenue","risk":"HR","wsEN":"Verify that the reviewed system generated report(s) or a summary of all allowances and adjustments for the day are reviewed and approved periodically by the Operations Leader and Finance Leader, at the minimum, within two weeks period.","wsKR":"당일 발생한 모든 매출 Allowance 및 Adjustment(감면 및 조정) 내역이 담긴 시스템 생성 보고서 또는 요약본이 Operations Leader와 Finance Leader에 의해 최소 2주일 이내의 간격으로 주기적으로 검토 및 승인되는지 확인해야 한다.","tsEN":"Select 3 days to obtain the system generated report of allowances and adjustments, verify the control as defined in the Work Step column.","tsKR":"3일을 선정하여 시스템에서 생성된 Allowance 및 Adjustment 보고서를 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 날짜 및 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-131	Revenue Allowances and Adjustments"},
+  {"id":73,"section":"Revenue","risk":"HR","wsEN":"Confirm that all voids, discounts and entertainment/ duty F&B charges are authorized by the Management within 2 weeks. Verify that the ability to perform voids and discounts in the POS is restricted.","wsKR":"모든 취소(Voids), 할인(Discounts) 및 접대/근무용 식대(Entertainment/duty F&B charges)가 2주 이내에 경영진에 의해 승인되었는지 확인해야 한다. POS 시스템에서 취소 및 할인을 수행할 수 있는 권한이 제한되어 있는지 확인해야 한다.","tsEN":"Select 3 days and verify the control as defined in the Work Step column. Obtain the list of TMs who can perform voids and discounts in POS and verify that it is restricted.","tsKR":"3일을 선정하여 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. POS에서 취소 및 할인을 수행할 수 있는 Team Member 목록을 확보하고 권한이 제한되어 있는지 확인해야 한다.","pol":"FP-OPSFIN-130 Revenue Reconciliation"},
+  {"id":74,"section":"Revenue","risk":"HR","wsEN":"Check the JV for the previous two months to confirm that the credits remaining in the Guest and City ledger are reclassed to a liability account; and any debits in the Advance Deposit ledger are reclassed to an asset account at month-end.","wsKR":"이전 2개월간의 대체분개 전표(JV)를 확인하여 월말 시점에 Guest ledger(객실 원장) 및 City ledger(미수 원장)에 남아 있는 대변 잔액(Credits)은 부채 계정으로 재분류되었는지, 그리고 Advance Deposit ledger(선수 보증금 원장)에 남아 있는 차변 잔액(Debits)은 자산 계정으로 재분류되었는지 확인해야 한다.","tsEN":"Obtain the guest ledger and city ledger reports from PMS for 2 most recent completed months-end and verify the control as defined in the Work Step column.","tsKR":"가장 최근 완료된 2개월분의 월말 PMS 객실 원장(guest ledger) 및 미수 원장(city ledger) 보고서를 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-130 Revenue Reconciliation"},
+  {"id":75,"section":"Revenue","risk":"HR","wsEN":"Rate & Rate Override Report (or similar PMS report) have been reviewed by the Reservations/Revenue Manager (or designee) daily - this is evidenced by signature, date, tick marks and comments. The report is printed after night audit completion to ensure all changes are included.","wsKR":"객실 요금 및 요금 임의 변경 보고서(Rate & Rate Override Report 또는 이와 유사한 PMS 보고서)가 예약/Revenue Manager(또는 지정자)에 의해 매일 검토되고 있는지 확인해야 한다. 이는 서명, 날짜, 체크 표시 및 의견으로 입증된다. 해당 보고서는 모든 변경 사항이 포함되도록 야간 마감(Night Audit)이 완료된 후에 출력되어야 한다.","tsEN":"Select 3 days and verify the control as defined in the Work Step column. Verify that the Rate Report and Rate Override reports are printed AFTER night audit.","tsKR":"3일을 선정하여 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. 요금 보고서(Rate Report) 및 요금 임의 변경 보고서가 야간 마감(Night Audit) '이후'에 출력되었는지 확인해야 한다.","pol":"FP-OPSFIN-130 Revenue Reconciliation"},
+  {"id":76,"section":"Revenue","risk":"Key","wsEN":"Verify that the TM with OA role 414 review the supporting before approving the OA adjustments. Ensure that the supporting documents are retained.","wsKR":"OA(OnQ 시스템)에서 'Role 414' 권한을 가진 Team Member가 OA 조정(Adjustment)을 승인하기 전에 증빙 서류를 검토하는지 확인해야 한다. 해당 증빙 서류가 보관되어 있는지 확인해야 한다.","tsEN":"Select 3 OA Adjustments from different Business Day and verify the control as defined in the Work Step column.","tsKR":"서로 다른 영업일(Business Day)에서 3건의 OA Adjustment를 선정하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"Key Controls"},
+  {"id":77,"section":"Revenue","risk":"HR","wsEN":"Confirm that the system generated reports for all allowances and adjustments processed in PMS and POS is reviewed by the applicable department head (e.g. PMS report by Front Office Manager or designee) by the end of next day. Check that the supporting documents (e.g. guest letter, email, chargeback notification, etc.) for the allowances and adjustments are maintained where possible.","wsKR":"PMS 및 POS에서 처리된 모든 매출 Allowance 및 Adjustment에 대한 시스템 생성 보고서가 익일 업무 마감 전까지 해당 부서장(예: PMS 보고서는 Front Office Manager 또는 지정자)에 의해 검토되었는지 확인해야 한다. Allowance 및 Adjustment에 대한 증빙 서류(예: 고객의 서신, 이메일, 차지백 통지서 등)가 가능한 한 보관되어 있는지 확인해야 한다.","tsEN":"Select 3 days to obtain the system generated report of allowances and adjustments (e.g. 'all voucher report' from OnQ PMS) and verify the control as defined in the Work Step column.","tsKR":"3일을 선정하여 시스템에서 생성된 Allowance 및 Adjustment 보고서(예: OnQ PMS의 'all voucher report')를 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-131	Revenue Allowances and Adjustments"},
+  {"id":78,"section":"Revenue","risk":"HR","wsEN":"Each C&E Function has a Banquet Event Order (BEO) sheet. Reconciliation between the PMS / POS postings and the BEO is performed and discrepancies are documented and followed up to resolution.","wsKR":"각 C&E Function(연회 및 이벤트) 행사별로 Banquet Event Order(BEO - 연회 행사 지시서)가 있어야 한다. PMS/POS에 포스팅된 매출 내역과 BEO 간의 Reconciliation(대조)이 수행되어야 하며 불일치 사항은 문서화되어 해결될 때까지 추적 관리되어야 한다.","tsEN":"Obtain the C&E function tracker (preferably a system generated report) and select 3 high value functions. Verify the control as defined in the Work Step column.","tsKR":"C&E 행사 트래커(가능한 경우 시스템 생성 보고서)를 확보하고 3건의 고액 행사를 선정해야 한다. Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다. CPA 검증 목적으로 해당 월 및 테스트한 샘플을 테스트 시트에 입력해야 한다.","pol":"FP-OPSFIN-130 Revenue Reconciliation"},
+  {"id":79,"section":"Revenue","risk":"HR","wsEN":"The Income Auditor (or equivalent) distributes all duty meal checks or a summary of duty meals and entertainment / promotional F&B charges for approval,within 2 weeks, to the Operations Leader and the Finance Leader, at a minimum. The approved documentation is retained.","wsKR":"Income Auditor(매출 심사원 또는 이에 준하는 담당자)는 모든 Duty meal(근무용 식사) 전표 또는 Duty meal 요약본과 접대/판촉용 식음료 비용 내역을 최소 2주 이내에 Operations Leader와 Finance Leader에게 배포하여 승인을 받아야 한다. 승인된 서류는 보관되어야 한다.","tsEN":"Select 3 days to obtain the summary of duty meals and entertainment / promotional F&B charges,  verify the control as defined in the Work Step column.","tsKR":"3일을 선정하여 근무용 식사 요약본과 접대/판촉용 식음료 비용 내역을 확보하고 Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-132	Entertainment, Promotional, and Duty Meals"},
+  {"id":80,"section":"Revenue","risk":"HR","wsEN":"Verify that rooms provided under trade-out arrangements, promotional packages (e.g., buy two, get one free), or as group contract incentives (e.g., one free room per 50 booked) are not classified as complimentary. These rooms should be classified as one of the revenue categories (transient, group, or contract) and are considered when calculating Occupancy Percentage.","wsKR":"바터 계약(Trade-out arrangement), 판촉 패키지(예: 2박 시 1박 무료), 또는 단체 계약 인센티브(예: 50객실 예약당 1객실 무료)에 따라 제공되는 객실이 Complimentary(무료 객실)로 분류되지 않았는지 확인해야 한다. 이러한 객실은 매출 카테고리(개인, 단체 또는 계약) 중 하나로 분류되어야 하며 객실 가동률(Occupancy Percentage)을 계산할 때 포함되어 산정되어야 한다.","tsEN":"Select 3 sample from group contracts with free rooms/promotion package, or barter agreements. Review the revenue report for the corresponding dates and verify that the controls defined in the Work Step column.","tsKR":"무료 객실/판촉 패키지가 포함된 단체 계약 또는 바터 계약 샘플 3건을 선정해야 한다. 해당 날짜의 Revenue 보고서를 검토하고 Work Step 열에 정의된 통제 절차를 검증해야 한다.","pol":"SOP-OPSFIN-234 Rooms Statistics"}
+];
+
+
+const SECS=['AP','AR','Balance Sheet','Cash','Financial Close','ITGC','MA Compliance','Management','Payroll','Procurement','Revenue'];
+
+const PDF_MAP={
+  'FP-OPSFIN-100':'FP_OPSFIN-100_Balance Sheet Account Reconciliations.pdf',
+  'FP-OPSFIN-101':'FP_OPSFIN-101_Journal Entries(New).pdf',
+  'FP-OPSFIN-102':'FP_OPSFIN-102_Inventory.pdf',
+  'FP-OPSFIN-103':'FP_OPSFIN-103_FFE Reserve Management.pdf',
+  'FP-OPSFIN-104':'FP_OPSFIN-104_Profit and Loss Variance Analysis and Forecast Review.pdf',
+  'FP-OPSFIN-110':'FP_OPSFIN-110_House Funds.pdf',
+  'FP-OPSFIN-111':'FP_OPSFIN-111_General Cashiering.pdf',
+  'FP-OPSFIN-113':'FP_OPSFIN-113_Guest Refunds and Paid Outs.pdf',
+  'FP-OPSFIN-120':'FP_OPSFIN-120_Accounts Receivable Credit Arrangements.pdf',
+  'FP-OPSFIN-121':'FP_OPSFIN-121_Accounts Receivable Billing, Collections, and Payment Receipt.pdf',
+  'FP-OPSFIN-122':'FP_OPSFIN-122_Accounts Receivable Deposits.pdf',
+  'FP-OPSFIN-123':'FP_OPSFIN-123_Credit Card Balancing, Refunds, and Chargebacks.pdf',
+  'FP-OPSFIN-124':'FP_OPSFIN-124_Credit Card Data Handling.pdf',
+  'FP-OPSFIN-125':'FP_OPSFIN-125_Bad Debt Reserve and Write-Offs.pdf',
+  'FP-OPSFIN-130':'FP_OPSFIN-130_Revenue Reconciliation.pdf',
+  'FP-OPSFIN-131':'FP_OPSFIN-131_Revenue Allowances and Adjustments.pdf',
+  'FP-OPSFIN-132':'FP_OPSFIN-132_Entertainment, Promotional, and Duty Meals.pdf',
+  'FP-OPSFIN-133':'FP_OPSFIN-133_Gift Certificates.pdf',
+  'FP-OPSFIN-140':'FP_OPSFIN-140_Accounts Payable Ordering and Receiving.pdf',
+  'FP-OPSFIN-141':'FP_OPSFIN-141_Accounts Payable Supplier Set-Up and Payment(New).pdf',
+  'FP-OPSFIN-142':'FP_OPSFIN-142_Accounts Payable Prepayments and Accruals.pdf',
+  'FP-OPSFIN-143':'FP_OPSFIN-143_Manual Expense Reports and Travel Advance Guidance.pdf',
+  'FP-OPSFIN-144':'FP_OPSFIN-144_Tenant Leases and Concessionaire Agreements.pdf',
+  'FP-OPSFIN-145':'FP_OPSFIN-145_Barter Agreements.pdf',
+  'FP-OPSFIN-146':'FP_OPSFIN-146_Hotel Contract Execution and Spending.pdf',
+  'FP-OPSFIN-150':'FP_OPSFIN-150_Payroll Controls.pdf',
+  'SOP-OPSFIN-201':'SOP-OPSFIN-201_Bank Account Reconciliations.pdf',
+  'SOP-OPSFIN-231':'SOP-OPSFIN-231_Other Revenue Controls.pdf',
+  'SOP-OPSFIN-234':'SOP-OPSFIN-234_Rooms Statistics.pdf'
+};
+
+const PDF_FOLDER='Pollicies%20%26%20Procedures%20(GPIs)/1.%20Hilton%20Policy%20and%20Procedure/';
+
+function getPdfUrl(pol){
+  var code=pol.trim().split(/[\s\t]+/)[0];
+  var f=PDF_MAP[code];
+  if(!f) return null;
+  return PDF_FOLDER+encodeURIComponent(f);
+}
+
+var lang='ko';
+var results={};
+var notes={};
+var samples={};
+var tstamps={};
+var curSec='AP';
+var curFlt='all';
+var curId=null;
+var viewMode='section';
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function getItems(){
+  var items;
+  if(viewMode==='findings'){
+    items=auditData.filter(function(i){return results[i.id]==='no';});
+  } else {
+    items=auditData.filter(function(i){return i.section===curSec;});
+  }
+  if(curFlt==='key') items=items.filter(function(i){return i.risk==='Key';});
+  else if(curFlt==='pend') items=items.filter(function(i){return !results[i.id];});
+  return items;
+}
+
+function buildNav(){
+  var html='';
+  SECS.forEach(function(s){
+    var si=auditData.filter(function(i){return i.section===s;});
+    var done=si.filter(function(i){return results[i.id];}).length;
+    var cls=(viewMode!=='findings'&&curSec===s)?' active':'';
+    html+='<div class="tab'+cls+'" onclick="selSec(\''+s.replace(/'/g,"\\'")+'\')">'
+      +esc(s)+'<span class="tn">'+done+'/'+si.length+'</span></div>';
+  });
+  var nc=auditData.filter(function(i){return results[i.id]==='no';}).length;
+  var fc=(viewMode==='findings')?' active ftab':' ftab';
+  html+='<div class="tab'+fc+'" onclick="selFindings()">Findings'
+    +'<span class="tn" style="'+(nc>0?'background:#fde8ea;color:#dc3545':'')+'">'
+    +nc+'</span></div>';
+  var bsc=(viewMode==='bsguide')?' active ftab':' ftab';
+  html+='<div class="tab'+bsc+'" onclick="selBSGuide()" style="color:#1a2456">BS Guide'
+    +'<span class="tn" style="background:#e8f0fe;color:#1a2456">39</span></div>';
+  document.getElementById('tabs').innerHTML=html;
+}
+
+function updPrg(){
+  var total=auditData.length;
+  var yc=auditData.filter(function(i){return results[i.id]==='yes';}).length;
+  var nc=auditData.filter(function(i){return results[i.id]==='no';}).length;
+  var ac=auditData.filter(function(i){return results[i.id]==='na';}).length;
+  var done=yc+nc+ac;
+  var pct=total?Math.round(done/total*100):0;
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('ptx').textContent=done+' / '+total+' ('+pct+'%)';
+  document.getElementById('ps').innerHTML=
+    '<div class="prg-s"><span class="pdot" style="background:#198754"></span>Yes: '+yc+'</div>'
+    +'<div class="prg-s"><span class="pdot" style="background:#dc3545"></span>No: '+nc+'</div>'
+    +'<div class="prg-s"><span class="pdot" style="background:#6c757d"></span>N/A: '+ac+'</div>'
+    +'<div class="prg-s"><span class="pdot" style="background:#dee2e6"></span>Pending: '+(total-done)+'</div>';
+  // BS Guide separate progress
+  if(typeof bsData!=='undefined'){
+    var bsTotal=bsData.length;
+    var bsYc=bsData.filter(function(i){return bsResults[i.id]==='yes';}).length;
+    var bsNc=bsData.filter(function(i){return bsResults[i.id]==='no';}).length;
+    var bsAc=bsData.filter(function(i){return bsResults[i.id]==='na';}).length;
+    var bsDone=bsYc+bsNc+bsAc;
+    var bsPct=bsTotal?Math.round(bsDone/bsTotal*100):0;
+    var bsPfEl=document.getElementById('bs-pf');
+    var bsPtxEl=document.getElementById('bs-ptx');
+    var bsPsEl=document.getElementById('bs-ps');
+    if(bsPfEl)bsPfEl.style.width=bsPct+'%';
+    if(bsPtxEl)bsPtxEl.textContent=bsDone+' / '+bsTotal+' ('+bsPct+'%)';
+    if(bsPsEl)bsPsEl.innerHTML=
+      '<div class="prg-s"><span class="pdot" style="background:#198754"></span>Yes: '+bsYc+'</div>'
+      +'<div class="prg-s"><span class="pdot" style="background:#dc3545"></span>No: '+bsNc+'</div>'
+      +'<div class="prg-s"><span class="pdot" style="background:#6c757d"></span>N/A: '+bsAc+'</div>'
+      +'<div class="prg-s"><span class="pdot" style="background:#dee2e6"></span>Pending: '+(bsTotal-bsDone)+'</div>';
+  }
+}
+
+function buildLP(){
+  if(viewMode==='bsguide'){buildBSLP();return;}
+  var items=getItems();
+  var html='';
+  if(viewMode==='findings'){
+    if(items.length===0){
+      html='<div style="padding:20px;text-align:center;color:#6c757d;font-size:12px;">No findings (No) yet</div>';
+    } else {
+      var secs=[];
+      items.forEach(function(i){if(secs.indexOf(i.section)===-1)secs.push(i.section);});
+      secs.forEach(function(s){
+        html+='<div class="lsl">'+esc(s)+'</div>';
+        items.filter(function(i){return i.section===s;}).forEach(function(item,idx){html+=mkLI(item,idx+1);});
+      });
+    }
+  } else {
+    if(items.length===0){
+      html='<div style="padding:20px;text-align:center;color:#6c757d;font-size:12px;">No items match filter</div>';
+    } else {
+      items.forEach(function(item,idx){html+=mkLI(item,idx+1);});
+    }
+  }
+  document.getElementById('lp').innerHTML=html;
+  if(curId){var el=document.getElementById('li-'+curId);if(el)el.scrollIntoView({block:'nearest'});}
+}
+
+function mkLI(item,num){
+  var res=results[item.id]||'';
+  var dc,dt;
+  if(res==='yes'){dc='dy';dt='Y';}
+  else if(res==='no'){dc='dn';dt='N';}
+  else if(res==='na'){dc='dna';dt='-';}
+  else{dc='dnone';dt=num||'?';}
+  var bc=item.risk==='Key'?'bk':'bh';
+  var tx=lang==='ko'?item.wsKR:item.wsEN;
+  var lines=tx.split('\n').filter(function(l){return l.trim();});
+  var title=lines[0]||'';
+  if(title.length>75)title=title.substring(0,75)+'...';
+  var ac=(curId===item.id)?' act':'';
+  return '<div class="li'+ac+'" id="li-'+item.id+'" onclick="selItem('+item.id+')">'
+    +'<div class="ldot '+dc+'">'+esc(res?dt:num)+'</div>'
+    +'<div class="lbadge '+bc+'">'+esc(item.risk)+'</div>'
+    +'<div class="ltx">'+esc(title)+'</div>'
+    +'</div>';
+}
+
+function selItem(id){
+  curId=id;
+  buildLP();
+  buildRP();
+}
+
+function buildRP(){
+  if(viewMode==='bsguide'){buildBSRP();return;}
+  var rp=document.getElementById('rp');
+  if(!curId){
+    rp.innerHTML='<div class="empty"><div class="empty-icon">&#128203;</div><div class="empty-tx">Select an item</div></div>';
+    return;
+  }
+  var item=auditData.find(function(i){return i.id===curId;});
+  if(!item){return;}
+  var res=results[item.id]||'';
+  var note=notes[item.id]||'';
+  var samp=samples[item.id]||'';
+  var tst=tstamps[item.id]||'';
+  var wsT=lang==='ko'?item.wsKR:item.wsEN;
+  var tsT=lang==='ko'?item.tsKR:item.tsEN;
+  var wsL=lang==='ko'?'통제 절차 (Work Step)':'Work Step';
+  var tsL=lang==='ko'?'테스트 절차 (Test Step)':'Test Step';
+  var polL=lang==='ko'?'정책 참고':'Policy Reference';
+  var resL=lang==='ko'?'결과':'Result';
+  var sampL=lang==='ko'?'테스트 샘플 (월/건수/전표번호)':'Sample Tested (Month / Count / Ref#)';
+  var noteL=lang==='ko'?'메모 / 발견 사항':'Notes / Findings';
+  var sampPH=lang==='ko'?'예: Apr-May 2026, 3건, JV#1234':'e.g. Apr-May 2026, 3 items, JV#1234';
+  var notePH=lang==='ko'?'발견 사항, 증거 자료, 특이사항...':'Observations, evidence, exceptions...';
+  var pdfUrl=getPdfUrl(item.pol);
+  var pdfBtn=pdfUrl
+    ?'<a href="'+pdfUrl+'" target="_blank" class="btnpdf">&#128196; View Policy PDF</a>'
+    :'<span class="nopdf">No PDF available</span>';
+  var si=auditData.filter(function(i){return i.section===item.section;});
+  var sIdx=si.findIndex(function(i){return i.id===item.id;});
+  var rbg=item.risk==='Key'?'rgba(220,53,69,.25)':'rgba(253,126,20,.25)';
+  var rfc=item.risk==='Key'?'#ff8a93':'#ffc07a';
+  var html='<div class="dcard">'
+    +'<div class="dhdr">'
+    +'<div class="dnum">#'+(sIdx+1)+'</div>'
+    +'<div class="dta"><div class="dsec">'+esc(item.section)
+    +' &bull; <span style="padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;background:'+rbg+';color:'+rfc+'">'+esc(item.risk)+'</span></div></div>'
+    +(tst?'<div class="dts">Tested: '+esc(tst)+'</div>':'')
+    +'</div>'
+    +'<div class="dbody">'
+    +'<div class="fl">'+wsL+'</div>'
+    +'<div class="tbox">'+esc(wsT)+'</div>'
+    +'<div class="fl">'+tsL+'</div>'
+    +'<div class="tbox">'+esc(tsT)+'</div>'
+    +'<div class="fl">'+polL+'</div>'
+    +'<div class="polrow"><span class="poltag">&#128206; '+esc(item.pol)+'</span>'+pdfBtn+'</div>'
+    +'<div class="rssec">'
+    +'<div class="rsrow"><span class="rslbl">'+resL+':</span>'
+    +'<button class="rsb rby'+(res==='yes'?' act':'')+'" onclick="setRes('+item.id+',\'yes\')">Yes</button>'
+    +'<button class="rsb rbn'+(res==='no'?' act':'')+'" onclick="setRes('+item.id+',\'no\')">No</button>'
+    +'<button class="rsb rbna'+(res==='na'?' act':'')+'" onclick="setRes('+item.id+',\'na\')">N/A</button>'
+    +'</div>'
+    +'<div class="irow">'
+    +'<div class="ig igsamp"><label>'+sampL+'</label>'
+    +'<input type="text" value="'+esc(samp)+'" placeholder="'+esc(sampPH)+'" oninput="setSamp('+item.id+',this.value)"></div>'
+    +'<div class="ig ignotes"><label>'+noteL+'</label>'
+    +'<textarea placeholder="'+esc(notePH)+'" oninput="setNote('+item.id+',this.value)">'+esc(note)+'</textarea></div>'
+    +'</div>'
+    +'</div></div></div>';
+  rp.innerHTML=html;
+}
+
+function selSec(s){
+  viewMode='section'; curSec=s; curFlt='all';
+  document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('act','kact');});
+  document.getElementById('flt-all').classList.add('act');
+  buildNav(); buildLP();
+  var items=getItems();
+  if(items.length>0){
+    if(!curId||!items.find(function(i){return i.id===curId;}))selItem(items[0].id);
+    else buildRP();
+  } else {curId=null;buildRP();}
+}
+
+function selFindings(){
+  viewMode='findings'; curFlt='all';
+  buildNav(); buildLP();
+  var items=getItems();
+  if(items.length>0)selItem(items[0].id);
+  else{curId=null;buildRP();}
+}
+
+function setFlt(f){
+  curFlt=f;
+  document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('act','kact');});
+  var b=document.getElementById('flt-'+f);
+  if(b)b.classList.add(f==='key'?'kact':'act');
+  buildLP();
+  var items=getItems();
+  if(items.length>0&&!items.find(function(i){return i.id===curId;}))selItem(items[0].id);
+  else buildRP();
+}
+
+function setRes(id,val){
+  if(results[id]===val){
+    delete results[id];
+    delete tstamps[id];
+  } else {
+    results[id]=val;
+    if(!tstamps[id]){
+      var d=new Date();
+      var pad=function(n){return n<10?'0'+n:''+n;};
+      tstamps[id]=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+    }
+  }
+  save(); updPrg(); buildNav(); buildLP(); buildRP();
+}
+
+function setNote(id,val){notes[id]=val;saveDbc();}
+function setSamp(id,val){samples[id]=val;saveDbc();}
+
+var _st=null;
+function saveDbc(){clearTimeout(_st);_st=setTimeout(save,900);}
+
+function save(){
+  try{
+    var d={results:results,notes:notes,samples:samples,tstamps:tstamps,
+      bsResults:bsResults,bsChecks:bsChecks,bsNotes:bsNotes,
+      hotel:{hotel:document.getElementById('hi-hotel').value,
+             date:document.getElementById('hi-date').value,
+             auditor:document.getElementById('hi-auditor').value,
+             period:document.getElementById('hi-period').value}};
+    localStorage.setItem('cpa2026v2',JSON.stringify(d));
+    var si=document.getElementById('si');
+    si.textContent='✓ Saved';
+  }catch(e){}
+}
+function saveHI(){saveDbc();}
+
+function loadStore(){
+  try{
+    var raw=localStorage.getItem('cpa2026v2');
+    if(!raw)return;
+    var d=JSON.parse(raw);
+    results=d.results||{};notes=d.notes||{};samples=d.samples||{};tstamps=d.tstamps||{};
+    bsResults=d.bsResults||{};bsChecks=d.bsChecks||{};bsNotes=d.bsNotes||{};
+    if(d.hotel){
+      ['hotel','date','auditor','period'].forEach(function(k){
+        var el=document.getElementById('hi-'+k);
+        if(el&&d.hotel[k])el.value=d.hotel[k];
+      });
+    }
+  }catch(e){}
+}
+
+function toggleLang(){
+  lang=lang==='ko'?'en':'ko';
+  document.getElementById('lang-btn').textContent=lang==='ko'?'KO':'EN';
+  buildLP(); buildRP();
+}
+
+function resetAll(){
+  if(!confirm('Reset all results? This cannot be undone.'))return;
+  results={};notes={};samples={};tstamps={};
+  bsResults={};bsChecks={};bsNotes={};
+  save(); updPrg(); buildNav(); buildLP();
+  curId=null; buildRP();
+}
+
+function exportCSV(){
+  var hotel=document.getElementById('hi-hotel').value||'Hotel';
+  var date=document.getElementById('hi-date').value||new Date().toISOString().slice(0,10);
+  var BOM='﻿';
+  var hdr=['No','Section','Risk','Work Step (EN)','Test Step (EN)','Policy Reference','Result','Sample Tested','Notes'].join(',');
+  var rows=[hdr];
+  auditData.forEach(function(item,idx){
+    var res=results[item.id]||'';
+    var nt=(notes[item.id]||'').replace(/"/g,'""').replace(/[\r\n]+/g,' ');
+    var sp=(samples[item.id]||'').replace(/"/g,'""');
+    var we=item.wsEN.replace(/"/g,'""').replace(/[\r\n]+/g,' ');
+    var te=item.tsEN.replace(/"/g,'""').replace(/[\r\n]+/g,' ');
+    var po=item.pol.replace(/"/g,'""');
+    rows.push([idx+1,'"'+item.section+'"','"'+item.risk+'"','"'+we+'"','"'+te+'"','"'+po+'"','"'+res+'"','"'+sp+'"','"'+nt+'"'].join(','));
+  });
+  var csv=BOM+rows.join('\r\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download='CPA2026_'+hotel.replace(/\s+/g,'_')+'_'+date+'.csv';
+  a.click();URL.revokeObjectURL(url);
+}
+
+
+// ===== BS GUIDE STATE =====
+var bsResults={};
+var bsChecks={};
+var bsNotes={};
+var curBsId=null;
+
+// ===== BS GUIDE DATA =====
+var bsData=[
+  {id:'bs1',num:1,cat:'ASSETS',title:'House Funds',account:'',policy:['FP-OPSFIN-110'],
+   risk:'현금 부정(Cash Fraud)',
+   docs:['House Fund Reconciliation Summary Sheet','당월 실시된 모든 spot check의 count sheet가 포함된 요약본','House Fund / Revolving Fund 계약서 (매월 첨부 대신 보관 위치 cross-reference 가능)'],
+   checks:['House Fund 계약서의 합산 금액이 GL의 House Fund 계정 잔액과 일치하는가','Revolving House Fund handover sheet(count sheet)를 확인하고, 인수인계 cashier의 서명이 모두 있는가','Cash drop log 또는 user permission list에서 2~3명의 cashier를 선택하여 해당 인원의 House Fund 계약서를 직접 확인하였는가','USD 2,000 이상의 House Fund를 보유한 모든 Team Member는 당월 중 count가 완료되었는가','전체 House Fund의 최소 50% 이상이 당월 내에 count되었으며, 모든 Team Member가 3개월 이내에 최소 1회 count되었는가','House Fund 계약서의 유효기간이 2년을 초과하지 않는가','Spot check에서 발생한 부족분(shortage) 또는 초과분(overage)이 합리적으로 설명되어 있으며, 의심스러운 사항은 Finance Leader에게 즉시 보고되었는가','GSM House Fund의 임시 차용 기록이 있는가, FO/F&B House Fund가 임시 구매에 사용된 경우 기록이 있는가','Revolving Fund를 사용하는 경우, RFD가 승인한 서면 운영 절차(operating procedure)가 있는가']},
+  {id:'bs2',num:2,cat:'ASSETS',title:'Bank Accounts',account:'',policy:['SOP-OPSFIN-201'],
+   risk:'현금 부정(Cash Fraud), 제한/비제한 현금 오분류',
+   docs:['전자 뱅킹 프로그램의 은행 명세서 또는 출력본','Bank Reconciliation Sheet','모든 미조정 항목(reconciling items)에 대한 설명 및 증빙'],
+   checks:['Bank reconciliation은 매주 완료되고 Finance Leader(또는 동급 직위)가 검토하였는가','은행 명세서 또는 전자 뱅킹 출력본이 해당 월의 마지막 날까지 업데이트되어 있는가','30일을 초과하여 이월된 미조정 항목(unresolved reconciling items)이 없는가 (있는 경우 지연 사유에 대한 상세 설명 필수)','Bank reconciliation이 해당 계좌의 서명권자(signatory)가 아닌 별도 담당자에 의해 작성되었는가','FF&E reserve가 Management Agreement에 따라 별도 은행 계좌에 적립되어 있는가','FF&E 은행 계좌 잔액과 FF&E reserve 금액 간의 reconciliation이 완료되었는가','FF&E 자금을 Owner 대여 또는 Owner의 FF&E 자금 차용에 사용하는 경우 RFD의 승인을 받았는가','호텔의 금융 상품 또는 수익성 상품 구매는 RFD의 승인을 받았는가']},
+  {id:'bs3',num:3,cat:'ASSETS',title:'AR WeChat / Alipay',account:'',policy:[],
+   risk:'미수금 미회수, 불규칙한 환불',
+   docs:['호텔 내 모든 WeChat/Alipay 계정의 스크린샷','당월 WeChat/Alipay 계정 상세 내역 및 월말 잔액 보고서','미조정 항목이 있는 경우 사유 설명 및 후속 조치 내역'],
+   checks:['WeChat/Alipay 계정의 일별 정산 금액과 PMS 결제 수단별 금액이 매일 일치하는가. 차이가 있는 경우 DOF/FM에게 보고하고 후속 조치가 진행되었는가','GL의 계정 잔액이 실제 WeChat/Alipay 잔액과 일치하는가','Guest ledger, City ledger, Guest advance payment이 적시에 정산되었는가','환불은 최초 결제에 사용된 동일한 WeChat/Alipay 계정으로만 처리되었는가','미청구(unclaimed), 장기 미사용, 환불 대기 잔액 등 미처리 잔액을 확인하였는가. 해당 잔액은 호텔 local SOP에 따라 Deposit-payable 계정으로 이체하거나 수익 인식하였는가']},
+  {id:'bs4',num:4,cat:'ASSETS',title:'AR Guest Ledger',account:'121010',policy:['FP-OPSFIN-121'],
+   risk:'장기 미결제 잔액, Credit balance 미재분류, 체크아웃 후 City Ledger로 미이동 계정',
+   docs:['Group Master Balance Summary Report','House Account Balance Summary','Room Balance Summary','Detail Receivable Recap','Credit reclass journal (해당하는 경우)'],
+   checks:['GL 시스템 잔액이 PMS의 type별 잔액과 reconcile되었는가. 차이가 있는 경우 원인 조사가 완료되었는가','PMS 보고서를 검토하여 credit balance(예: advance payment)가 있는지 확인하였는가. 해당 금액은 월말에 GL 계정에서 auto reversal journal을 통해 부채 계정으로 재분류되었는가','Group Master Balance는 체크아웃 후 5영업일 이내에 정산되었는가, 또는 일회성/임시 credit agreement 승인 후 City Ledger로 이체되었는가','House Account Balance Report는 계정이 적시에 정리되도록 매일 검토되었는가','PMS의 high balance report를 검토하고 credit limit의 실시간 적용 여부를 확인하였는가. Limit 초과 계정에 대한 적절한 통제 수단이 마련되어 있는가']},
+  {id:'bs5',num:5,cat:'ASSETS',title:'AR City Ledger',account:'121020',policy:['FP-OPSFIN-120','FP-OPSFIN-121'],
+   risk:'부실채권(Bad debt), 미수금 회수 불가',
+   docs:['AR Aging Report','Credit Meeting Minutes','Credit reclass journal (해당하는 경우)'],
+   checks:['GL 시스템 잔액이 PMS의 type별 잔액과 reconcile되었는가. 차이가 있는 경우 원인 조사가 완료되었는가','투숙/행사 전에 적절한 credit 승인이 완료되었는가','모든 credit account 잔액이 credit agreement에 명시된 한도 및 조건 내에 있는가','PMS 보고서를 검토하여 credit balance(예: 초과 납부)가 있는지 확인하였는가. 해당 금액은 월말에 GL 계정에서 auto reversal journal을 통해 부채 계정으로 재분류되었는가','City Ledger에 generic 계정이 없는가. 각 채무자별로 credit limit이 설정되고 credit assessment가 이루어졌는가','모든 credit agreement가 연 1회 검토되었는가']},
+  {id:'bs6',num:6,cat:'ASSETS',title:'Credit Card Accounts',account:'',policy:['FP-OPSFIN-123','FP-OPSFIN-124'],
+   risk:'PCI 비준수(Non-compliance), Chargeback',
+   docs:['Credit card reconciliation','Credit card bank statement','Credit card refund forms'],
+   checks:['매일 신용카드 시스템의 정산 합계와 PMS/POS 시스템의 revenue stream 합계 간 reconciliation이 수행되었는가','미조정 차이를 확인하고 Finance Leader의 승인이 있었는가. 모든 자금이 회수되도록 조치가 취해졌는가','Balance Sheet에 신용카드 종류별(Amex, Bankcard, Visa, Mastercard 등)로 별도 계정이 유지되고 있는가','당월 처리된 모든 신용카드 환불을 검토하였는가. 환불이 최초 청구된 동일한 카드 번호로 처리되었는가','완전한 신용카드 정보가 호텔 내 어디에도 종이 문서로 보관되지 않는가. Team Member의 PC 또는 노트북의 전자 문서에도 전체 카드 정보가 저장되지 않는가','신용카드 시스템을 통해 처리된 모든 환불이 별도 Finance 팀원에 의해 독립적으로 증빙 서류와 대조 확인되었는가 (고객명/주소/최초 판매 금액/환불 금액/환불일/카드번호 마지막 4자리/환불 사유/Supervisor 서명 포함 여부 확인)']},
+  {id:'bs7',num:7,cat:'ASSETS',title:'Clearing Accounts',account:'',policy:[],
+   risk:'현금 부정(Cash Fraud)',
+   docs:['GL sub-ledger','잔액이 0이 아닌 경우 설명 및 증빙 서류'],
+   checks:['각 기간 말의 종료 잔액이 0인가','Clearing account에 미결 거래가 있는 경우 원인 조사 및 적절한 증빙이 준비되었는가','당월 거래가 발생한 모든 clearing account에 대해 잔액이 0이더라도 reconciliation이 작성되었는가']},
+  {id:'bs8',num:8,cat:'ASSETS',title:'Provision for Returned Cheques',account:'',policy:['FP-OPSFIN-125'],
+   risk:'장기 잔액, 미회수 위험',
+   docs:['은행 부도 수표 관련 서류','당월 Bad Debt reserve 계산서','Regional Finance Director 및/또는 VP of Operations Finance의 Bad Debt 면제 승인서'],
+   checks:['수표가 반환(부도)되면 Finance Leader 또는 지정 담당자가 즉시 조사를 완료하였는가. 고객에게 즉시 연락 시도가 있었는가','반환된 모든 수표에 대해 100% provision이 설정되었는가','AR aging의 월별 검토 과정에서 Operations Leader와 Finance Leader가 공동으로 회수 불가능한 채권을 파악하고 필요 시 Bad Debt Write-off Authorization Form을 작성하였는가']},
+  {id:'bs9',num:9,cat:'ASSETS',title:'AR Other',account:'124190, 124200',policy:[],
+   risk:'장기 잔액, 부실채권(Bad debt)',
+   docs:['GL 코드 내 모든 항목/금액과 사유/설명이 포함된 상세 내역서','해당 영수증, 인보이스 및/또는 계약서 사본 (매월 첨부 대신 보관 위치 cross-reference 가능)'],
+   checks:['GL 잔액이 모든 항목/금액의 목록과 일치하는가','Other Receivable에 해당 금액이 기장된 사유를 검토하였는가','금액이 영수증, 인보이스 및/또는 계약서 증빙과 일치하는가','Sub-ledger의 credit balance를 조사하였는가. 필요 시 월말 GL 계정에서 auto reversal journal을 통해 부채 계정으로 재분류하였는가']},
+  {id:'bs10',num:10,cat:'ASSETS',title:'AR Other – Supplier',account:'',policy:[],
+   risk:'장기 잔액, 부실채권(Bad debt)',
+   docs:['공급업체에 대한 모든 선급금 상세 목록','선급금이 표시된 계약서 / 발주서(Purchase Order) / 인보이스 사본 등'],
+   checks:['GL 잔액이 모든 항목/금액의 목록과 일치하는가','금액이 영수증, 인보이스 및/또는 계약서 증빙과 일치하는가','선급금 aging에 주의를 기울였는가','각 지급 건의 증빙 서류가 완전하고 유효한지 검토하였는가','해당 계좌의 잔액 현황을 팔로업하여 물품 또는 서비스가 수령되었는지, 선급금이 적시에 상계되었는지 확인하였는가']},
+  {id:'bs11',num:11,cat:'ASSETS',title:'AR Other – Owner',account:'',policy:[],
+   risk:'Owner와의 미수금 금액 분쟁',
+   docs:['Owner 미수금 상세 목록','계정 잔액에 대한 Owner 확인서 (또는 Management Agreement 참조)','호텔과 Owner 간 원거래 참조 문서'],
+   checks:['GL 잔액이 Owner 미수금 상세 목록과 일치하는가','Owner와의 원거래 상세 내역이 적절히 보관되어 있으며, 각 거래별 증빙 서류가 구비되어 있는가','Owner의 차용이 있는 경우 Regional Finance Director의 사전 승인을 받았으며, 합의된 일정에 따라 상환되고 있는가']},
+  {id:'bs12',num:12,cat:'ASSETS',title:'Deposit Asset Long Term',account:'185030',policy:[],
+   risk:'만기 시 보증금 미회수, Balance Sheet에서 미추적/미관리',
+   docs:['GL 코드 내 모든 항목/금액과 사유/설명이 포함된 상세 내역서','유효한 영수증, 인보이스 및/또는 계약서 사본 (매월 첨부 대신 보관 위치 cross-reference 가능)'],
+   checks:['GL 잔액이 모든 항목/금액의 목록과 일치하는가','보증금이 계약서 및 기타 증빙 서류와 일치하는가','보증금이 만기 시에만 지급되었으며 수취인에게 수령 확인을 받았는가','해당하는 경우 회계연도 말에 잔액 확인(balance confirmation)이 수행되었는가']},
+  {id:'bs13',num:13,cat:'ASSETS',title:'Reserve for Doubtful Accounts',account:'129010',policy:['FP-OPSFIN-125'],
+   risk:'장기 잔액, 미회수 위험',
+   docs:['당월 Bad Debt reserve 계산서','PMS AR Aging report','Regional Finance Director 및/또는 VP of Operations Finance의 Bad Debt 면제 승인서'],
+   checks:['매월 잠재적 부실채권에 대한 provision이 아래 기준에 따라 설정되었는가 (연령에 관계없이 미회수 위험이 심각한 금액에 대해 개별 provision / Reserve 금액 계산 전 credit 금액이 aging 범주별 합계에 더해졌는지 / 인보이스 날짜 기준 90일 초과 금액에 100% reserve, 단 Hilton Honors 및 Intercompany 금액 제외)','Bad Debt Reserve에 대한 월별 검토 및 승인이 Finance Leader의 서명과 날짜로 증빙되어 있는가. 정책 이탈 또는 예외 사항이 기록되었는가','요구 provision이 0인 경우에도 계산 worksheet가 매월 작성되었는가']},
+  {id:'bs14',num:14,cat:'ASSETS',title:'Prepaid Sales & Use Tax 1',account:'149050',policy:[],
+   risk:'세금 과납/미납, 세금 납부 지연',
+   docs:['세금 계산서 (시스템 생성 또는 수기)','Ledger 잔액을 뒷받침하는 기타 증빙 서류'],
+   checks:['Ledger 잔액이 세금 계산서 및 증빙 서류와 일치하는가','증빙 서류를 검토하여 세금 납부/조정이 적시에 이루어졌는가']},
+  {id:'bs15',num:15,cat:'ASSETS',title:'Employee Advances',account:'124070',policy:['FP-OPSFIN-150'],
+   risk:'실수령액 초과 선급, 차기 급여 기간 전 미상환',
+   docs:['Team Member Advance Listing','TM 및 Operations Leader가 서명한 Advance Requisition form'],
+   checks:['급여 선급은 Operations Leader의 승인 후에만 지급되었는가','단체협약 등에 의해 연차를 조기 지급하는 경우가 있더라도, 이는 payroll 정책상 급여 선급에 해당하지 않음을 확인하였는가','선급 금액이 지급 시점의 실수령(net take home pay)을 초과하지 않는가','지급 이후 차기 급여 기간을 넘겨 이월된 급여 선급이 없는가. 어떠한 경우에도 미상환 급여 선급은 허용되지 않으며, 이는 Team Member loan에 해당함을 확인하였는가','급여 선급 서류에 Team Member의 서명과 날짜가 포함되어 있는가']},
+  {id:'bs16',num:16,cat:'ASSETS',title:'AR Insurance Proceeds',account:'121220',policy:[],
+   risk:'서류 미비로 인한 보험금 청구 거절, 보험금 미기록',
+   docs:['GL 코드 내 모든 항목/금액과 사유/설명이 포함된 상세 내역서','사고 보고서, 이메일 등 보험 청구 관련 증빙 서류','보험사의 청구 확인 기록 (인보이스, 산업재해 평가 양식, 보험사 통지서, 이메일 등)'],
+   checks:['Ledger 잔액이 모든 항목/금액의 목록과 일치하는가. 목록에는 미결 청구 건별 금액 및 예상 회수 기간이 기록되어 있는가','미결 보험 청구 건별로 설명 및 후속 조치 기록이 있는가','보험 사고와 관련하여 호텔에서 발생한 모든 비용이 기록되었는가','보험사로부터 청구 확인서를 받은 후 확정 금액과 추정 금액의 차이가 조정되었는가','은행에서 보험금을 수령한 후 관련 비용이 적절히 상계되었는가']},
+  {id:'bs17',num:17,cat:'ASSETS',title:'Prepaid Maintenance Contracts',account:'144060',policy:['FP-OPSFIN-142'],
+   risk:'선급 금액의 오기장, 선급 금액을 이용한 이익 조작',
+   docs:['Prepaid Contracts calculation sheet','모든 선급 항목에 대한 증빙 서류: 선급 물품/서비스 계약서 사본, 부서 서명이 포함된 수령 확인서 또는 인수 양식(acceptance form)'],
+   checks:['GL 잔액이 Prepaid Contracts calculation sheet와 일치하는가','Prepaid schedule에 비용 설명 및 해당 GL 코드 / 공급업체명 / 총 금액 / 비용이 배부될 기간 / P&L에 월별 청구되는 금액 / 남은 선급 잔액이 포함되어 있는가','월별 상각(amortization) 금액이 변동하는 경우 합리적인 설명이 있는가','총 상각 금액과 기간이 관련 인보이스 및 계약서 내용과 일치하는가']},
+  {id:'bs18',num:18,cat:'ASSETS',title:'Travel Advances',account:'124080',policy:['FP-OPSFIN-143'],
+   risk:'출장비 부정(Fraud), 정산 지연',
+   docs:['Travel Advance Listing','Travel Advance Forms'],
+   checks:['Travel Advance는 출장 목적의 경우에만 Team Member에게 지급되었는가. 가능한 경우 법인/기업 신용카드를 우선 사용하도록 하였는가','USD 2,500을 초과하는 선급의 경우 Regional Finance Director의 사전 승인이 있는가','Travel advance form이 사용되었으며, 선급을 받는 Team Member와 Finance Leader 또는 Operations Leader의 서명이 있는가','출장 복귀 후 1주일 이내에 Travel Advance가 정산되었는가']},
+  {id:'bs19',num:19,cat:'ASSETS',title:'Inventory',account:'131110, 131120',policy:['FP-OPSFIN-102'],
+   risk:'재고 과부족, 재고 변질 및 분실',
+   docs:['월별 재고 실사 count sheet','조사 문서가 포함된 재고 실사 차이(variance) 보고서','월말 Procurement System 보고서','Slow/Non-Moving Report'],
+   checks:['호텔이 현금 자금 활용을 극대화하고 재고 변질 및 분실 가능성을 줄이기 위해 실질적으로 가능한 최저 수준의 재고를 유지하고 있는가','정책 면제(waiver)가 승인된 경우를 제외하고 기타 항목은 직접 비용(direct expense)으로 처리되었는가','담배(Tobacco)는 재고로 처리하지 않았는가 (예외 없음)','각 재고 계정 유형이 Balance Sheet Reconciliation Lead Sheet와 일치하는 상세 내역서의 스캔 사본으로 뒷받침되는가','재고 실사(count)는 Storekeeper 또는 승인된 F&B 팀원과 Finance 부서 담당자가 공동으로 수행하였는가. Count sheet에는 수량이 미리 기재되지 않고 실사할 항목만 나열되어 있는가','6개월 이상 이동이 없는 재고 항목은 write-off 필요 여부를 검토하였는가. Write-off가 필요한 경우 Finance Leader의 승인이 포함된 재고 Write-off Form이 작성되었는가']},
+  {id:'bs20',num:20,cat:'ASSETS',title:'Preopening Expenses',account:'',policy:[],
+   risk:'Owner와의 미수금 금액 분쟁',
+   docs:['Owner가 승인한 Preopening 관련 Owner 미수금 상세 목록','거래 증빙으로서의 Preopening 예산','승인된 지급 양식, 인보이스, 계약서 등 비용 관련 서류'],
+   checks:['호텔 개업 후 1년 이상 경과했음에도 계정 잔액이 남아 있는 경우 설명 및 조치 계획이 있는가','원거래 상세 내역이 적절히 보관되어 있으며, 각 거래별 증빙 서류가 구비되어 있는가','Preopening expenses summary report에 날짜 및 유형별로 모든 거래가 목록화되어 있는가','해당 비용이 Owner에게 적시에 청구되었는가']},
+  {id:'bs21',num:21,cat:'ASSETS',title:'Receivable from Owner',account:'185500',policy:[],
+   risk:'Management Agreement 외의 Owner 지급',
+   docs:['GL 코드 내 모든 항목/금액의 상세 내역서','위 항목에 대한 증빙 서류'],
+   checks:['GL 코드에 기장된 금액이 올바른지 증빙 서류를 검토하였는가','Management Agreement(MA)에 따라 항목을 검토하였는가. MA 외의 지급이 없는가','MA 외의 지급이 있는 경우 Regional Management에 통보하여 해결 방안을 논의하였는가']},
+  {id:'bs22',num:22,cat:'LIABILITIES',title:'LTI Current',account:'222720',policy:[],
+   risk:'부정확한 Accrual로 인한 재무제표 오류',
+   docs:['LTI calculation sheet'],
+   checks:['LTI calculation sheet가 GL 잔액과 일치하는가','인센티브 계산이 증빙(예: Regional HR Director가 공유한 인센티브 가이드라인 등)과 일치하는가','인센티브 계산이 해당 부서장의 승인을 받았는가']},
+  {id:'bs23',num:23,cat:'LIABILITIES',title:'FF&E Reserve Provision / Purchase',account:'234020, 234030',policy:['FP-OPSFIN-103'],
+   risk:'Management Agreement/Lease Agreement에 따른 계좌 미설정 또는 미적립, 정책에 맞지 않는 FF&E 구매',
+   docs:['당해연도 FF&E Reserve Calculation Sheet','FF&E Reserve 계산을 위한 Management Agreement / Lease Agreement 관련 조항','당해연도 P&L Report'],
+   checks:['FF&E 은행 계좌 적립 및 FF&E Reserve 계정 관련 회계 처리가 Management Agreement / Lease Agreement 조건에 따라 이루어졌는가','FF&E Reserve 은행 계좌에서 지급 또는 환급된 지출 및 FF&E reserve 자금 약정이 회사 정책, 승인된 자본 계획, Lease/Management Agreement 및 Approval Matrix를 준수하는가','FF&E reserve 부채 및 FF&E reserve 은행 계좌가 결손(deficit) 상태가 아닌가','FF&E 계정에 청구된 모든 지출의 등록부/목록이 관련 증빙 서류와 함께 유지되고 있는가','FF&E reserve 계정의 provision, 구매, 이자 및 은행 수수료가 FF&E 은행 잔액과 reconcile되었는가. 차이가 있는 경우 조사 및 설명이 완료되었는가']},
+  {id:'bs24',num:24,cat:'LIABILITIES',title:'Management Fee / Incentive Fee Payable',account:'237010, 237020',policy:[],
+   risk:'수수료 오계산/오지급, 세금 처리 오류',
+   docs:['Management Fee / Incentive Fee Lead sheet','Management Fee / Incentive Fee Calculation sheet','수수료 계산을 뒷받침하는 P&L Report (MTD 및 YTD)'],
+   checks:['수수료 계산이 Management Agreement에 따른 방식으로 이루어졌는가','Revenue 및/또는 Adjusted GOP의 정의가 Management Agreement와 일치하는가','수수료가 Management Agreement에 따라 지급되었는가. 그렇지 않은 경우 Regional Management에 통보되었는가','Finance Leader가 Management Agreement에 따라 Management Fee 및 Incentive Fee 계산을 6개월마다 검토하고 재수행하였는가']},
+  {id:'bs25',num:25,cat:'LIABILITIES',title:'Affiliate Invoices',account:'211010',policy:[],
+   risk:'지급 지연, 과납/미납, 세금 처리 오류',
+   docs:['미지급 Affiliate Invoice 목록','위 목록에 대한 Affiliate Invoice 증빙 서류'],
+   checks:['Affiliate Invoice가 적시에 지급되었는가. 60일을 초과한 항목에 대해 조사 및 조치 계획이 수립되었는가','60일을 초과한 분쟁 항목은 Affiliates 팀 및 Regional Management에 전달되었는가']},
+  {id:'bs26',num:26,cat:'LIABILITIES',title:'Accruals – General',account:'239990',policy:['FP-OPSFIN-142'],
+   risk:'비용의 기간 오귀속으로 인한 재무제표 왜곡, 증빙 서류 미비',
+   docs:['Accrual calculation sheet','각 line item에 대한 증빙 서류'],
+   checks:['Accrual은 당월 내에 수령한 물품 및 서비스에 대해서만 기록되었는가','매월 반복적으로 발생하는 accrual이 포함된 표준 월별 accrual checklist를 검토하였는가','Accrual은 reversing journal로 기장되었는가. 당월 말에 기장된 모든 accrual은 다음 달 초에 반드시 역분개되어야 하는가','월말에 수령된 항목에 대해 accrual이 필요한 Open PO를 모두 검토하였는가','모든 부서가 월말 마감 전에 사전 통보를 받아 인보이스, accrual 상세 내역, 관련 부서장 승인이 포함된 비용 계정 보고서가 적시에 제출되도록 절차가 마련되어 있는가']},
+  {id:'bs27',num:27,cat:'LIABILITIES',title:'Accruals – Contract',account:'',policy:[],
+   risk:'비용의 기간 오귀속으로 인한 재무제표 왜곡, 잘못된 Accrual 또는 증빙 서류 미비',
+   docs:['Accrual calculation sheet','각 line item에 대한 증빙 서류','최신 계약서 목록 (매월 첨부 대신 계약서 보관 위치 hyperlink 참조 가능)'],
+   checks:['계약서나 발주서 단독으로는 accrual의 증빙 서류로 사용할 수 없는가. 월말까지 물품이 수령되거나 서비스가 완료되었다는 증빙도 함께 제공되었는가','주기적으로 제공되는 서비스 계약의 경우, 사용 부서가 서비스를 받고 completion report를 발행한 후에만 accrual이 기록되었는가','사용량 또는 소비량에 기반한 accrual은 시스템 사용 보고서로 뒷받침되었는가','정기적으로 제공되는 서비스(예: 벽면 청소, 연간 고정 횟수 서비스)의 경우 계약 유효 기간 동안 균등하게 배분하였는가','계약이 만료되어 갱신/승인 진행 중인 경우, 서비스가 여전히 진행 중임을 사용 부서가 증명하였는가','계약 관련 지급금이 기록된 accrual과 상계되어야 하는지 확인하였는가']},
+  {id:'bs28',num:28,cat:'LIABILITIES',title:'Gift Certificate',account:'237520, 237525',policy:['FP-OPSFIN-133'],
+   risk:'수익의 기간 오귀속, 세금 오류',
+   docs:['Voucher 번호별 모든 항목/금액이 포함된 상세 Gift Certificate/Voucher 관리 sheet','판매 및 사용(redemption) 내역의 PMS 보고서'],
+   checks:['Voucher 관리 sheet에 최소한 Voucher 번호, 고객명(해당하는 경우), Voucher 금액, 유효 기간이 기록되어 있는가. Voucher 시스템이 없는 경우 Income Auditor가 수기 관리 sheet를 유지하고 있는가','Gift Certificate/Voucher의 판매가 PMS 보고서와 대조하여 올바른 금액으로 기록되었는가','Gift Certificate/Voucher의 사용(redemption)이 관리 sheet에서 해당 Voucher 번호를 상계하는 방식으로 기록되었는가','유효 기간이 만료된 미사용 Gift Certificate/Voucher는 local SOP 또는 관련 법규에 따라 기타 수익으로 인식되었는가']},
+  {id:'bs29',num:29,cat:'LIABILITIES',title:'Deferred Income',account:'232510',policy:['SOP-OPSFIN-231'],
+   risk:'수익의 기간 오귀속, 세금 오류',
+   docs:['GL 코드 내 모든 항목/금액의 상세 내역서','위 항목에 대한 증빙 서류'],
+   checks:['Ledger 잔액이 모든 항목/금액의 목록과 일치하는가','모든 Deferred Income 계정(Membership, Annual Fee, Attrition and Cancellation 등)이 적절히 증빙되었는가','수익 인식 방법이 적절한지 검토하였는가']},
+  {id:'bs30',num:30,cat:'LIABILITIES',title:'Travel Agent / Group Commissions Payable',account:'237560, 237570',policy:[],
+   risk:'Commission 부채 미계상',
+   docs:['발생된 모든 commission 요약 목록','TAC Weekly Reports, TAC Report에 포함되지 않은 날짜에 대한 PMS Report','Non-TAC Commission 상세 내역','전월 TAC 및 Non-TAC Invoice (해당 HOD 승인 포함)','여행사 계약서','여행사 명세서(Statement from travel agency)'],
+   checks:['Commission 지급 대상 예약은 공인된 여행사가 예약하고 고객이 Hilton이 commission을 지급하는 SRP(Special Rate Plan)로 투숙한 경우로 한정되었는가','Commission이 정해진 요율에 따라 지급되었는가. 12%를 초과하는 비표준 객실 commission 또는 모든 비객실 commission은 Regional Commercial Director의 승인을 받았는가','CCP(Centralized Commission Program)의 표준적이고 효율적인 운영을 위해 commission의 원천 공제(deduction at source)는 허용되지 않는가','Finance 부서 직원이 Travel Agency commission 보고서를 검토하여 모든 commission이 올바르게 기록되었는가']},
+  {id:'bs31',num:31,cat:'LIABILITIES',title:'Sales Tax Payable State',account:'235375',policy:[],
+   risk:'세금 오계산, 잘못된 세율 적용',
+   docs:['Tax Calculation Sheet','세금 납부 영수증 등 증빙 서류'],
+   checks:['수동 입력(manual entry)이 없는가','Revenue가 올바른 output tax와 일치하는가','해당하는 경우 Deemed Sales(간주 판매)에 대한 세금이 처리되었는가','발생 또는 납부된 세금의 차이가 적시에 해소되었는가']},
+  {id:'bs32',num:32,cat:'LIABILITIES',title:'Bonus',account:'222010, 222730',policy:[],
+   risk:'부정확한 Accrual로 인한 재무제표 오류',
+   docs:['이름/직급/레벨별 모든 항목의 상세 설명','호텔 최신 Forecast','호텔 경영진이 승인한 Bonus scheme'],
+   checks:['GM & 4D의 accrual이 Hilton 연간 보너스 가이드라인에 따라 산정되었는가','월별 accrual이 최신 연간 전체(full year) forecast를 기반으로 정확하게 계산되었는가','호텔 직원 변동(신규 TM, 퇴직, 전보 등)에 따라 보너스가 조정되었는가','프로모션 및 upsell 인센티브에 대해 호텔 경영진이 승인한 local SOP/MEMO가 있는가. 해당 인센티브는 Income Audit의 검토 및 경영진 승인 후 지급되었는가','1개월을 초과하여 accrual된 보너스에 대한 설명이 있는가','급여 관련 정보는 기밀이므로 Paymaster가 작성한 상세 명세서를 참조하였는가','내부 전보(transfer) TM에 대해서도 보너스가 accrual되었는가 (해당하는 경우)']},
+  {id:'bs33',num:33,cat:'LIABILITIES',title:'Pension Liability Current',account:'224880',policy:[],
+   risk:'잘못된 Accrual',
+   docs:['Pension Accrual Lead Sheet','위 Lead sheet에 명시된 증빙 서류'],
+   checks:['연금 계산이 현지 법규 및 고용 계약에 따라 이루어졌는가','Accrual의 기준이 올바른가']},
+  {id:'bs34',num:34,cat:'LIABILITIES',title:'Vacation Non-Union Payable',account:'223010',policy:[],
+   risk:'특정 부서의 과도한 미사용 연차 부채 누적',
+   docs:['Vacation days / Paid time off 계산 시트','승인된 계산서'],
+   checks:['당월 연차/유급 휴가 accrual이 올바르게 계산되었는가','모범 사례(best practice)로서, 연차 accrual이 과도하게 누적되지 않았는가. 각 부서장 / Operations Leader / 4D에 의해 정기적인 문서화된 검토가 이루어지고 있는가']},
+  {id:'bs35',num:35,cat:'LIABILITIES',title:'Deposits – Payable',account:'232040',policy:[],
+   risk:'미청구 보증금 횡령, 기일이 지난 입력, 수익 미적시 전환',
+   docs:['기타 보증금 목록 (미청구 보증금, 미확인 보증금 등)','위 목록에 대한 증빙 서류'],
+   checks:['GL 코드의 금액이 증빙 서류와 일치하는가','기타 보증금(미청구 또는 미확인 보증금 등)에 대한 후속 조치가 적절히 이루어지고 있는가','추적 관리 기록(tracker)에 입금 수령일, 납부자(payee) 등 상세 입금 정보가 포함되어 있는가']},
+  {id:'bs36',num:36,cat:'LIABILITIES',title:'Deposits – Guest Advance',account:'232050',policy:[],
+   risk:'선수금 오용, 오래된 잔액',
+   docs:['PMS의 Advance deposit ledger','오래된 선수금에 대한 검토, 증빙 서류 및 조치 계획'],
+   checks:['GL 잔액이 PMS의 advance deposit ledger와 일치하는가','계정에 debit balance가 없는가','Ledger에 기일이 지난(stale dated) 미결 금액이 없는가']},
+  {id:'bs37',num:37,cat:'LIABILITIES',title:'Liability to Owner',account:'286500',policy:[],
+   risk:'Management Agreement 외의 Owner 지급',
+   docs:['GL 코드 내 모든 항목/금액의 상세 내역서','위 항목에 대한 증빙 서류'],
+   checks:['GL 코드에 기장된 금액이 올바른지 증빙 서류를 검토하였는가','Management Agreement(MA)에 따라 항목을 검토하였는가. MA 외의 지급이 없는가','MA 외의 지급이 있는 경우 Regional Management에 통보하여 해결 방안을 논의하였는가']},
+  {id:'bs38',num:38,cat:'LIABILITIES',title:'Accounts Payable – Creditors',account:'',policy:[],
+   risk:'Vendor Master Change Report 미운영, Vendor 등록/승인 프로세스의 직무 분리 위반, 장기 미결제 미검토',
+   docs:['Account Payable Aging Report','Vendor Master Data Change Report'],
+   checks:['호텔 공급업체에 대한 모든 지급은 AP 모듈을 통해 이루어졌는가','Generic credit 계정이 없는가. Vendor는 신규 Vendor Form이 작성된 후에만 AP 시스템에 등록되었는가','Vendor master data change report가 매월 생성되었는가','90일을 초과한 aging은 상세 설명과 함께 매월 검토되었는가']},
+  {id:'bs39',num:39,cat:'LIABILITIES',title:'Owners Distribution',account:'371018',policy:[],
+   risk:'회계 오류(Incorrect accounting)',
+   docs:['P&L (MTD 및 YTD)'],
+   checks:['Managed hotel의 경우 P&L이 월말에 0이 되었는가','매월 호텔이 Owner의 수익(owner\'s return)을 Balance Sheet의 Owner equity 계정으로 올바른 분개(Dr Owners Distribution 371018 / Cr P&L account)에 따라 처리하였는가']}
+];
+
+// ===== BS GUIDE FUNCTIONS =====
+function selBSGuide(){
+  viewMode='bsguide'; curFlt='all'; curBsId=null;
+  document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('act','kact');});
+  var ball=document.getElementById('flt-all');if(ball)ball.classList.add('act');
+  buildNav(); buildBSLP();
+  if(bsData.length>0)selBSItem(bsData[0].id);
+  else{document.getElementById('rp').innerHTML='<div class="empty"><div class="empty-icon">&#9776;</div><div class="empty-tx">Select an item</div></div>';}
+}
+
+function selBSItem(id){
+  curBsId=id;
+  buildBSLP();
+  buildBSRP();
+}
+
+function buildBSLP(){
+  var html='';
+  var cats=['ASSETS','LIABILITIES'];
+  cats.forEach(function(cat){
+    var items=bsData.filter(function(i){return i.cat===cat;});
+    html+='<div class="lsl">'+cat+'</div>';
+    items.forEach(function(item){
+      var res=bsResults[item.id]||'';
+      var dc,dt;
+      if(res==='yes'){dc='dy';dt='Y';}
+      else if(res==='no'){dc='dn';dt='N';}
+      else if(res==='na'){dc='dna';dt='-';}
+      else{dc='dnone';dt=item.num;}
+      var chks=bsChecks[item.id]||{};
+      var done=item.checks.filter(function(c,i){return chks[i];}).length;
+      var pct=item.checks.length?Math.round(done/item.checks.length*100):0;
+      var ac=(curBsId===item.id)?' act':'';
+      var accountTx=item.account?'<span style="color:var(--mu);font-size:9px;"> ('+esc(item.account)+')</span>':'';
+      html+='<div class="li'+ac+'" id="bsli-'+item.id+'" onclick="selBSItem(\''+item.id+'\')">'
+        +'<div class="ldot '+dc+'">'+esc(dc==='dnone'?String(item.num):dt)+'</div>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div class="ltx">'+esc(item.title)+accountTx+'</div>'
+        +'<div style="margin-top:3px;height:3px;background:#e9ecef;border-radius:2px;overflow:hidden">'
+        +'<div style="width:'+pct+'%;height:100%;background:var(--g);border-radius:2px"></div>'
+        +'</div>'
+        +'</div>'
+        +'</div>';
+    });
+  });
+  document.getElementById('lp').innerHTML=html;
+  if(curBsId){var el=document.getElementById('bsli-'+curBsId);if(el)el.scrollIntoView({block:'nearest'});}
+}
+
+function buildBSRP(){
+  var rp=document.getElementById('rp');
+  if(!curBsId){
+    rp.innerHTML='<div class="empty"><div class="empty-icon">&#9776;</div><div class="empty-tx">왼쪽에서 항목을 선택하세요</div></div>';
+    return;
+  }
+  var item=bsData.find(function(i){return i.id===curBsId;});
+  if(!item)return;
+  var res=bsResults[item.id]||'';
+  var note=bsNotes[item.id]||'';
+  var chks=bsChecks[item.id]||{};
+
+  // Policy PDF buttons
+  var pdfBtns='';
+  if(item.policy.length>0){
+    item.policy.forEach(function(pol){
+      var pdfUrl=getPdfUrl(pol);
+      if(pdfUrl){
+        pdfBtns+='<a href="'+pdfUrl+'" target="_blank" class="btnpdf" style="margin-right:4px">&#128196; '+esc(pol)+'</a>';
+      } else {
+        pdfBtns+='<span class="poltag" style="margin-right:4px">'+esc(pol)+'</span>';
+      }
+    });
+  }
+  var pdfPage=item.num<=21?item.num+3:item.num+4;
+  var bsPdfUrl='Balance%20Sheet%20Reconciliations%20Guide%20APAC.pdf#page='+pdfPage;
+
+  // Docs list
+  var docsHtml='<ul style="margin:0;padding-left:18px;">';
+  item.docs.forEach(function(d){docsHtml+='<li style="font-size:12px;line-height:1.7;color:var(--tx)">'+esc(d)+'</li>';});
+  docsHtml+='</ul>';
+
+  // Checkpoints
+  var checksHtml='';
+  item.checks.forEach(function(c,i){
+    var checked=chks[i]?true:false;
+    checksHtml+='<label class="bscheck-item'+(checked?' bscheck-done':'')+'">'
+      +'<input type="checkbox"'+(checked?' checked':'')+' onchange="toggleBSCheck(\''+item.id+'\','+i+',this.checked)" style="margin-right:8px;flex-shrink:0;width:15px;height:15px;cursor:pointer;accent-color:var(--p)">'
+      +'<span>'+esc(c)+'</span>'
+      +'</label>';
+  });
+  var doneCount=item.checks.filter(function(c,i){return chks[i];}).length;
+  var pct=item.checks.length?Math.round(doneCount/item.checks.length*100):0;
+
+  var html='<div class="dcard">'
+    +'<div class="dhdr" style="gap:8px">'
+    +'<div style="min-width:0;flex:1">'
+    +'<div style="font-size:10px;opacity:.6;margin-bottom:3px">'+esc(item.cat)+' #'+item.num+(item.account?' &bull; GL: '+esc(item.account):'')+'</div>'
+    +'<div style="font-size:16px;font-weight:700;color:#fff">'+esc(item.title)+'</div>'
+    +'<div style="font-size:11px;color:var(--gl);margin-top:4px;opacity:.85">&#9888; '+esc(item.risk)+'</div>'
+    +'</div>'
+    +'<div style="flex-shrink:0;text-align:right">'
+    +'<a href="'+bsPdfUrl+'" target="_blank" class="btnpdf" style="background:var(--g);color:var(--p);display:block;margin-bottom:4px">&#128214; BS Guide PDF</a>'
+    +(pdfBtns?'<div style="margin-top:4px">'+pdfBtns+'</div>':'')
+    +'</div>'
+    +'</div>'
+    +'<div class="dbody">'
+    +'<div class="fl">필수 첨부 서류</div>'
+    +docsHtml
+    +'<div class="fl" style="margin-top:14px">리뷰어 체크 포인트 &mdash; <span style="font-weight:400;color:var(--mu)">'+doneCount+'/'+item.checks.length+' 완료 ('+pct+'%)</span></div>'
+    +'<div style="height:4px;background:#e9ecef;border-radius:2px;margin-bottom:10px;overflow:hidden">'
+    +'<div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,var(--p),var(--g));border-radius:2px;transition:width .3s"></div>'
+    +'</div>'
+    +'<div class="bscheck-list">'+checksHtml+'</div>'
+    +'<div class="rssec">'
+    +'<div class="rsrow"><span class="rslbl">종합 결과:</span>'
+    +'<button class="rsb rby'+(res==='yes'?' act':'')+'" onclick="setBSRes(\''+item.id+'\',\'yes\')">Yes</button>'
+    +'<button class="rsb rbn'+(res==='no'?' act':'')+'" onclick="setBSRes(\''+item.id+'\',\'no\')">No</button>'
+    +'<button class="rsb rbna'+(res==='na'?' act':'')+'" onclick="setBSRes(\''+item.id+'\',\'na\')">N/A</button>'
+    +'</div>'
+    +'<div class="ig ignotes" style="width:100%"><label>메모 / 발견 사항</label>'
+    +'<textarea placeholder="발견 사항, 증거 자료, 특이사항..." oninput="setBSNote(\''+item.id+'\',this.value)" style="width:100%">'+esc(note)+'</textarea></div>'
+    +'</div>'
+    +'</div></div>';
+  rp.innerHTML=html;
+}
+
+function setBSRes(id,val){
+  if(bsResults[id]===val){delete bsResults[id];}
+  else{bsResults[id]=val;}
+  save(); updPrg(); buildBSLP(); buildBSRP();
+}
+
+function toggleBSCheck(id,idx,checked){
+  if(!bsChecks[id])bsChecks[id]={};
+  if(checked)bsChecks[id][idx]=true;
+  else delete bsChecks[id][idx];
+  saveDbc(); buildBSLP();
+  // Update just the progress bar in RP without full rebuild
+  var item=bsData.find(function(i){return i.id===id;});
+  if(item){
+    var chks=bsChecks[id]||{};
+    var doneCount=item.checks.filter(function(c,i){return chks[i];}).length;
+    var pct=item.checks.length?Math.round(doneCount/item.checks.length*100):0;
+    var bars=document.querySelectorAll('.dbody .bscheck-list');
+    if(bars.length>0){
+      var prevBar=bars[0].previousElementSibling;
+      if(prevBar&&prevBar.style&&prevBar.firstElementChild){
+        prevBar.firstElementChild.style.width=pct+'%';
+      }
+    }
+    var lbl=document.querySelector('.fl + div + div + .fl');
+    // just rebuild RP for accuracy
+    buildBSRP();
+  }
+}
+
+function setBSNote(id,val){bsNotes[id]=val;saveDbc();}
+
+
+// INIT
+loadStore(); buildNav(); updPrg(); buildLP();
+var initItems=getItems();
+if(initItems.length>0)selItem(initItems[0].id);
+setInterval(save,30000);
+</script>
+</body>
+</html>
