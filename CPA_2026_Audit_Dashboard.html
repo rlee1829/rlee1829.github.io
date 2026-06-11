@@ -22,6 +22,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',san
 .btn{padding:5px 11px;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:all .15s}
 .btn-g{background:var(--g);color:var(--p)}.btn-g:hover{background:var(--gl)}
 .btn-o{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4)}.btn-o:hover{background:rgba(255,255,255,.1)}
+.btn-o.lang-act{background:var(--g);color:var(--p);border-color:var(--g)}
 .save-ind{font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap}
 /* PROGRESS */
 #prg{background:#fff;padding:7px 16px;border-bottom:1px solid var(--bd);flex-shrink:0}
@@ -155,7 +156,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',san
   </div>
   <div class="hdr-acts">
     <span class="save-ind" id="si">&#10003; Saved</span>
-    <button class="btn btn-o" id="lang-btn" onclick="toggleLang()">KO</button>
+    <button class="btn btn-o lang-act" id="lang-ko" onclick="setLang('ko')">KO</button>
+    <button class="btn btn-o" id="lang-en" onclick="setLang('en')">EN</button>
+    <button class="btn btn-o" id="lang-ja" onclick="setLang('ja')">JA</button>
     <button class="btn btn-g" onclick="exportCSV()">&#8659; Excel</button>
     <button class="btn btn-o" onclick="window.print()">&#128438; Print</button>
     <button class="btn btn-o" onclick="resetAll()" title="Reset all results">&#8635;</button>
@@ -613,7 +616,8 @@ function save(){
              period:document.getElementById('hi-period').value}};
     localStorage.setItem('cpa2026v2',JSON.stringify(d));
     var si=document.getElementById('si');
-    si.textContent='✓ Saved';
+    var _n=new Date();
+    si.textContent='✓ Saved '+String(_n.getHours()).padStart(2,'0')+':'+String(_n.getMinutes()).padStart(2,'0');
   }catch(e){}
 }
 function saveHI(){saveDbc();}
@@ -634,9 +638,12 @@ function loadStore(){
   }catch(e){}
 }
 
-function toggleLang(){
-  lang=lang==='ko'?'en':(lang==='en'?'ja':'ko');
-  document.getElementById('lang-btn').textContent=lang==='ko'?'KO':(lang==='ja'?'JA':'EN');
+function setLang(l){
+  lang=l;
+  ['ko','en','ja'].forEach(function(x){
+    var b=document.getElementById('lang-'+x);
+    if(b)b.classList.toggle('lang-act',x===l);
+  });
   buildLP(); buildRP();
 }
 
