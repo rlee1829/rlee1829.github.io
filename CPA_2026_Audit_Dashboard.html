@@ -1414,10 +1414,7 @@ var JP_TS={
 };
 
 // INIT
-loadStore(); buildNav(); updPrg(); buildLP();
-var initItems=getItems();
-if(initItems.length>0&&!isMob())selItem(initItems[0].id);
-setMobView('list');
+loadStore(); updPrg(); selDash();
 setInterval(save,30000);
 </script>
 </body>
