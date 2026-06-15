@@ -903,6 +903,126 @@ var bsData=[
    checks:['Managed hotel의 경우 P&L이 월말에 0이 되었는가','매월 호텔이 Owner의 수익(owner\'s return)을 Balance Sheet의 Owner equity 계정으로 올바른 분개(Dr Owners Distribution 371018 / Cr P&L account)에 따라 처리하였는가']}
 ];
 
+// ===== BS GUIDE DATA (EN) =====
+var bsDataEN={
+  bs1:{
+    docs:['House Fund Reconciliation Summary Sheet','Monthly spot check summary including all count sheets conducted that month','House Fund / Revolving Fund Agreement (cross-reference to storage location acceptable instead of monthly attachment)'],
+    checks:['Does the total amount per House Fund agreements match the House Fund account balance in the GL?','Review the Revolving House Fund handover sheet (count sheet) and confirm all signatures of relieving cashiers are present.','Select 2–3 cashiers from the cash drop log or user permission list and physically verify their individual House Fund agreements.','Have all Team Members holding a House Fund of USD 2,000 or more been counted during the current month?','Has at least 50% of the total House Funds been counted within the month, and has every Team Member been counted at least once within the last 3 months?','Does the House Fund agreement validity period not exceed 2 years?','Are any shortages or overages from spot checks reasonably explained, and have any suspicious items been reported immediately to the Finance Leader?','Is there a record of temporary borrowing from the GSM House Fund, or use of FO/F&B House Funds for temporary purchases?','If a Revolving Fund is used, is there a written operating procedure approved by the RFD?']},
+  bs2:{
+    docs:['Bank statement or printout from electronic banking program','Bank Reconciliation Sheet','Explanation and supporting documents for all reconciling items'],
+    checks:['Is the bank reconciliation completed weekly and reviewed by the Finance Leader (or equivalent)?','Is the bank statement or electronic banking printout updated through the last day of the month?','Are there no unresolved reconciling items outstanding more than 30 days? (If yes, detailed explanation of delay required)','Is the bank reconciliation prepared by someone other than an authorized signatory on the account?','Is the FF&E reserve funded to a separate bank account as required by the Management Agreement?','Is reconciliation completed between the FF&E bank account balance and the FF&E reserve amount?','If FF&E funds are used for Owner loans or Owner borrowing, has RFD approval been obtained?','Has RFD approval been obtained for any hotel investment in financial or yield-bearing products?']},
+  bs3:{
+    docs:['Screenshots of all WeChat/Alipay accounts in the hotel','Detailed statement and month-end balance report for all WeChat/Alipay accounts for the current month','Explanation and follow-up action for any unreconciled items'],
+    checks:['Does the daily settlement amount for each WeChat/Alipay account match the PMS payment method totals daily? If differences exist, have they been reported to the DOF/FM and followed up?','Does the GL account balance match the actual WeChat/Alipay balance?','Have Guest ledger, City ledger, and Guest advance payments been settled in a timely manner?','Are refunds processed only to the same WeChat/Alipay account used for the original payment?','Have unclaimed, long-inactive, or pending refund balances been identified? Have these been transferred to the Deposit-payable account or recognized as revenue per the hotel local SOP?']},
+  bs4:{
+    docs:['Group Master Balance Summary Report','House Account Balance Summary','Room Balance Summary','Detail Receivable Recap','Credit reclass journal (if applicable)'],
+    checks:['Has the GL system balance been reconciled to the PMS balances by type? If differences exist, has the cause been investigated?','Has the PMS report been reviewed for credit balances (e.g., advance payments)? Have those amounts been reclassified to a liability account via auto reversal journal at month-end in the GL?','Has the Group Master Balance been settled within 5 business days after checkout, or transferred to City Ledger following a one-time/temporary credit agreement approval?','Is the House Account Balance Report reviewed daily to ensure timely clearance?','Has the PMS high balance report been reviewed and is real-time credit limit enforcement confirmed? Are appropriate controls in place for accounts exceeding the limit?']},
+  bs5:{
+    docs:['AR Aging Report','Credit Meeting Minutes','Credit reclass journal (if applicable)'],
+    checks:['Has the GL system balance been reconciled to the PMS balances by type? If differences exist, has the cause been investigated?','Has appropriate credit approval been completed prior to the stay/event?','Are all credit account balances within the limits and terms specified in the credit agreement?','Has the PMS report been reviewed for credit balances (e.g., overpayments)? Have those amounts been reclassified to a liability account via auto reversal journal at month-end in the GL?','Are there no generic accounts in City Ledger? Has a credit limit and credit assessment been set for each debtor?','Have all credit agreements been reviewed at least once per year?']},
+  bs6:{
+    docs:['Credit card reconciliation','Credit card bank statement','Credit card refund forms'],
+    checks:['Is a daily reconciliation performed between the total settlements in the credit card system and the revenue stream totals in the PMS/POS system?','Have unreconciled differences been identified and approved by the Finance Leader? Have actions been taken to ensure all funds are recovered?','Are separate accounts maintained on the Balance Sheet for each credit card type (Amex, Bankcard, Visa, Mastercard, etc.)?','Have all credit card refunds processed during the month been reviewed? Are refunds processed to the same card number as the original charge?','Is complete credit card information not stored anywhere in the hotel as a paper document? Is full card information also not saved in electronic documents on Team Members\' PCs or laptops?','Have all refunds processed through the credit card system been independently verified against supporting documents by a separate Finance team member (customer name/address, original sale amount, refund amount, refund date, last 4 digits of card, refund reason, supervisor signature)?']},
+  bs7:{
+    docs:['GL sub-ledger','Explanation and supporting documents if balance is not zero'],
+    checks:['Is the closing balance zero at each period end?','If there are open transactions in the clearing account, have the causes been investigated and appropriate support prepared?','Has a reconciliation been prepared for all clearing accounts with transactions in the current month, even if the balance is zero?']},
+  bs8:{
+    docs:['Documents related to returned (dishonored) cheques','Bad Debt reserve calculation for the current month','Bad Debt waiver approval from Regional Finance Director and/or VP of Operations Finance'],
+    checks:['When a cheque is returned (dishonored), has the Finance Leader or designated person completed an investigation immediately? Was immediate contact attempted with the customer?','Has a 100% provision been set up for all returned cheques?','During the monthly review of AR aging, have the Operations Leader and Finance Leader jointly identified uncollectable receivables and prepared a Bad Debt Write-off Authorization Form if necessary?']},
+  bs9:{
+    docs:['Detailed listing of all items/amounts within the GL code, including reason/description','Copies of relevant receipts, invoices, and/or contracts (cross-reference to storage location acceptable instead of monthly attachment)'],
+    checks:['Does the GL balance agree to the listing of all items/amounts?','Has the reason for posting amounts to Other Receivables been reviewed?','Do the amounts agree with receipt, invoice, and/or contract documentation?','Have credit balances in the sub-ledger been investigated? If necessary, have they been reclassified to a liability account via auto reversal journal at month-end in the GL?']},
+  bs10:{
+    docs:['Detailed listing of all advances to suppliers','Copies of contracts, Purchase Orders, or invoices showing the advance'],
+    checks:['Does the GL balance agree to the listing of all items/amounts?','Do the amounts agree with receipt, invoice, and/or contract documentation?','Is the aging of advances being monitored?','Has the completeness and validity of supporting documents for each payment been reviewed?','Has follow-up been done on the outstanding balance to confirm that goods or services have been received and that the advance has been offset in a timely manner?']},
+  bs11:{
+    docs:['Detailed listing of Owner receivables','Owner confirmation of account balance (or reference to Management Agreement)','Reference documents for original transactions between the hotel and Owner'],
+    checks:['Does the GL balance agree to the detailed listing of Owner receivables?','Are the details of original transactions with the Owner properly maintained, with supporting documents for each transaction?','If Owner borrowings exist, have they received prior approval from the Regional Finance Director and is repayment being made per the agreed schedule?']},
+  bs12:{
+    docs:['Detailed listing of all items/amounts within the GL code, including reason/description','Copies of valid receipts, invoices, and/or contracts (cross-reference to storage location acceptable instead of monthly attachment)'],
+    checks:['Does the GL balance agree to the listing of all items/amounts?','Do the deposits agree with contracts and other supporting documents?','Were deposits paid only upon maturity and receipt confirmed from the payee?','If applicable, was a balance confirmation performed at the fiscal year end?']},
+  bs13:{
+    docs:['Bad Debt reserve calculation for the current month','PMS AR Aging report','Bad Debt waiver approval from Regional Finance Director and/or VP of Operations Finance'],
+    checks:['Has a provision for potential bad debts been set each month per the following criteria: individual provisions for amounts with significant collection risk regardless of age; credit amounts added to aging category totals before calculating reserve; 100% reserve for amounts exceeding 90 days past invoice date, excluding Hilton Honors and Intercompany amounts?','Is the monthly review and approval of the Bad Debt Reserve evidenced by the Finance Leader\'s signature and date? Have any policy deviations or exceptions been documented?','Has a calculation worksheet been prepared each month even if the required provision is zero?']},
+  bs14:{
+    docs:['Tax invoice (system-generated or manual)','Other supporting documents backing the ledger balance'],
+    checks:['Does the ledger balance agree with the tax invoice and supporting documents?','Have the supporting documents been reviewed to confirm that tax payments/adjustments were made on a timely basis?']},
+  bs15:{
+    docs:['Team Member Advance Listing','Advance Requisition form signed by TM and Operations Leader'],
+    checks:['Are salary advances paid only after approval by the Operations Leader?','If early payment of annual leave is made under a collective agreement, has it been confirmed that this does not constitute a payroll advance under payroll policy?','Does the advance amount not exceed the TM\'s net take-home pay at the time of issuance?','Are there no salary advances outstanding beyond the next pay period? Under no circumstances are outstanding salary advances permissible—confirm this constitutes a Team Member loan.','Does the payroll advance documentation include the Team Member\'s signature and date?']},
+  bs16:{
+    docs:['Detailed listing of all items/amounts within the GL code, including reason/description','Supporting documents for the insurance claim (incident report, emails, etc.)','Claim acknowledgment records from insurer (invoice, industrial accident assessment form, insurer notice, emails, etc.)'],
+    checks:['Does the ledger balance agree with the listing of all items/amounts? Does the listing include the amount and estimated recovery period for each outstanding claim?','Is there an explanation and follow-up record for each outstanding insurance claim?','Have all costs incurred by the hotel related to the insured event been recorded?','After receiving claim acknowledgment from the insurer, has the difference between the confirmed and estimated amounts been adjusted?','After receiving insurance proceeds from the bank, have the related costs been properly offset?']},
+  bs17:{
+    docs:['Prepaid Contracts calculation sheet','Supporting documents for all prepaid items: copy of prepaid goods/service contract, and delivery confirmation or acceptance form signed by the department'],
+    checks:['Does the GL balance agree with the Prepaid Contracts calculation sheet?','Does the prepaid schedule include: expense description and GL code / vendor name / total amount / period over which cost will be allocated / monthly charge to P&L / remaining prepaid balance?','If the monthly amortization amount varies, is there a reasonable explanation?','Does the total amortization amount and period agree with the related invoice and contract?']},
+  bs18:{
+    docs:['Travel Advance Listing','Travel Advance Forms'],
+    checks:['Are Travel Advances issued to Team Members only for business travel purposes? Is the use of corporate/company credit cards prioritized where available?','For advances exceeding USD 2,500, has Regional Finance Director prior approval been obtained?','Has a Travel Advance form been used, with signatures from both the receiving Team Member and the Finance Leader or Operations Leader?','Has the Travel Advance been settled within 1 week after return from travel?']},
+  bs19:{
+    docs:['Monthly physical inventory count sheet','Inventory variance report including investigation documentation','Month-end Procurement System report','Slow/Non-Moving Report'],
+    checks:['Is the hotel maintaining inventory at the lowest practical level to maximize cash utilization and minimize risk of spoilage and loss?','Except where a policy waiver has been approved, have other items been processed as direct expenses?','Tobacco items are not held as inventory (no exceptions).','Is each inventory account type supported by a scanned copy of a detailed listing that reconciles to the Balance Sheet Reconciliation Lead Sheet?','Was the physical inventory count performed jointly by the Storekeeper or approved F&B team member and a Finance department representative? Does the count sheet list only the items to be counted without pre-populated quantities?','Have inventory items with no movement for 6 months or more been reviewed for write-off? If write-off is necessary, has an Inventory Write-off Form been prepared with Finance Leader approval?']},
+  bs20:{
+    docs:['Detailed listing of Owner receivables related to preopening, approved by the Owner','Preopening budget as transaction support','Expense-related documents including approved payment forms, invoices, and contracts'],
+    checks:['If a balance remains more than 1 year after the hotel opening, is there an explanation and action plan?','Are the details of original transactions properly maintained, with supporting documents for each transaction?','Does the preopening expenses summary report list all transactions by date and type?','Have the expenses been billed to the Owner in a timely manner?']},
+  bs21:{
+    docs:['Detailed listing of all items/amounts within the GL code','Supporting documents for the above items'],
+    checks:['Have the supporting documents been reviewed to confirm that the amounts recorded in the GL code are correct?','Have the items been reviewed against the Management Agreement (MA)? Are there any payments outside the MA?','If there are payments outside the MA, has Regional Management been notified to discuss resolution?']},
+  bs22:{
+    docs:['LTI calculation sheet'],
+    checks:['Does the LTI calculation sheet agree with the GL balance?','Does the incentive calculation agree with supporting evidence (e.g., incentive guidelines shared by Regional HR Director)?','Has the incentive calculation been approved by the relevant department head?']},
+  bs23:{
+    docs:['FF&E Reserve Calculation Sheet for the current year','Relevant provisions from the Management Agreement / Lease Agreement for FF&E Reserve calculation','P&L Report for the current year'],
+    checks:['Has the accounting for FF&E bank account funding and FF&E Reserve account been done in accordance with the terms of the Management Agreement / Lease Agreement?','Do expenditures paid from or reimbursed to the FF&E Reserve bank account, and FF&E reserve fund commitments, comply with company policy, the approved capital plan, the Lease/Management Agreement, and the Approval Matrix?','Is the FF&E reserve liability and FF&E reserve bank account not in a deficit position?','Is a register/listing of all expenditures charged to FF&E accounts maintained with related supporting documents?','Have FF&E reserve account provisions, purchases, interest, and bank charges been reconciled to the FF&E bank balance? If differences exist, have they been investigated and explained?']},
+  bs24:{
+    docs:['Management Fee / Incentive Fee Lead sheet','Management Fee / Incentive Fee Calculation sheet','P&L Report (MTD and YTD) supporting the fee calculation'],
+    checks:['Is the fee calculation performed in accordance with the method specified in the Management Agreement?','Does the definition of Revenue and/or Adjusted GOP align with the Management Agreement?','Has the fee been paid in accordance with the Management Agreement? If not, has Regional Management been notified?','Has the Finance Leader reviewed and recalculated the Management Fee and Incentive Fee per the Management Agreement at least every 6 months?']},
+  bs25:{
+    docs:['Listing of outstanding Affiliate Invoices','Affiliate Invoice supporting documents for the above listing'],
+    checks:['Are Affiliate Invoices being paid on a timely basis? Has an investigation and action plan been established for items outstanding beyond 60 days?','Have disputed items outstanding beyond 60 days been escalated to the Affiliates team and Regional Management?']},
+  bs26:{
+    docs:['Accrual calculation sheet','Supporting documents for each line item'],
+    checks:['Are accruals recorded only for goods and services received within the current month?','Has the standard monthly accrual checklist, including recurring monthly accruals, been reviewed?','Are accruals posted as reversing journal entries? Must all accruals posted at month-end be reversed at the beginning of the following month?','Have all Open POs for items received at month-end requiring an accrual been reviewed?','Is a procedure in place to notify all departments before month-end close so that invoices, accrual details, and related department head approvals are submitted timely?']},
+  bs27:{
+    docs:['Accrual calculation sheet','Supporting documents for each line item','Up-to-date contract listing (hyperlink reference to contract storage location acceptable instead of monthly attachment)'],
+    checks:['A contract or purchase order alone cannot serve as supporting documentation for an accrual—is proof that goods have been received or services completed by month-end also provided?','For periodically delivered service contracts, are accruals recorded only after the user department confirms the service has been received and issues a completion report?','Are accruals based on usage or consumption supported by system usage reports?','For regularly delivered services (e.g., wall cleaning, annual fixed-frequency services), are costs evenly spread over the contract period?','If a contract has expired and is under renewal/approval, has the user department confirmed that the service is still ongoing?','Has it been confirmed whether contract-related payments should be offset against recorded accruals?']},
+  bs28:{
+    docs:['Detailed Gift Certificate/Voucher management sheet listing all items/amounts by voucher number','PMS report for voucher sales and redemptions'],
+    checks:['Does the voucher management sheet include at minimum: voucher number, customer name (if applicable), voucher amount, and expiry date? If no voucher system exists, is the Income Auditor maintaining a manual tracking sheet?','Are Gift Certificate/Voucher sales recorded at the correct amounts, as verified against the PMS report?','Are Gift Certificate/Voucher redemptions recorded by offsetting the corresponding voucher number on the management sheet?','Have expired unused Gift Certificates/Vouchers been recognized as other income per the local SOP or applicable regulations?']},
+  bs29:{
+    docs:['Detailed listing of all items/amounts within the GL code','Supporting documents for the above items'],
+    checks:['Does the ledger balance agree with the listing of all items/amounts?','Are all Deferred Income accounts (Membership, Annual Fee, Attrition and Cancellation, etc.) properly supported?','Has the appropriateness of the revenue recognition method been reviewed?']},
+  bs30:{
+    docs:['Summary listing of all commissions incurred','TAC Weekly Reports, PMS Reports for dates not covered by the TAC Report','Non-TAC Commission details','Prior month TAC and Non-TAC Invoice (including relevant HOD approval)','Travel agency contract','Statement from travel agency'],
+    checks:['Are commission-eligible bookings limited to reservations made by authorized travel agencies where the guest stays under an SRP for which Hilton pays commissions?','Are commissions paid at the stipulated rate? Have non-standard room commissions exceeding 12% or any non-room commissions been approved by the Regional Commercial Director?','For standard and efficient operation of the CCP (Centralized Commission Program), is deduction at source of commissions not permitted?','Has a Finance department staff member reviewed the Travel Agency commission report to confirm all commissions are correctly recorded?']},
+  bs31:{
+    docs:['Tax Calculation Sheet','Supporting documents such as tax payment receipts'],
+    checks:['Are there no manual entries?','Does the Revenue agree with the correct output tax?','If applicable, has tax on Deemed Sales been processed?','Have differences in accrued or paid tax been resolved in a timely manner?']},
+  bs32:{
+    docs:['Detailed description of all items by name/title/level','Latest hotel Forecast','Bonus scheme approved by hotel management'],
+    checks:['Has the accrual for GM & 4D been calculated in accordance with the Hilton annual bonus guidelines?','Has the monthly accrual been accurately calculated based on the latest full-year forecast?','Has the bonus been adjusted for hotel staff changes (new TMs, departures, transfers, etc.)?','Is there a hotel management-approved local SOP/MEMO for promotional and upsell incentives? Have those incentives been paid following Income Audit review and management approval?','Is there an explanation for any bonus accrued for more than one month?','As payroll information is confidential, has the detailed breakdown been referenced from the Paymaster?','Has a bonus been accrued for TMs on internal transfer, if applicable?']},
+  bs33:{
+    docs:['Pension Accrual Lead Sheet','Supporting documents referenced in the Lead Sheet above'],
+    checks:['Is the pension calculation performed in accordance with local regulations and employment contracts?','Is the basis for the accrual correct?']},
+  bs34:{
+    docs:['Vacation days / Paid time off calculation sheet','Approved calculation statement'],
+    checks:['Has the monthly vacation/paid time off accrual been correctly calculated?','As a best practice, is vacation accrual not accumulating excessively? Is regular documented review being conducted by each department head / Operations Leader / 4D?']},
+  bs35:{
+    docs:['Listing of other deposits (unclaimed deposits, unidentified deposits, etc.)','Supporting documents for the above listing'],
+    checks:['Do the amounts in the GL code agree with the supporting documents?','Is appropriate follow-up action being taken for other deposits (such as unclaimed or unidentified deposits)?','Does the tracking record include detailed deposit information such as date of receipt and payee name?']},
+  bs36:{
+    docs:['Advance deposit ledger from PMS','Review, supporting documents, and action plan for stale advance deposits'],
+    checks:['Does the GL balance agree with the advance deposit ledger in the PMS?','Are there no debit balances in the account?','Are there no stale dated open amounts in the ledger?']},
+  bs37:{
+    docs:['Detailed listing of all items/amounts within the GL code','Supporting documents for the above items'],
+    checks:['Have the supporting documents been reviewed to confirm that the amounts recorded in the GL code are correct?','Have the items been reviewed against the Management Agreement (MA)? Are there any payments outside the MA?','If there are payments outside the MA, has Regional Management been notified to discuss resolution?']},
+  bs38:{
+    docs:['Account Payable Aging Report','Vendor Master Data Change Report'],
+    checks:['Have all payments to hotel suppliers been processed through the AP module?','Are there no generic credit accounts? Are vendors registered in the AP system only after a new Vendor Form has been completed?','Is a vendor master data change report generated monthly?','Are aging items exceeding 90 days reviewed monthly with detailed explanations?']},
+  bs39:{
+    docs:['P&L (MTD and YTD)'],
+    checks:['For managed hotels, has the P&L been zeroed out at month-end?','Each month, has the hotel correctly processed the owner\'s return to the Owner equity account on the Balance Sheet with the correct journal entry (Dr Owners Distribution 371018 / Cr P&L account)?']}
+};
 // ===== BS GUIDE FUNCTIONS =====
 function selDash(){
   viewMode='dash';
@@ -1189,13 +1309,16 @@ function buildBSRP(){
   var bsPdfUrl='Balance%20Sheet%20Reconciliations%20Guide%20APAC.pdf#page='+pdfPage;
 
   // Docs list
+  var bsEN=bsDataEN[item.id]||{};
+  var docsArr=lang==='ko'?item.docs:(bsEN.docs||item.docs);
   var docsHtml='<ul style="margin:0;padding-left:18px;">';
-  item.docs.forEach(function(d){docsHtml+='<li style="font-size:12px;line-height:1.7;color:var(--tx)">'+esc(d)+'</li>';});
+  docsArr.forEach(function(d){docsHtml+='<li style="font-size:12px;line-height:1.7;color:var(--tx)">'+esc(d)+'</li>';});
   docsHtml+='</ul>';
 
   // Checkpoints
+  var checksArr=lang==='ko'?item.checks:(bsEN.checks||item.checks);
   var checksHtml='';
-  item.checks.forEach(function(c,i){
+  checksArr.forEach(function(c,i){
     var checked=chks[i]?true:false;
     checksHtml+='<label class="bscheck-item'+(checked?' bscheck-done':'')+'">'
       +'<input type="checkbox"'+(checked?' checked':'')+' onchange="toggleBSCheck(\''+item.id+'\','+i+',this.checked)" style="margin-right:8px;flex-shrink:0;width:15px;height:15px;cursor:pointer;accent-color:var(--p)">'
