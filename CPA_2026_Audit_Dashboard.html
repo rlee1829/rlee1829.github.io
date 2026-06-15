@@ -1436,6 +1436,20 @@ var JP_TS={
   80: '無料客室／プロモーションパッケージ付き団体契約またはバーター契約から3件を選択すること。対応する日付の売上レポートをレビューし、業務ステップ欄に定義されたコントロールを検証すること。'
 };
 
+// WATERMARK
+(function(){
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" width="520" height="200">'
+    +'<text x="260" y="100" text-anchor="middle" dominant-baseline="middle" '
+    +'font-family="Arial,sans-serif" font-size="13" fill="#1a2456" '
+    +'transform="rotate(-30,260,100)">'
+    +'© 2026 Rebecca Lee | For Internal Use Only'
+    +'</text></svg>';
+  var d=document.createElement('div');
+  d.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:.09;background-repeat:repeat';
+  d.style.backgroundImage='url("data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)+'")';
+  document.body.appendChild(d);
+})();
+
 // INIT
 loadStore(); updPrg(); selDash();
 setInterval(save,30000);
