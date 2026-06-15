@@ -899,7 +899,7 @@ function save(){
     si.textContent='✓ Saved '+String(_n.getHours()).padStart(2,'0')+':'+String(_n.getMinutes()).padStart(2,'0');
   }catch(e){}
 }
-function saveHI(){saveDbc();}
+function saveHI(){saveDbc();updatePrintHdr();}
 
 function loadStore(){
   try{
@@ -915,6 +915,7 @@ function loadStore(){
       });
     }
   }catch(e){}
+  updatePrintHdr();
 }
 
 function setLang(l){
@@ -1927,20 +1928,25 @@ var JP_TS={
   document.body.appendChild(bot);
 })();
 
-window.onbeforeprint=function(){
+function updatePrintHdr(){
   var el=document.getElementById('print-hdr');
   if(!el)return;
   var hotel=document.getElementById('hi-hotel').value||'';
   var date=document.getElementById('hi-date').value||'';
   var auditor=document.getElementById('hi-auditor').value||'';
   var period=document.getElementById('hi-period').value||'';
-  var title=viewMode==='prep'?(lang==='ko'?'사전 준비 서류 체크리스트':'Pre-Audit Document Checklist'):'CPA 2026 Peer Audit';
   var meta='';
-  if(hotel)meta+='<span><b>Hotel:</b>'+esc(hotel)+'</span>';
-  if(auditor)meta+='<span><b>Auditor:</b>'+esc(auditor)+'</span>';
-  if(date)meta+='<span><b>Date:</b>'+esc(date)+'</span>';
-  if(period)meta+='<span><b>Period:</b>'+esc(period)+'</span>';
-  el.innerHTML='<div class="print-hdr-title">'+esc(title)+'</div>'+(meta?'<div class="print-hdr-meta">'+meta+'</div>':'');
+  if(hotel)meta+='<span><b>Hotel:</b> '+esc(hotel)+'</span>';
+  if(auditor)meta+='<span><b>Auditor:</b> '+esc(auditor)+'</span>';
+  if(date)meta+='<span><b>Date:</b> '+esc(date)+'</span>';
+  if(period)meta+='<span><b>Period:</b> '+esc(period)+'</span>';
+  el.innerHTML='<div id="print-hdr-title" class="print-hdr-title">CPA 2026 Peer Audit</div>'
+    +(meta?'<div class="print-hdr-meta">'+meta+'</div>':'');
+}
+window.onbeforeprint=function(){
+  var t=viewMode==='prep'?(lang==='ko'?'사전 준비 서류 체크리스트':'Pre-Audit Document Checklist'):'CPA 2026 Peer Audit';
+  var el=document.getElementById('print-hdr-title');
+  if(el)el.textContent=t;
 };
 // INIT
 loadStore(); loadPrepChecks(); loadPrepTypes(); updPrg(); selDash();
