@@ -43,11 +43,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 .prg-s{display:flex;align-items:center;gap:3px;font-size:11px}
 .pdot{width:7px;height:7px;border-radius:50%;display:inline-block}
 /* NAV */
-#nav{background:#fff;border-bottom:2px solid var(--bd);flex-shrink:0;display:flex;align-items:stretch}
+#nav{background:#dde3f0;border-bottom:2px solid #c2cae0;flex-shrink:0;display:flex;align-items:stretch}
 #tabs{display:flex;overflow-x:auto;scrollbar-width:none;flex:1}
 #tabs::-webkit-scrollbar{display:none}
-.tab{padding:8px 11px;cursor:pointer;font-size:11px;font-weight:600;color:var(--mu);border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:4px;flex-shrink:0}
-.tab:hover{color:var(--p)}.tab.active{color:var(--p);border-bottom-color:var(--g)}
+.tab{padding:8px 11px;cursor:pointer;font-size:13px;font-weight:700;color:#6b7a9e;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.tab:hover{color:var(--p)}.tab.active{color:var(--p);border-bottom-color:var(--g);background:rgba(26,36,86,.08)}
 .tab.ftab{border-left:1px solid var(--bd)}
 .tn{background:#e9ecef;color:var(--mu);font-size:9px;padding:1px 4px;border-radius:8px;font-weight:700}
 .tab.active .tn{background:var(--gl);color:var(--p)}
@@ -75,8 +75,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 .empty-icon{font-size:44px}.empty-tx{font-size:13px}
 .dcard{background:#fff;border-radius:10px;box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .dhdr{background:var(--p);color:#fff;padding:13px 18px;display:flex;align-items:center;gap:10px}
-.dnum{font-size:18px;font-weight:700;color:var(--g);opacity:.9}
-.dsec{font-size:13px;opacity:.9;margin-bottom:2px;font-weight:600}
+.dnum{font-size:16px;font-weight:700;color:var(--g)}
+.dsec{font-size:16px;font-weight:800;opacity:.9;margin-bottom:2px}
 .dta{flex:1}
 .dts{font-size:10px;opacity:.55;text-align:right;flex-shrink:0}
 .dbody{padding:16px 18px}
@@ -133,7 +133,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
   #prg{padding:5px 10px}
   .prg-lbl{font-size:9px;min-width:55px}
   #nav{position:sticky;top:0;z-index:10;flex-wrap:wrap}
-  .tab{padding:8px 7px;font-size:10px}
+  .tab{padding:8px 7px;font-size:12px}
   #flt{gap:3px;padding:4px 6px}
   .fb{padding:3px 5px;font-size:9px}
   #ct{flex-direction:column;height:auto;overflow:visible}
@@ -741,9 +741,10 @@ function buildRP(){
   var html='<button class="mob-back" onclick="backToList()">&#8592; '+(lang==='ko'?'목록으로':(lang==='ja'?'リストへ':'Back'))+'</button>'
     +'<div class="dcard">'
     +'<div class="dhdr">'
-    +'<div class="dnum">#'+(sIdx+1)+'</div>'
     +'<div class="dta"><div class="dsec">'+esc(item.section)
-    +' &bull; <span style="padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;background:'+rbg+';color:'+rfc+'">'+esc(item.risk)+'</span></div></div>'
+    +' <span class="dnum">#'+(sIdx+1)+'.</span>'
+    +' <span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:'+rbg+';color:'+rfc+'">'+(item.risk==='HR'?'High risk':esc(item.risk))+'</span>'
+    +'</div></div>'
     +(tst?'<div class="dts">Tested: '+esc(tst)+'</div>':'')
     +'</div>'
     +'<div class="dbody">'
