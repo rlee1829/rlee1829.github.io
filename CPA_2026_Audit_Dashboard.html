@@ -1023,6 +1023,126 @@ var bsDataEN={
     docs:['P&L (MTD and YTD)'],
     checks:['For managed hotels, has the P&L been zeroed out at month-end?','Each month, has the hotel correctly processed the owner\'s return to the Owner equity account on the Balance Sheet with the correct journal entry (Dr Owners Distribution 371018 / Cr P&L account)?']}
 };
+// ===== BS GUIDE DATA (JA) =====
+var bsDataJA={
+  bs1:{
+    docs:['House Fund 照合サマリーシート','当月実施したすべての抜き打ち検査のカウントシートを含む月次サマリー','House Fund / Revolving Fund 契約書（毎月添付に代わり保管場所のクロスリファレンス可）'],
+    checks:['House Fund契約書の合計金額はGL上のHouse Fund勘定残高と一致しているか','Revolving House Fundの引き継ぎシート（カウントシート）を確認し、交代キャッシャー全員の署名があることを確認したか','Cash Drop記録またはユーザー権限リストからキャッシャー2〜3名を選択し、当該者のHouse Fund契約書を直接確認したか','USD 2,000以上のHouse Fundを保有するすべてのTMは当月中にカウントが完了しているか','House Fund総額の少なくとも50%以上が当月内にカウントされており、すべてのTMが3ヶ月以内に最低1回カウントされているか','House Fund契約書の有効期間は2年を超えていないか','抜き打ち検査での不足または過剰は合理的に説明されており、不審な事項はFinance Leaderに即時報告されているか','GSM House Fundの一時借用記録、またはFO/F&B House Fundが一時的な仕入れに使用された場合の記録があるか','Revolving Fundを使用する場合、RFD承認済みの書面化された運用手続きがあるか']},
+  bs2:{
+    docs:['電子バンキングシステムの銀行明細書または印刷物','Bank Reconciliation Sheet','すべての未調整項目に関する説明および証憑'],
+    checks:['銀行照合は毎週完了しFinance Leader（または同等職位）がレビューしているか','銀行明細書または電子バンキング印刷物は当月末日まで更新されているか','30日を超えて未解決の未調整項目がないか（ある場合は遅延理由の詳細説明が必要）','銀行照合は当該口座の署名権者以外の担当者が作成しているか','Management Agreementに従いFF&E積立金が別口座に積み立てられているか','FF&E銀行口座残高とFF&E積立金額の照合が完了しているか','FF&E資金をOwner貸付またはOwnerによる借入に使用する場合RFDの承認を得ているか','金融商品または利回り商品への投資についてRFDの承認を得ているか']},
+  bs3:{
+    docs:['ホテル内すべてのWeChat/Alipayアカウントのスクリーンショット','当月のWeChat/Alipayアカウント明細および月末残高レポート','未調整項目がある場合の理由説明とフォローアップ内容'],
+    checks:['WeChat/Alipay各アカウントの日次精算金額とPMSの決済手段別金額は毎日一致しているか。差異がある場合DOF/FMに報告しフォローアップしているか','GL勘定残高は実際のWeChat/Alipay残高と一致しているか','Guest Ledger、City Ledger、ゲスト前払金は適時精算されているか','返金は最初の決済に使用した同一のWeChat/Alipayアカウントにのみ処理されているか','未請求・長期未使用・返金待ち残高等の未処理残高を確認しているか。該当残高はホテルのLocal SOPに従いDeposit-payable勘定へ振替または収益認識しているか']},
+  bs4:{
+    docs:['Group Master Balance Summary Report','House Account Balance Summary','Room Balance Summary','Detail Receivable Recap','Credit Reclass Journal（該当する場合）'],
+    checks:['GLシステム残高はPMSのタイプ別残高と照合されているか。差異がある場合原因調査は完了しているか','PMSレポートを確認しクレジット残高（前払金等）がないか確認しているか。該当金額は月末にGLでAuto Reversal Journalにより負債勘定に再分類されているか','Group Master Balanceはチェックアウト後5営業日以内に精算、またはCity Ledgerへの振替が一時的なクレジット契約承認後に行われているか','House Account Balance Reportは適時処理を確保するため毎日確認されているか','PMSのHigh Balance Reportを確認しクレジット限度額のリアルタイム適用を確認しているか。限度額超過勘定には適切な管理が行われているか']},
+  bs5:{
+    docs:['AR Aging Report','Credit Meeting Minutes','Credit Reclass Journal（該当する場合）'],
+    checks:['GLシステム残高はPMSのタイプ別残高と照合されているか。差異がある場合原因調査は完了しているか','滞在・イベント前に適切なクレジット承認が完了しているか','すべてのクレジット口座残高はクレジット契約に規定された限度額および条件の範囲内にあるか','PMSレポートを確認しクレジット残高（超過支払い等）がないか確認しているか。該当金額は月末にGLでAuto Reversal Journalにより負債勘定に再分類されているか','City LedgerにGeneric口座がないか。各債務者ごとにクレジット限度額が設定されクレジット審査が行われているか','すべてのクレジット契約は年1回以上レビューされているか']},
+  bs6:{
+    docs:['クレジットカード照合書','クレジットカード銀行明細書','クレジットカード返金フォーム'],
+    checks:['クレジットカードシステムの精算合計とPMS/POSシステムの収益合計の照合は毎日行われているか','未調整差異を特定しFinance Leaderの承認があるか。すべての資金が回収されるよう措置が講じられているか','Balance SheetにはクレジットカードのTypeごと（Amex、Bankcard、Visa、Mastercard等）に別々の勘定が設けられているか','当月処理されたすべてのクレジットカード返金を確認しているか。返金は最初の請求と同一のカード番号に処理されているか','完全なクレジットカード情報はホテル内のいかなる場所にも紙の書類として保管されていないか。TMのPCまたはノートPCの電子ファイルにも全カード情報が保存されていないか','クレジットカードシステムで処理されたすべての返金は別のFinanceチームメンバーにより証憑と照合・確認されているか（顧客名・住所、元の販売金額、返金金額、返金日、カード番号下4桁、返金理由、スーパーバイザー署名の確認）']},
+  bs7:{
+    docs:['GL補助元帳','残高がゼロでない場合の説明および証憑'],
+    checks:['各期末の期末残高はゼロになっているか','Clearing Accountに未決済取引がある場合は原因調査と適切な証憑が準備されているか','当月取引が発生したすべてのClearing Accountについて残高がゼロでも照合書が作成されているか']},
+  bs8:{
+    docs:['返却（不渡り）小切手関連書類','当月の貸倒引当金計算書','Regional Finance DirectorおよびVP of Operations Financeの貸倒免除承認書'],
+    checks:['小切手が返却（不渡り）された場合Finance Leaderまたは指定担当者が直ちに調査を完了しているか。顧客への即時連絡を試みているか','すべての返却小切手に対し100%の引当金を設定しているか','AR Agingの月次レビューにおいてOperations LeaderとFinance Leaderが共同で回収不能債権を特定し必要に応じてBad Debt Write-off Authorization Formを作成しているか']},
+  bs9:{
+    docs:['GL内のすべての項目・金額と理由・説明を含む明細書','関連する領収書・請求書および/または契約書のコピー（毎月添付に代わり保管場所のクロスリファレンス可）'],
+    checks:['GL残高はすべての項目・金額の一覧と一致しているか','Other Receivableに金額が計上された理由を確認しているか','金額は領収書・請求書および/または契約書の証憑と一致しているか','補助元帳のクレジット残高を調査しているか。必要に応じて月末にGLでAuto Reversal Journalにより負債勘定に再分類しているか']},
+  bs10:{
+    docs:['サプライヤーへのすべての前払金明細一覧','前払金を示す契約書・発注書（PO）または請求書のコピー'],
+    checks:['GL残高はすべての項目・金額の一覧と一致しているか','金額は領収書・請求書および/または契約書の証憑と一致しているか','前払金の経過（エイジング）を監視しているか','各支払件数の証憑の完全性と有効性を確認しているか','物品またはサービスが受領され前払金が適時に相殺されているかフォローアップしているか']},
+  bs11:{
+    docs:['Owner未収金明細一覧','口座残高に関するOwner確認書（またはManagement Agreement参照）','ホテルとOwner間の原取引参照書類'],
+    checks:['GL残高はOwner未収金明細一覧と一致しているか','Ownerとの原取引の明細が適切に保管され各取引の証憑が揃っているか','Ownerによる借入がある場合Regional Finance Directorの事前承認があり合意したスケジュールに従い返済されているか']},
+  bs12:{
+    docs:['GL内のすべての項目・金額と理由・説明を含む明細書','有効な領収書・請求書および/または契約書のコピー（毎月添付に代わり保管場所のクロスリファレンス可）'],
+    checks:['GL残高はすべての項目・金額の一覧と一致しているか','保証金は契約書およびその他の証憑と一致しているか','保証金は満期時のみ支払われ受取人からの受領確認を得ているか','該当する場合は会計年度末に残高確認（Balance Confirmation）を実施しているか']},
+  bs13:{
+    docs:['当月の貸倒引当金計算書','PMS AR Agingレポート','Regional Finance DirectorおよびVP of Operations Financeの貸倒免除承認書'],
+    checks:['潜在的な不良債権に対する引当金は以下の基準に従い毎月設定されているか（年齢に関わらず回収リスクが高い金額に対する個別引当 / 引当金算出前にクレジット金額をエイジング区分別合計に加算 / 請求書日付から90日超の金額に100%引当、ただしHilton HonorsおよびIntercompany金額を除く）','貸倒引当金の月次レビューと承認はFinance Leaderの署名と日付で証明されているか。方針からの逸脱または例外事項は記録されているか','必要引当額がゼロの場合でも計算ワークシートは毎月作成されているか']},
+  bs14:{
+    docs:['税務計算書（システム生成または手動）','台帳残高を裏付けるその他の証憑書類'],
+    checks:['台帳残高は税務計算書および証憑書類と一致しているか','証憑書類を確認し税金の支払い・調整が適時に行われているか']},
+  bs15:{
+    docs:['TMアドバンス一覧表','TMおよびOperations Leaderが署名したアドバンス申請書'],
+    checks:['給与前払いはOperations Leaderの承認後にのみ支払われているか','労使協定等による年次有給休暇の早期支払いがある場合それが給与規定上の給与前払いに該当しないことを確認しているか','前払金額は支給時のTMの実手取り額を超えていないか','次の給与期間を超えて未払いの給与前払いがないか。いかなる場合も未精算の給与前払いは許容されずTM貸付に該当することを確認しているか','給与前払い書類にTMの署名と日付が含まれているか']},
+  bs16:{
+    docs:['GL内のすべての項目・金額と理由・説明を含む明細書','保険請求関連の証憑書類（事故報告書、メール等）','保険会社からの請求確認記録（請求書、労災評価フォーム、保険会社通知書、メール等）'],
+    checks:['台帳残高はすべての項目・金額の一覧と一致しているか。一覧には未処理請求件ごとの金額と予想回収期間が記載されているか','未処理の保険請求件ごとに説明とフォローアップ記録があるか','保険事故に関連してホテルで発生したすべての費用が記録されているか','保険会社から請求確認を受けた後、確定金額と見積金額の差異が調整されているか','銀行から保険金を受領した後、関連費用が適切に相殺されているか']},
+  bs17:{
+    docs:['前払費用計算シート','すべての前払項目の証憑書類：前払物品・サービス契約書のコピー、部門署名入りの受領確認書または検収書（Acceptance Form）'],
+    checks:['GL残高は前払費用計算シートと一致しているか','前払スケジュールに費用説明とGLコード・仕入先名・総額・費用配賦期間・P&Lへの月次請求額・残前払残高が含まれているか','月次償却額が変動する場合合理的な説明があるか','総償却額と期間は関連する請求書および契約書の内容と一致しているか']},
+  bs18:{
+    docs:['出張前払金一覧表','出張前払金申請書'],
+    checks:['出張前払金はTMへの出張目的の場合にのみ支払われているか。可能な場合は法人・企業クレジットカードを優先使用しているか','USD 2,500を超える前払金の場合Regional Finance Directorの事前承認があるか','出張前払金申請書が使用され受領TMとFinance LeaderまたはOperations Leaderの署名があるか','出張前払金は帰着後1週間以内に精算されているか']},
+  bs19:{
+    docs:['月次棚卸実地カウントシート','調査書類を含む棚卸差異（Variance）報告書','月末調達システム報告書','Slow/Non-Moving Report'],
+    checks:['ホテルは現金活用を最大化し廃棄・紛失リスクを最小化するために実務上可能な最低水準の在庫を維持しているか','方針適用免除（Waiver）が承認された場合を除き、その他品目は直接費用（Direct Expense）として処理されているか','タバコ類は在庫として処理されていないか（例外なし）','各在庫勘定タイプはBalance Sheet Reconciliation Lead Sheetと一致する明細書のスキャンコピーで裏付けられているか','実地棚卸はStorekeeperまたは承認されたF&Bチームメンバーとファイナンス部門担当者が共同で実施しているか。カウントシートには数量が事前記入されず実査品目のみ記載されているか','6ヶ月以上動きのない在庫品目は償却の要否を確認しているか。償却が必要な場合Finance Leader承認入りの在庫償却フォームが作成されているか']},
+  bs20:{
+    docs:['Ownerが承認した開業前費用に関するOwner未収金明細一覧','取引証憑としての開業前予算書','承認済み支払書類・請求書・契約書等の費用関連書類'],
+    checks:['ホテル開業後1年以上経過しても残高がある場合説明と対応計画があるか','原取引の明細が適切に保管され各取引の証憑が揃っているか','開業前費用サマリーレポートに日付・タイプ別にすべての取引が記載されているか','費用はOwnerに適時請求されているか']},
+  bs21:{
+    docs:['GL内のすべての項目・金額の明細書','上記項目の証憑書類'],
+    checks:['証憑書類を確認しGL内に計上された金額が正確かを確認しているか','Management Agreement（MA）に従い項目を確認しているか。MA外の支払がないか','MA外の支払がある場合Regional Managementに通知し解決策を協議しているか']},
+  bs22:{
+    docs:['LTI計算シート'],
+    checks:['LTI計算シートはGL残高と一致しているか','インセンティブ計算はRegional HR Directorが共有したインセンティブガイドライン等の証憑と一致しているか','インセンティブ計算は関係部門責任者の承認を受けているか']},
+  bs23:{
+    docs:['当年度FF&E積立計算シート','FF&E積立計算のためのManagement Agreement / Lease Agreementの関連条項','当年度P&Lレポート'],
+    checks:['FF&E銀行口座への積立およびFF&E積立勘定の会計処理はManagement Agreement / Lease Agreementの条件に従って行われているか','FF&E積立銀行口座からの支払または払戻および FF&E積立資金のコミットメントは会社方針・承認された資本計画・Lease/Management AgreementおよびApproval Matrixに準拠しているか','FF&E積立負債およびFF&E積立銀行口座は赤字（Deficit）状態でないか','FF&E勘定に計上されたすべての支出の台帳・一覧が関連証憑とともに維持されているか','FF&E積立勘定の引当・購入・利息・銀行手数料はFF&E銀行残高と照合されているか。差異がある場合調査と説明が完了しているか']},
+  bs24:{
+    docs:['Management Fee / Incentive Fee Lead Sheet','Management Fee / Incentive Fee 計算シート','手数料計算を裏付けるP&Lレポート（MTDおよびYTD）'],
+    checks:['手数料計算はManagement Agreementに規定された方法で行われているか','RevenueおよびAdjusted GOPの定義はManagement Agreementと一致しているか','手数料はManagement Agreementに従い支払われているか。そうでない場合Regional Managementに通知されているか','Finance LeaderはManagement Agreementに従いManagement FeeとIncentive Feeの計算を最低6ヶ月ごとにレビューし再計算しているか']},
+  bs25:{
+    docs:['未払いアフィリエイト請求書一覧','上記一覧のアフィリエイト請求書証憑'],
+    checks:['アフィリエイト請求書は適時支払われているか。60日を超えた項目について調査と対応計画が策定されているか','60日を超えた係争項目はAffiliatesチームおよびRegional Managementにエスカレーションされているか']},
+  bs26:{
+    docs:['未払計上計算シート','各ラインアイテムの証憑書類'],
+    checks:['未払計上は当月内に受領した物品およびサービスに対してのみ記録されているか','毎月発生する未払計上を含む標準月次未払チェックリストをレビューしているか','未払計上は反転仕訳（Reversing Journal Entry）で計上されているか。月末に計上したすべての未払は翌月初に必ず逆仕訳されなければならないか','月末時点で未払計上が必要な物品を受領したすべてのオープンPOをレビューしているか','月末締め前にすべての部門に事前通知し請求書・未払計上明細・関連部門責任者の承認が適時提出されるよう手続きが整備されているか']},
+  bs27:{
+    docs:['未払計上計算シート','各ラインアイテムの証憑書類','最新の契約書一覧（毎月添付に代わり保管場所のハイパーリンク参照可）'],
+    checks:['契約書または発注書単独では未払計上の証憑として使用できないか。月末までに物品が受領またはサービスが完了したことの証明も提出されているか','定期的に提供されるサービス契約については、使用部門がサービスを受領し完了報告書を発行した後にのみ未払計上が記録されているか','使用量または消費量に基づく未払計上はシステム使用報告書で裏付けられているか','定期的に提供されるサービス（壁面清掃・年間固定回数サービス等）は契約有効期間にわたり均等配分しているか','契約が満了し更新・承認中の場合、使用部門がサービスが継続中であることを証明しているか','契約関連支払が記録された未払計上と相殺すべきかどうかを確認しているか']},
+  bs28:{
+    docs:['バウチャー番号ごとにすべての項目・金額を記載したGift Certificate/Voucher管理シート','PMSの販売・利用（Redemption）レポート'],
+    checks:['バウチャー管理シートには最低限バウチャー番号・顧客名（該当する場合）・バウチャー金額・有効期間が記録されているか。バウチャーシステムがない場合Income AuditorがマニュアルトラッキングシートをメンテナンスしているかGift Certificate/Voucherの販売はPMSレポートと照合し正しい金額で記録されているか','Gift Certificate/Voucherの利用（Redemption）は管理シートの対応するバウチャー番号を相殺する形で記録されているか','有効期限が切れた未使用Gift Certificate/VoucherはLocal SOPまたは関連法規に従いその他収益として認識されているか']},
+  bs29:{
+    docs:['GL内のすべての項目・金額の明細書','上記項目の証憑書類'],
+    checks:['台帳残高はすべての項目・金額の一覧と一致しているか','すべての繰延収益勘定（会員費・年会費・Attrition and Cancellation等）は適切に証明されているか','収益認識方法の適切性を確認しているか']},
+  bs30:{
+    docs:['発生したすべてのコミッション集計一覧','TAC週次レポート、TACレポートに含まれない日付のPMSレポート','Non-TACコミッション明細','前月のTACおよびNon-TACインボイス（関係HOD承認含む）','旅行代理店契約書','旅行代理店明細書（Statement）'],
+    checks:['コミッション対象の予約は公認旅行代理店が予約しゲストがHiltonがコミッションを支払うSRP（Special Rate Plan）で宿泊した場合に限定されているか','コミッションは規定のレートで支払われているか。12%を超える非標準客室コミッションまたはすべての非客室コミッションはRegional Commercial Directorの承認を受けているか','CCP（Centralized Commission Program）の標準的・効率的な運営のためコミッションの源泉控除は許容されていないか','FinanceスタッフはTravel Agencyコミッションレポートをレビューしすべてのコミッションが正確に記録されていることを確認しているか']},
+  bs31:{
+    docs:['税務計算シート','税金支払領収書等の証憑書類'],
+    checks:['手動入力がないか','Revenueは正しいOutput Taxと一致しているか','該当する場合Deemed Sales（みなし売上）に対する税金が処理されているか','発生または支払済み税金の差異は適時解消されているか']},
+  bs32:{
+    docs:['氏名・役職・レベル別のすべての項目の詳細説明','ホテルの最新Forecast','ホテル経営陣が承認したボーナス制度'],
+    checks:['GM & 4DのAccrualはHilton年次ボーナスガイドラインに従い算定されているか','月次AccrualはYTDの最新年間Forecastに基づき正確に計算されているか','ホテルの人員変動（新規TM・退職・異動等）に応じてボーナスが調整されているか','プロモーションおよびUpsellインセンティブについてホテル経営陣承認のLocal SOP/MEMOがあるか。該当インセンティブはIncome Auditのレビューと経営陣承認後に支払われているか','1ヶ月を超えてAccrualされたボーナスについて説明があるか','給与関連情報は機密であるためPaymasterが作成した詳細明細書を参照しているか','社内異動（Transfer）TMにもボーナスがAccrualされているか（該当する場合）']},
+  bs33:{
+    docs:['退職給付Accrual Lead Sheet','上記Lead Sheetに記載された証憑書類'],
+    checks:['退職給付の計算は現地法規および雇用契約に従って行われているか','AccrualのベースはCorrectか']},
+  bs34:{
+    docs:['有給休暇日数 / 有給休暇計算シート','承認済み計算書'],
+    checks:['月次の有給休暇AccrualはCorrectに計算されているか','ベストプラクティスとして有給休暇Accrualが過度に蓄積されていないか。各部門長 / Operations Leader / 4Dによる定期的な文書化されたレビューが行われているか']},
+  bs35:{
+    docs:['その他保証金一覧（未請求保証金・未確認保証金等）','上記一覧の証憑書類'],
+    checks:['GL内の金額は証憑書類と一致しているか','その他保証金（未請求または未確認保証金等）について適切なフォローアップが行われているか','トラッキング記録に入金受領日・支払者名等の詳細な入金情報が含まれているか']},
+  bs36:{
+    docs:['PMSのAdvance Deposit Ledger','古い前受金（Stale Advance Deposit）に関するレビュー・証憑書類・対応計画'],
+    checks:['GL残高はPMSのAdvance Deposit Ledgerと一致しているか','勘定にDebit残高がないか','台帳に古い（Stale Dated）未決済金額がないか']},
+  bs37:{
+    docs:['GL内のすべての項目・金額の明細書','上記項目の証憑書類'],
+    checks:['証憑書類を確認しGL内に計上された金額が正確かを確認しているか','Management Agreement（MA）に従い項目を確認しているか。MA外の支払がないか','MA外の支払がある場合Regional Managementに通知し解決策を協議しているか']},
+  bs38:{
+    docs:['Account Payable Aging Report','Vendor Master Data Change Report'],
+    checks:['ホテルのサプライヤーへのすべての支払はAPモジュールを通じて行われているか','Generic Creditアカウントがないか。VendorはNew Vendor Formが作成された後にのみAPシステムに登録されているか','Vendor Master Dataの変更レポートは毎月作成されているか','90日を超えたエイジングは詳細な説明とともに毎月レビューされているか']},
+  bs39:{
+    docs:['P&L（MTDおよびYTD）'],
+    checks:['Managed Hotelの場合P&Lは月末にゼロになっているか','毎月ホテルはOwnerの利益（Owner\'s Return）を正しい仕訳（Dr Owners Distribution 371018 / Cr P&L勘定）に従いBalance Sheet上のOwner Equity勘定に処理しているか']}
+};
 // ===== BS GUIDE FUNCTIONS =====
 function selDash(){
   viewMode='dash';
@@ -1310,13 +1430,14 @@ function buildBSRP(){
 
   // Docs list
   var bsEN=bsDataEN[item.id]||{};
-  var docsArr=lang==='ko'?item.docs:(bsEN.docs||item.docs);
+  var bsJA=bsDataJA[item.id]||{};
+  var docsArr=lang==='ko'?item.docs:(lang==='ja'?(bsJA.docs||bsEN.docs||item.docs):(bsEN.docs||item.docs));
   var docsHtml='<ul style="margin:0;padding-left:18px;">';
   docsArr.forEach(function(d){docsHtml+='<li style="font-size:12px;line-height:1.7;color:var(--tx)">'+esc(d)+'</li>';});
   docsHtml+='</ul>';
 
   // Checkpoints
-  var checksArr=lang==='ko'?item.checks:(bsEN.checks||item.checks);
+  var checksArr=lang==='ko'?item.checks:(lang==='ja'?(bsJA.checks||bsEN.checks||item.checks):(bsEN.checks||item.checks));
   var checksHtml='';
   checksArr.forEach(function(c,i){
     var checked=chks[i]?true:false;
