@@ -191,13 +191,18 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .prep-sec-name{font-size:13px;font-weight:700;color:var(--p)}
 .prep-sec-cnt{font-size:11px;color:var(--sub)}
 .prep-sec-cnt.done{color:#198754;font-weight:600}
-.prep-item{display:flex;align-items:flex-start;padding:7px 14px;border-bottom:1px solid var(--bd)}
+.prep-item{display:flex;align-items:center;padding:7px 14px;border-bottom:1px solid var(--bd);gap:6px}
 .prep-item:last-child{border-bottom:none}
 .prep-item.ck{background:#f0faf4}
-.prep-item label{display:flex;align-items:flex-start;gap:8px;cursor:pointer;width:100%;margin:0}
-.prep-item input[type=checkbox]{margin-top:2px;flex-shrink:0;accent-color:var(--p)}
-.prep-num{font-size:11px;color:var(--sub);min-width:26px;flex-shrink:0;padding-top:1px}
-.prep-txt{font-size:12.5px;color:var(--tx);line-height:1.5}
+.prep-item label{display:flex;align-items:center;gap:6px;cursor:pointer;margin:0;flex-shrink:0}
+.prep-item input[type=checkbox]{flex-shrink:0;accent-color:var(--p)}
+.prep-num{font-size:11px;color:var(--sub);min-width:26px;flex-shrink:0}
+.prep-type{display:flex;gap:3px;flex-shrink:0}
+.prep-type-btn{font-size:10px;padding:2px 6px;border-radius:10px;border:1px solid var(--bd);background:#fff;color:var(--sub);cursor:pointer;white-space:nowrap;line-height:1.4}
+.prep-type-btn.t-dmx{background:#1a2456;color:#fff;border-color:#1a2456}
+.prep-type-btn.t-file{background:#198754;color:#fff;border-color:#198754}
+.prep-type-btn.t-paper{background:#c8a96e;color:#fff;border-color:#b8935a}
+.prep-txt{font-size:12.5px;color:var(--tx);line-height:1.5;flex:1}
 .prep-item.ck .prep-txt{text-decoration:line-through;color:#aaa}
 @media print{#hdr,#prg,#nav,.prep-top .btn{display:none!important}.prep-item.ck .prep-txt{text-decoration:none;color:var(--tx)}.prep-item{break-inside:avoid}}
 </style>
@@ -711,8 +716,17 @@ function leaveDash(){
 }
 
 var prepChecks={};
+var prepTypes={};
 function loadPrepChecks(){
   try{var s=localStorage.getItem('cpa_prep');if(s)prepChecks=JSON.parse(s);}catch(e){}
+}
+function loadPrepTypes(){
+  try{var s=localStorage.getItem('cpa_prep_types');if(s)prepTypes=JSON.parse(s);}catch(e){}
+}
+function savePrepType(id,t){
+  if(prepTypes[id]===t){delete prepTypes[id];}else{prepTypes[id]=t;}
+  try{localStorage.setItem('cpa_prep_types',JSON.stringify(prepTypes));}catch(e){}
+  buildPrepView();
 }
 function savePrepCheck(id,v){
   prepChecks[id]=v;
@@ -768,12 +782,18 @@ function buildPrepView(){
       var pd=prepData[item.id];
       var txt=pd?(pd[lk]||pd.en):'—';
       var chk=!!prepChecks[item.id];
+      var tp=prepTypes[item.id]||'';
       html+='<div class="prep-item'+(chk?' ck':'')+'">'
         +'<label>'
         +'<input type="checkbox"'+(chk?' checked':'')+' onchange="savePrepCheck('+item.id+',this.checked)">'
         +'<span class="prep-num">#'+item.id+'</span>'
-        +'<span class="prep-txt">'+esc(txt)+'</span>'
         +'</label>'
+        +'<span class="prep-type">'
+        +'<button class="prep-type-btn'+(tp==='dmx'?' t-dmx':'')+'" onclick="savePrepType('+item.id+',\'dmx\')">DOC-MX</button>'
+        +'<button class="prep-type-btn'+(tp==='file'?' t-file':'')+'" onclick="savePrepType('+item.id+',\'file\')">File</button>'
+        +'<button class="prep-type-btn'+(tp==='paper'?' t-paper':'')+'" onclick="savePrepType('+item.id+',\'paper\')">Paper</button>'
+        +'</span>'
+        +'<span class="prep-txt">'+esc(txt)+'</span>'
         +'</div>';
     });
     html+='</div>';
@@ -1884,7 +1904,7 @@ var JP_TS={
 })();
 
 // INIT
-loadStore(); loadPrepChecks(); updPrg(); selDash();
+loadStore(); loadPrepChecks(); loadPrepTypes(); updPrg(); selDash();
 setInterval(save,30000);
 </script>
 </body>
