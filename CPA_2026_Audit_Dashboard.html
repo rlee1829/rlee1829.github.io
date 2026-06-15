@@ -236,7 +236,7 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 #print-hdr{display:none}
 @media(max-width:768px){
   #db{padding:6px 0;overflow-x:hidden;overflow-y:auto}
-  .prep-wrap{padding:4px 0;max-width:100%;margin:0}
+  .prep-wrap{padding:4px 8px;max-width:100%;margin:0}
   .prep-sec-card{border-radius:0;border-left:none;border-right:none;margin-bottom:4px}
   .prep-sec-hdr{padding:6px 8px}
   .prep-item{padding:5px 8px 5px 6px;gap:2px}
@@ -840,7 +840,7 @@ function buildPrepView(){
     +'<div class="prep-title">'+titleTxt+(hotelVal?' — '+esc(hotelVal):'')+(periodVal?' ('+esc(periodVal)+')':'')+'</div>'
     +'<div class="prep-total">'+readyTxt+'</div>'
     +'<button class="btn btn-g" onclick="window.print()" style="padding:5px 12px;font-size:12px">&#128438; '+(lang==='ko'?'인쇄':'Print')+'</button>'
-    +'<button class="btn btn-o" onclick="resetPrepChecks()" style="padding:5px 12px;font-size:12px">&#8635; '+(lang==='ko'?'초기화':'Reset')+'</button>'
+    +'<button class="btn" onclick="resetPrepChecks()" style="padding:5px 12px;font-size:12px;background:#dc3545;color:#fff;border:none">&#8635; '+(lang==='ko'?'초기화':'Reset')+'</button>'
     +'</div>';
   SECS.forEach(function(sec){
     var si=auditData.filter(function(i){return i.section===sec;});
