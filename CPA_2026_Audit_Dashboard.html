@@ -149,11 +149,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
   .irow{flex-direction:column}
   #app{overflow-x:hidden}
   #db{padding:6px 5px;gap:7px;overflow-x:hidden}
-  .prep-wrap{padding:8px 6px}
-  .prep-item{padding:5px 6px;gap:4px}
+  .prep-wrap{padding:6px 4px}
+  .prep-sec-hdr{padding:7px 8px}
+  .prep-item{padding:5px 4px;gap:3px}
+  .prep-type{gap:2px}
   .prep-type-btn{font-size:9px;padding:1px 4px}
-  .prep-txt{font-size:11.5px}
-  .prep-num{min-width:20px}
+  .prep-txt{font-size:11px}
+  .prep-num{min-width:16px;font-size:10px}
   #db .db-row{flex-wrap:wrap;gap:4px}
   #db .db-kcard{flex:0 0 calc(33.333% - 3px);min-width:0;padding:7px 5px;border-radius:8px}
   #db .db-kval{font-size:15px}
@@ -843,7 +845,7 @@ function buildPrepView(){
       html+='<div class="prep-item'+(chk?' ck':'')+'">'
         +'<label>'
         +'<input type="checkbox"'+(chk?' checked':'')+' onchange="savePrepCheck('+item.id+',this.checked)">'
-        +'<span class="prep-num">#'+item.id+'</span>'
+        +'<span class="prep-num">'+item.id+'</span>'
         +'</label>'
         +'<span class="prep-type">'
         +'<button class="prep-type-btn'+(tp==='dmx'?' t-dmx':'')+'" onclick="savePrepType('+item.id+',\'dmx\')">Doc-mx</button>'
