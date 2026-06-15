@@ -198,8 +198,8 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
   </div>
   <div class="hdr-acts">
     <span class="save-ind" id="si">&#10003; Saved</span>
-    <button class="btn btn-o lang-act" id="lang-ko" onclick="setLang('ko')">KO</button>
-    <button class="btn btn-o" id="lang-en" onclick="setLang('en')">EN</button>
+    <button class="btn btn-o" id="lang-ko" onclick="setLang('ko')">KO</button>
+    <button class="btn btn-o lang-act" id="lang-en" onclick="setLang('en')">EN</button>
     <button class="btn btn-o" id="lang-ja" onclick="setLang('ja')">JA</button>
     <button class="btn btn-g" onclick="exportCSV()">&#8659; Excel</button>
     <button class="btn btn-o" onclick="window.print()">&#128438; Print</button>
@@ -394,7 +394,7 @@ function getPdfUrl(pol){
   return PDF_FOLDER+encodeURIComponent(f);
 }
 
-var lang='ko';
+var lang='en';
 var results={};
 var notes={};
 var samples={};
@@ -1108,7 +1108,7 @@ var bsDataJA={
     checks:['契約書または発注書単独では未払計上の証憑として使用できないか。月末までに物品が受領またはサービスが完了したことの証明も提出されているか','定期的に提供されるサービス契約については、使用部門がサービスを受領し完了報告書を発行した後にのみ未払計上が記録されているか','使用量または消費量に基づく未払計上はシステム使用報告書で裏付けられているか','定期的に提供されるサービス（壁面清掃・年間固定回数サービス等）は契約有効期間にわたり均等配分しているか','契約が満了し更新・承認中の場合、使用部門がサービスが継続中であることを証明しているか','契約関連支払が記録された未払計上と相殺すべきかどうかを確認しているか']},
   bs28:{
     docs:['バウチャー番号ごとにすべての項目・金額を記載したGift Certificate/Voucher管理シート','PMSの販売・利用（Redemption）レポート'],
-    checks:['バウチャー管理シートには最低限バウチャー番号・顧客名（該当する場合）・バウチャー金額・有効期間が記録されているか。バウチャーシステムがない場合Income AuditorがマニュアルトラッキングシートをメンテナンスしているかGift Certificate/Voucherの販売はPMSレポートと照合し正しい金額で記録されているか','Gift Certificate/Voucherの利用（Redemption）は管理シートの対応するバウチャー番号を相殺する形で記録されているか','有効期限が切れた未使用Gift Certificate/VoucherはLocal SOPまたは関連法規に従いその他収益として認識されているか']},
+    checks:['バウチャー管理シートには最低限バウチャー番号・顧客名（該当する場合）・バウチャー金額・有効期間が記録されているか。バウチャーシステムがない場合Income Auditorがマニュアルトラッキングシートを維持しているか','Gift Certificate/Voucherの販売はPMSレポートと照合し正しい金額で記録されているか','Gift Certificate/Voucherの利用（Redemption）は管理シートの対応するバウチャー番号を相殺する形で記録されているか','有効期限が切れた未使用Gift Certificate/VoucherはLocal SOPまたは関連法規に従いその他収益として認識されているか']},
   bs29:{
     docs:['GL内のすべての項目・金額の明細書','上記項目の証憑書類'],
     checks:['台帳残高はすべての項目・金額の一覧と一致しているか','すべての繰延収益勘定（会員費・年会費・Attrition and Cancellation等）は適切に証明されているか','収益認識方法の適切性を確認しているか']},
@@ -1123,10 +1123,10 @@ var bsDataJA={
     checks:['GM & 4DのAccrualはHilton年次ボーナスガイドラインに従い算定されているか','月次AccrualはYTDの最新年間Forecastに基づき正確に計算されているか','ホテルの人員変動（新規TM・退職・異動等）に応じてボーナスが調整されているか','プロモーションおよびUpsellインセンティブについてホテル経営陣承認のLocal SOP/MEMOがあるか。該当インセンティブはIncome Auditのレビューと経営陣承認後に支払われているか','1ヶ月を超えてAccrualされたボーナスについて説明があるか','給与関連情報は機密であるためPaymasterが作成した詳細明細書を参照しているか','社内異動（Transfer）TMにもボーナスがAccrualされているか（該当する場合）']},
   bs33:{
     docs:['退職給付Accrual Lead Sheet','上記Lead Sheetに記載された証憑書類'],
-    checks:['退職給付の計算は現地法規および雇用契約に従って行われているか','AccrualのベースはCorrectか']},
+    checks:['退職給付の計算は現地法規および雇用契約に従って行われているか','Accrualの計算基礎は正確か']},
   bs34:{
     docs:['有給休暇日数 / 有給休暇計算シート','承認済み計算書'],
-    checks:['月次の有給休暇AccrualはCorrectに計算されているか','ベストプラクティスとして有給休暇Accrualが過度に蓄積されていないか。各部門長 / Operations Leader / 4Dによる定期的な文書化されたレビューが行われているか']},
+    checks:['月次の有給休暇Accrualは正確に計算されているか','ベストプラクティスとして有給休暇Accrualが過度に蓄積されていないか。各部門長 / Operations Leader / 4Dによる定期的な文書化されたレビューが行われているか']},
   bs35:{
     docs:['その他保証金一覧（未請求保証金・未確認保証金等）','上記一覧の証憑書類'],
     checks:['GL内の金額は証憑書類と一致しているか','その他保証金（未請求または未確認保証金等）について適切なフォローアップが行われているか','トラッキング記録に入金受領日・支払者名等の詳細な入金情報が含まれているか']},
