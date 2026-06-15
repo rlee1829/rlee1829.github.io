@@ -205,13 +205,13 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .prep-txt{font-size:12.5px;color:var(--tx);line-height:1.5;flex:1}
 .prep-item.ck .prep-txt{text-decoration:line-through;color:#aaa}
 .prep-print-hdr{display:none}
+#print-hdr{display:none}
 @media print{
   #hdr,#prg,#nav,.prep-top{display:none!important}
-  .prep-print-hdr{display:block!important;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #1a2456}
-  .prep-print-title{font-size:16px;font-weight:700;color:#1a2456;margin-bottom:6px}
-  .prep-print-meta{display:flex;gap:20px;font-size:11px;color:#333;flex-wrap:wrap;margin-bottom:3px}
-  .prep-print-meta span b{color:#1a2456}
-  .prep-print-prog{font-size:11px;color:#555;margin-top:2px}
+  #print-hdr{display:block!important;padding-bottom:12px;margin-bottom:16px;border-bottom:2px solid #1a2456}
+  .print-hdr-title{font-size:16px;font-weight:700;color:#1a2456;margin-bottom:7px}
+  .print-hdr-meta{display:flex;gap:28px;font-size:11px;color:#333;flex-wrap:wrap}
+  .print-hdr-meta b{color:#1a2456;margin-right:3px}
   .prep-item.ck .prep-txt{text-decoration:none;color:var(--tx)}
   .prep-item{break-inside:avoid}
   .prep-type-btn{border-color:#ccc!important}
@@ -220,6 +220,7 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 </head>
 <body>
 <div id="app">
+<div id="print-hdr"></div>
 <div id="hdr">
   <div class="hdr-brand">
     <div class="hdr-title">CPA 2026 Peer Audit</div>
@@ -1926,6 +1927,21 @@ var JP_TS={
   document.body.appendChild(bot);
 })();
 
+window.onbeforeprint=function(){
+  var el=document.getElementById('print-hdr');
+  if(!el)return;
+  var hotel=document.getElementById('hi-hotel').value||'';
+  var date=document.getElementById('hi-date').value||'';
+  var auditor=document.getElementById('hi-auditor').value||'';
+  var period=document.getElementById('hi-period').value||'';
+  var title=viewMode==='prep'?(lang==='ko'?'사전 준비 서류 체크리스트':'Pre-Audit Document Checklist'):'CPA 2026 Peer Audit';
+  var meta='';
+  if(hotel)meta+='<span><b>Hotel:</b>'+esc(hotel)+'</span>';
+  if(auditor)meta+='<span><b>Auditor:</b>'+esc(auditor)+'</span>';
+  if(date)meta+='<span><b>Date:</b>'+esc(date)+'</span>';
+  if(period)meta+='<span><b>Period:</b>'+esc(period)+'</span>';
+  el.innerHTML='<div class="print-hdr-title">'+esc(title)+'</div>'+(meta?'<div class="print-hdr-meta">'+meta+'</div>':'');
+};
 // INIT
 loadStore(); loadPrepChecks(); loadPrepTypes(); updPrg(); selDash();
 setInterval(save,30000);
