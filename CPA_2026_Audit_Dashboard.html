@@ -2027,12 +2027,20 @@ function saveHotelList(list){try{localStorage.setItem('cpa2026_hotels',JSON.stri
 function buildHotelGate(){
   var list=getHotelList();
   var el=document.getElementById('hotel-list');if(!el)return;
+  el.innerHTML='';
   if(list.length===0){
-    el.innerHTML='<div style="color:#aaa;font-size:12px;padding:8px 0">아래에 호텔명을 입력해 주세요</div>';
+    var msg=document.createElement('div');
+    msg.style.cssText='color:#aaa;font-size:12px;padding:8px 0';
+    msg.textContent='아래에 호텔명을 입력해 주세요';
+    el.appendChild(msg);
   }else{
-    el.innerHTML=list.map(function(h){
-      return '<button class="hotel-chip" onclick="selectHotel(\''+h.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\'">'+h+'</button>';
-    }).join('');
+    list.forEach(function(h){
+      var btn=document.createElement('button');
+      btn.className='hotel-chip';
+      btn.textContent=h;
+      btn.onclick=function(){selectHotel(h);};
+      el.appendChild(btn);
+    });
   }
 }
 function selectHotel(name){
