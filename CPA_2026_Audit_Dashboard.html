@@ -1438,16 +1438,16 @@ var JP_TS={
 
 // WATERMARK
 (function(){
-  var svg='<svg xmlns="http://www.w3.org/2000/svg" width="520" height="200">'
-    +'<text x="260" y="100" text-anchor="middle" dominant-baseline="middle" '
-    +'font-family="Arial,sans-serif" font-size="13" fill="#1a2456" '
-    +'transform="rotate(-30,260,100)">'
-    +'© 2026 Rebecca Lee | For Internal Use Only'
-    +'</text></svg>';
-  var d=document.createElement('div');
-  d.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;opacity:.09;background-repeat:repeat';
-  d.style.backgroundImage='url("data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)+'")';
-  document.body.appendChild(d);
+  var txt='© 2026 Rebecca Lee | For Internal Use Only';
+  var base='position:fixed;bottom:14px;pointer-events:none;z-index:9999;opacity:.13;'
+          +'font-size:11px;font-family:Arial,sans-serif;color:#6c757d;'
+          +'white-space:nowrap;user-select:none;letter-spacing:.4px;';
+  [['left','18px'],['left','50%'],['right','18px']].forEach(function(p,i){
+    var d=document.createElement('div');
+    d.textContent=txt;
+    d.style.cssText=base+p[0]+':'+p[1]+(i===1?';transform:translateX(-50%)':'');
+    document.body.appendChild(d);
+  });
 })();
 
 // INIT
