@@ -204,7 +204,18 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .prep-type-btn.t-paper{background:#c8a96e;color:#fff;border-color:#b8935a}
 .prep-txt{font-size:12.5px;color:var(--tx);line-height:1.5;flex:1}
 .prep-item.ck .prep-txt{text-decoration:line-through;color:#aaa}
-@media print{#hdr,#prg,#nav,.prep-top .btn{display:none!important}.prep-item.ck .prep-txt{text-decoration:none;color:var(--tx)}.prep-item{break-inside:avoid}}
+.prep-print-hdr{display:none}
+@media print{
+  #hdr,#prg,#nav,.prep-top{display:none!important}
+  .prep-print-hdr{display:block!important;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #1a2456}
+  .prep-print-title{font-size:16px;font-weight:700;color:#1a2456;margin-bottom:6px}
+  .prep-print-meta{display:flex;gap:20px;font-size:11px;color:#333;flex-wrap:wrap;margin-bottom:3px}
+  .prep-print-meta span b{color:#1a2456}
+  .prep-print-prog{font-size:11px;color:#555;margin-top:2px}
+  .prep-item.ck .prep-txt{text-decoration:none;color:var(--tx)}
+  .prep-item{break-inside:avoid}
+  .prep-type-btn{border-color:#ccc!important}
+}
 </style>
 </head>
 <body>
@@ -759,10 +770,22 @@ function buildPrepView(){
   var ready=auditData.filter(function(i){return prepChecks[i.id];}).length;
   var hotelVal=document.getElementById('hi-hotel').value||'';
   var periodVal=document.getElementById('hi-period').value||'';
+  var dateVal=document.getElementById('hi-date').value||'';
+  var auditorVal=document.getElementById('hi-auditor').value||'';
   var lk=lang==='ko'?'ko':lang==='ja'?'ja':'en';
   var titleTxt=lang==='ko'?'사전 준비 서류 체크리스트':'Pre-Audit Document Checklist';
   var readyTxt=lang==='ko'?ready+' / '+total+' 항목 준비 완료':ready+' / '+total+' items ready';
   var html='<div class="prep-wrap">'
+    +'<div class="prep-print-hdr">'
+    +'<div class="prep-print-title">'+esc(titleTxt)+'</div>'
+    +'<div class="prep-print-meta">'
+    +(hotelVal?'<span><b>Hotel:</b> '+esc(hotelVal)+'</span>':'')
+    +(auditorVal?'<span><b>Auditor:</b> '+esc(auditorVal)+'</span>':'')
+    +(dateVal?'<span><b>Date:</b> '+esc(dateVal)+'</span>':'')
+    +(periodVal?'<span><b>Period:</b> '+esc(periodVal)+'</span>':'')
+    +'</div>'
+    +'<div class="prep-print-prog">'+readyTxt+'</div>'
+    +'</div>'
     +'<div class="prep-top">'
     +'<div class="prep-title">'+titleTxt+(hotelVal?' — '+esc(hotelVal):'')+(periodVal?' ('+esc(periodVal)+')':'')+'</div>'
     +'<div class="prep-total">'+readyTxt+'</div>'
