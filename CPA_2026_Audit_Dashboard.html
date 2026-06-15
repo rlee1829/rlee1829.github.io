@@ -15,6 +15,15 @@
 .pw-btn{width:100%;padding:10px;font-size:13px;font-weight:700;background:var(--p);color:#fff;border:none;border-radius:8px;cursor:pointer}
 .pw-btn:hover{opacity:.88}
 #pw-err{color:#dc3545;font-size:12px;margin-top:8px;min-height:16px}
+#hotel-gate{position:fixed;inset:0;background:var(--p);display:none;align-items:center;justify-content:center;z-index:9998;padding:20px}
+.hotel-box{width:420px;max-width:100%}
+.hotel-list{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px;justify-content:center;min-height:32px}
+.hotel-chip{padding:8px 18px;border:2px solid var(--p);border-radius:20px;background:#fff;color:var(--p);font-weight:700;font-size:13px;cursor:pointer;transition:all .15s}
+.hotel-chip:hover,.hotel-chip:active{background:var(--p);color:#fff}
+.hotel-new{display:flex;gap:8px;margin-top:12px}
+.hotel-new input{flex:1;padding:10px 14px;border:2px solid var(--bd);border-radius:8px;font-size:16px;font-family:inherit;outline:none;text-align:left}
+.hotel-new input:focus{border-color:var(--p)}
+.hotel-sw-btn{padding:4px 10px;font-size:10px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:4px;cursor:pointer;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu Gothic UI','Meiryo','Hiragino Kaku Gothic ProN','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;height:100vh;overflow:hidden}
 #app{display:flex;flex-direction:column;height:100vh}
@@ -268,6 +277,17 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
     <div id="pw-err"></div>
   </div>
 </div>
+<div id="hotel-gate">
+  <div class="pw-box hotel-box">
+    <div class="pw-logo">CPA 2026 Peer Audit</div>
+    <div class="pw-sub">작업할 호텔을 선택하세요 · Select Hotel</div>
+    <div id="hotel-list" class="hotel-list"></div>
+    <div class="hotel-new">
+      <input type="text" id="hotel-input" placeholder="New hotel name..." onkeydown="if(event.key==='Enter')addHotel()">
+      <button class="pw-btn" style="width:auto;padding:10px 20px" onclick="addHotel()">Start →</button>
+    </div>
+  </div>
+</div>
 <div id="app">
 <div id="print-hdr"></div>
 <div id="hdr">
@@ -282,6 +302,7 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
     <input id="hi-period" placeholder="Period (e.g. Apr-Jun 2026)" oninput="saveHI()">
   </div>
   <div class="hdr-acts">
+    <button class="hotel-sw-btn" id="hotel-sw" onclick="switchHotel()" title="Switch Hotel">🏨</button>
     <span class="save-ind" id="si">&#10003; Saved</span>
     <button class="btn btn-o" id="lang-ko" onclick="setLang('ko')">KO</button>
     <button class="btn btn-o lang-act" id="lang-en" onclick="setLang('en')">EN</button>
@@ -780,25 +801,25 @@ function leaveDash(){
 var prepChecks={};
 var prepTypes={};
 function loadPrepChecks(){
-  try{var s=localStorage.getItem('cpa_prep');if(s)prepChecks=JSON.parse(s);}catch(e){}
+  try{var s=localStorage.getItem(hotelKey('cpa_prep'));if(s)prepChecks=JSON.parse(s);}catch(e){}
 }
 function loadPrepTypes(){
-  try{var s=localStorage.getItem('cpa_prep_types');if(s)prepTypes=JSON.parse(s);}catch(e){}
+  try{var s=localStorage.getItem(hotelKey('cpa_prep_types'));if(s)prepTypes=JSON.parse(s);}catch(e){}
 }
 function savePrepType(id,t){
   if(prepTypes[id]===t){delete prepTypes[id];}else{prepTypes[id]=t;}
-  try{localStorage.setItem('cpa_prep_types',JSON.stringify(prepTypes));}catch(e){}
+  try{localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(prepTypes));}catch(e){}
   buildPrepView();
 }
 function savePrepCheck(id,v){
   prepChecks[id]=v;
-  try{localStorage.setItem('cpa_prep',JSON.stringify(prepChecks));}catch(e){}
+  try{localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(prepChecks));}catch(e){}
   buildPrepView();
 }
 function resetPrepChecks(){
   if(!confirm('Reset all prep checklist? This cannot be undone.'))return;
   prepChecks={};
-  try{localStorage.removeItem('cpa_prep');}catch(e){}
+  try{localStorage.removeItem(hotelKey('cpa_prep'));}catch(e){}
   buildPrepView();
 }
 function selPrep(){
@@ -943,7 +964,7 @@ function save(){
              date:document.getElementById('hi-date').value,
              auditor:document.getElementById('hi-auditor').value,
              period:document.getElementById('hi-period').value}};
-    localStorage.setItem('cpa2026v2',JSON.stringify(d));
+    localStorage.setItem(hotelKey('cpa2026v2'),JSON.stringify(d));
     var si=document.getElementById('si');
     var _n=new Date();
     si.textContent='✓ Saved '+String(_n.getHours()).padStart(2,'0')+':'+String(_n.getMinutes()).padStart(2,'0');
@@ -953,7 +974,7 @@ function saveHI(){saveDbc();updatePrintHdr();}
 
 function loadStore(){
   try{
-    var raw=localStorage.getItem('cpa2026v2');
+    var raw=localStorage.getItem(hotelKey('cpa2026v2'));
     if(!raw)return;
     var d=JSON.parse(raw);
     results=d.results||{};notes=d.notes||{};samples=d.samples||{};tstamps=d.tstamps||{};
@@ -1998,6 +2019,64 @@ window.onbeforeprint=function(){
   var el=document.getElementById('print-hdr-title');
   if(el)el.textContent=t;
 };
+// HOTEL SELECTION
+var currentHotel='';
+function hotelKey(base){return currentHotel?base+'__'+currentHotel.replace(/\s+/g,'_'):base;}
+function getHotelList(){try{var s=localStorage.getItem('cpa2026_hotels');return s?JSON.parse(s):[];}catch(e){return[];}}
+function saveHotelList(list){try{localStorage.setItem('cpa2026_hotels',JSON.stringify(list));}catch(e){}}
+function buildHotelGate(){
+  var list=getHotelList();
+  var el=document.getElementById('hotel-list');if(!el)return;
+  if(list.length===0){
+    el.innerHTML='<div style="color:#aaa;font-size:12px;padding:8px 0">아래에 호텔명을 입력해 주세요</div>';
+  }else{
+    el.innerHTML=list.map(function(h){
+      return '<button class="hotel-chip" onclick="selectHotel(\''+h.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\'">'+h+'</button>';
+    }).join('');
+  }
+}
+function selectHotel(name){
+  name=(name||'').trim();if(!name)return;
+  currentHotel=name;
+  sessionStorage.setItem('cpa_hotel',name);
+  var list=getHotelList();
+  if(list.indexOf(name)<0){list.unshift(name);saveHotelList(list);}
+  // One-time migration: if new key is empty, try migrating old flat data
+  var nk=hotelKey('cpa2026v2');
+  if(!localStorage.getItem(nk)){
+    try{
+      var old=localStorage.getItem('cpa2026v2');
+      if(old){var op=JSON.parse(old);if(op.hotel&&op.hotel.hotel===name){localStorage.setItem(nk,old);}}
+      var p2=localStorage.getItem('cpa_prep');if(p2)localStorage.setItem(hotelKey('cpa_prep'),p2);
+      var p3=localStorage.getItem('cpa_prep_types');if(p3)localStorage.setItem(hotelKey('cpa_prep_types'),p3);
+    }catch(e){}
+  }
+  document.getElementById('hotel-gate').style.display='none';
+  curId=null;results={};notes={};samples={};tstamps={};bsResults={};bsChecks={};bsNotes={};
+  prepChecks={};prepTypes={};
+  loadStore();loadPrepChecks();loadPrepTypes();
+  // Pre-fill hotel name if empty
+  var hi=document.getElementById('hi-hotel');if(hi&&!hi.value){hi.value=name;saveDbc();}
+  updPrg();selDash();
+  updateHotelBtn();
+}
+function addHotel(){
+  var v=(document.getElementById('hotel-input').value||'').trim();
+  if(!v)return;
+  document.getElementById('hotel-input').value='';
+  selectHotel(v);
+}
+function switchHotel(){
+  save();
+  currentHotel='';
+  sessionStorage.removeItem('cpa_hotel');
+  buildHotelGate();
+  document.getElementById('hotel-gate').style.display='flex';
+}
+function updateHotelBtn(){
+  var el=document.getElementById('hotel-sw');
+  if(el)el.textContent='🏨 '+currentHotel;
+}
 // PASSWORD
 function resetZoom(){
   var vp=document.querySelector('meta[name=viewport]');
@@ -2012,17 +2091,30 @@ function checkPw(){
     resetZoom();
     sessionStorage.setItem('cpa_auth','1');
     document.getElementById('pw-gate').style.display='none';
+    buildHotelGate();
+    document.getElementById('hotel-gate').style.display='flex';
   }else{
     document.getElementById('pw-err').textContent='Incorrect password.';
     document.getElementById('pw-input').value='';
     document.getElementById('pw-input').focus();
   }
 }
+// INIT
 if(sessionStorage.getItem('cpa_auth')==='1'){
   document.getElementById('pw-gate').style.display='none';
+  var _sh=sessionStorage.getItem('cpa_hotel');
+  if(_sh){
+    currentHotel=_sh;
+    loadStore();loadPrepChecks();loadPrepTypes();updPrg();selDash();
+    updateHotelBtn();
+  }else{
+    buildHotelGate();
+    document.getElementById('hotel-gate').style.display='flex';
+    updPrg();selDash();
+  }
+}else{
+  updPrg();selDash();
 }
-// INIT
-loadStore(); loadPrepChecks(); loadPrepTypes(); updPrg(); selDash();
 setInterval(save,30000);
 </script>
 </body>
