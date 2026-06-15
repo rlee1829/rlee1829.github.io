@@ -234,6 +234,18 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .prep-item.ck .prep-txt{text-decoration:line-through;color:#aaa}
 .prep-print-hdr{display:none}
 #print-hdr{display:none}
+@media(max-width:768px){
+  #db{padding:6px 0;overflow-x:hidden;overflow-y:auto}
+  .prep-wrap{padding:4px 0;max-width:100%;margin:0}
+  .prep-sec-card{border-radius:0;border-left:none;border-right:none;margin-bottom:4px}
+  .prep-sec-hdr{padding:6px 8px}
+  .prep-item{padding:5px 8px 5px 6px;gap:2px}
+  .prep-item label{gap:3px}
+  .prep-type{gap:1px}
+  .prep-type-btn{font-size:8px;padding:1px 3px;border-radius:6px}
+  .prep-txt{font-size:11px}
+  .prep-num{min-width:14px;font-size:10px}
+}
 @media print{
   #hdr,#prg,#nav,.prep-top{display:none!important}
   #print-hdr{display:block!important;padding-bottom:12px;margin-bottom:16px;border-bottom:2px solid #1a2456}
