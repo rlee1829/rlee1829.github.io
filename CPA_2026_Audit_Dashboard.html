@@ -174,6 +174,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic',san
 .db-cnt-y{color:var(--yc)}.db-cnt-n{color:var(--nc)}.db-cnt-na{color:var(--ac)}.db-cnt-p{color:#adb5bd}
 .tab.tab-ov{background:#f0f2f5;border-right:2px solid var(--bd);font-size:11px}
 .tab.tab-ov.active{background:#e8edf8;color:var(--p)}
+/* ── DASH SCROLL MODE ── */
+body.dash-scroll{height:auto!important;overflow-y:auto!important}
+body.dash-scroll #app{height:auto!important;overflow:visible!important}
+body.dash-scroll #hdr{position:sticky;top:0;z-index:30}
+body.dash-scroll #prg{position:sticky;z-index:29}
+body.dash-scroll #nav{position:sticky;z-index:28}
+body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 </style>
 </head>
 <body>
@@ -591,9 +598,16 @@ function buildRP(){
   rp.innerHTML=html;
 }
 
+function leaveDash(){
+  document.body.classList.remove('dash-scroll');
+  document.getElementById('prg').style.top='';
+  document.getElementById('nav').style.top='';
+  window.scrollTo(0,0);
+}
 function selSec(s){
   viewMode='section'; curSec=s; curFlt='all';
   document.getElementById('app').classList.remove('dash-mode');
+  leaveDash();
   setMobView('list');
   document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('act','kact');});
   document.getElementById('flt-all').classList.add('act');
@@ -608,6 +622,7 @@ function selSec(s){
 function selFindings(){
   viewMode='findings'; curFlt='all';
   document.getElementById('app').classList.remove('dash-mode');
+  leaveDash();
   setMobView('list');
   buildNav(); buildLP();
   var items=getItems();
@@ -890,8 +905,15 @@ var bsData=[
 function selDash(){
   viewMode='dash';
   document.getElementById('app').classList.add('dash-mode');
+  document.body.classList.add('dash-scroll');
   buildNav();
   buildDash();
+  setTimeout(function(){
+    var hdrH=document.getElementById('hdr').offsetHeight;
+    var prgH=document.getElementById('prg').offsetHeight;
+    document.getElementById('prg').style.top=hdrH+'px';
+    document.getElementById('nav').style.top=(hdrH+prgH)+'px';
+  },0);
 }
 
 function buildDash(){
@@ -1088,6 +1110,7 @@ function buildDash(){
 function selBSGuide(){
   viewMode='bsguide'; curFlt='all'; curBsId=null;
   document.getElementById('app').classList.remove('dash-mode');
+  leaveDash();
   setMobView('list');
   document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('act','kact');});
   var ball=document.getElementById('flt-all');if(ball)ball.classList.add('act');
