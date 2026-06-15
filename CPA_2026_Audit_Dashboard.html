@@ -596,12 +596,12 @@ function buildNav(){
     var si=auditData.filter(function(i){return i.section===s;});
     var done=si.filter(function(i){return results[i.id];}).length;
     var cls=(viewMode!=='findings'&&curSec===s)?' active':'';
-    html+='<div class="tab'+cls+'" onclick="selSec(\''+s.replace(/'/g,"\\'")+'\')">'
+    html+='<div class="tab'+cls+'" style="color:#1a2456" onclick="selSec(\''+s.replace(/'/g,"\\'")+'\')">'
       +esc(s)+'<span class="tn">'+done+'/'+si.length+'</span></div>';
   });
   var nc=auditData.filter(function(i){return results[i.id]==='no';}).length;
   var fc=(viewMode==='findings')?' active ftab':' ftab';
-  html+='<div class="tab'+fc+'" onclick="selFindings()">Findings'
+  html+='<div class="tab'+fc+'" style="color:#dc3545" onclick="selFindings()">Findings'
     +'<span class="tn" style="'+(nc>0?'background:#fde8ea;color:#dc3545':'')+'">'
     +nc+'</span></div>';
   var bsc=(viewMode==='bsguide')?' active ftab':' ftab';
