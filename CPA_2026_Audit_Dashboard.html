@@ -1438,16 +1438,24 @@ var JP_TS={
 
 // WATERMARK
 (function(){
-  var txt='© 2026 Rebecca Lee | For Internal Use Only';
-  var base='position:fixed;bottom:14px;pointer-events:none;z-index:9999;opacity:.13;'
-          +'font-size:11px;font-family:Arial,sans-serif;color:#6c757d;'
-          +'white-space:nowrap;user-select:none;letter-spacing:.4px;';
-  [['left','18px'],['left','50%'],['right','18px']].forEach(function(p,i){
-    var d=document.createElement('div');
-    d.textContent=txt;
-    d.style.cssText=base+p[0]+':'+p[1]+(i===1?';transform:translateX(-50%)':'');
-    document.body.appendChild(d);
-  });
+  var txt='© 2026 Rebecca Lee | For Internal Use Only';
+  var base='position:fixed;pointer-events:none;z-index:9999;white-space:nowrap;'
+          +'user-select:none;font-family:Arial,sans-serif;font-size:11px;letter-spacing:.5px;';
+  // Top - header bar (white)
+  var top=document.createElement('div');
+  top.textContent=txt;
+  top.style.cssText=base+'left:50%;transform:translateX(-50%);color:#fff;opacity:.4;';
+  document.body.appendChild(top);
+  setTimeout(function(){
+    var h=document.getElementById('hdr');
+    if(h) top.style.top=Math.round((h.offsetHeight-top.offsetHeight)/2)+'px';
+    else top.style.top='14px';
+  },0);
+  // Bottom - center (dark gray)
+  var bot=document.createElement('div');
+  bot.textContent=txt;
+  bot.style.cssText=base+'bottom:16px;left:50%;transform:translateX(-50%);color:#555;opacity:.45;';
+  document.body.appendChild(bot);
 })();
 
 // INIT
