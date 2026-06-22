@@ -1049,8 +1049,6 @@ function selSec(s){
   document.getElementById('app').classList.remove('dash-mode');
   leaveDash();
   setMobView('list');
-  document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('act','kact');});
-  document.getElementById('flt-all').classList.add('act');
   buildNav(); buildLP();
   var items=getItems();
   if(items.length>0){
