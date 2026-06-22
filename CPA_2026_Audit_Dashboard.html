@@ -259,6 +259,27 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .bsnotes-sub{font-size:10px;color:var(--mu);margin-bottom:5px}
 .bsnotes-note{font-size:12px;color:var(--tx);line-height:1.6;white-space:pre-wrap;background:#f8f9fa;border-radius:4px;padding:7px 10px;border:1px solid #eee}
 .bsnotes-empty{text-align:center;color:var(--mu);padding:40px 20px;font-size:13px}
+.abh-wrap{padding:16px 20px;max-width:980px;margin:0 auto}
+.abh-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.abh-title{font-size:15px;font-weight:700;color:var(--tx);flex:1}
+.abh-sec-card{border:1px solid var(--bd);border-radius:7px;margin-bottom:10px;overflow:hidden}
+.abh-sec-hdr{background:var(--p);color:#fff;padding:7px 14px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px}
+.abh-item{display:flex;align-items:center;padding:7px 14px;border-bottom:1px solid #f0f2f5;gap:10px}
+.abh-item:last-child{border-bottom:none}
+.abh-item-empty{opacity:.45}
+.abh-num{font-size:11px;font-weight:700;color:var(--mu);min-width:28px;flex-shrink:0}
+.abh-txt{font-size:12px;color:var(--tx);flex:1;line-height:1.4;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.abh-val{font-size:9px;padding:1px 5px;background:#fff3cd;color:#856404;border-radius:2px;font-weight:700;flex-shrink:0}
+.abh-res{padding:4px 13px;border-radius:4px;font-size:12px;font-weight:800;flex-shrink:0;min-width:48px;text-align:center}
+.abh-y{background:#d4edda;color:#155724}
+.abh-n{background:#f8d7da;color:#721c24}
+.abh-na{background:#e2e3e5;color:#383d41}
+.abh-p{background:#f0f2f5;color:#adb5bd}
+.abh-notes-box{display:flex;align-items:center;gap:6px;flex-shrink:0;min-width:200px;max-width:300px}
+.abh-notes-preview{font-size:10px;color:var(--mu);flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.abh-copy-btn{padding:3px 10px;border:1px solid #6f42c1;border-radius:4px;background:#fff;color:#6f42c1;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.abh-copy-btn:hover{background:#6f42c1;color:#fff}
+.abh-copy-btn.abh-copied{background:#198754;color:#fff;border-color:#198754}
 .prep-item.ck .prep-txt{text-decoration:line-through;color:#aaa}
 .prep-print-hdr{display:none}
 #print-hdr{display:none}
@@ -666,6 +687,11 @@ function buildNav(){
   html+='<div class="tab'+bsnc+'" onclick="selBSNotes()" style="color:#1a2456">BS Notes'
     +(bsNotesCnt?'<span class="tn" style="background:#e8f0fe;color:#1a2456">'+bsNotesCnt+'</span>':'')
     +'</div>';
+  var abhc=(viewMode==='abhelper')?' active ftab':' ftab';
+  var abhResp=auditData.filter(function(i){return results[i.id];}).length;
+  html+='<div class="tab'+abhc+'" onclick="selABHelper()" style="color:#6f42c1">&#9195; AB Upload'
+    +'<span class="tn" style="background:#ede7f6;color:#6f42c1">'+abhResp+'/'+auditData.length+'</span>'
+    +'</div>';
   document.getElementById('tabs').innerHTML=html;
   updTabBtns();
 }
@@ -707,6 +733,7 @@ function updPrg(){
 
 function buildLP(){
   if(viewMode==='bsguide'){buildBSLP();return;}
+  if(viewMode==='abhelper'||viewMode==='bsnotes'){return;}
   var items=getItems();
   var html='';
   if(viewMode==='findings'){
@@ -770,7 +797,7 @@ function selItem(id){
 
 function buildRP(){
   if(viewMode==='bsguide'){buildBSRP();return;}
-  if(viewMode==='bsnotes'){return;}
+  if(viewMode==='bsnotes'||viewMode==='abhelper'){return;}
   var rp=document.getElementById('rp');
   if(!curId){
     rp.innerHTML='<div class="empty"><div class="empty-icon">&#128203;</div><div class="empty-tx">Select an item</div></div>';
@@ -1856,6 +1883,93 @@ function buildBSNotes(){
       });
     });
   }
+  html+='</div>';
+  db.innerHTML=html;
+}
+
+function selABHelper(){
+  viewMode='abhelper';
+  document.getElementById('app').classList.add('dash-mode');
+  document.body.classList.add('dash-scroll');
+  buildNav();
+  buildABHelper();
+  setTimeout(function(){
+    var hdrH=document.getElementById('hdr').offsetHeight;
+    var prgH=document.getElementById('prg').offsetHeight;
+    document.getElementById('prg').style.top=hdrH+'px';
+    document.getElementById('nav').style.top=(hdrH+prgH)+'px';
+  },0);
+}
+
+function copyABNote(btn,txt){
+  var doFallback=function(){
+    var ta=document.createElement('textarea');
+    ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');}catch(e){}
+    document.body.removeChild(ta);
+  };
+  var ok=function(){
+    btn.textContent='✓ Copied!';btn.classList.add('abh-copied');
+    setTimeout(function(){btn.textContent='📋 Copy Notes';btn.classList.remove('abh-copied');},1500);
+  };
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(ok).catch(function(){doFallback();ok();});}
+  else{doFallback();ok();}
+}
+
+function buildABHelper(){
+  var db=document.getElementById('db');
+  if(!db)return;
+  var hotelVal=document.getElementById('hi-hotel').value||'';
+  var periodVal=document.getElementById('hi-period').value||'';
+  var resp=auditData.filter(function(i){return results[i.id];}).length;
+  var total=auditData.length;
+  var lk=lang==='ko'?'ko':lang==='ja'?'ja':'en';
+  var html='<div class="abh-wrap">'
+    +'<div class="abh-top">'
+    +'<div class="abh-title">&#9195; AuditBoard Upload Helper'+(hotelVal?' — '+esc(hotelVal):'')+(periodVal?' ('+esc(periodVal)+')':'')+'</div>'
+    +'<span style="font-size:12px;color:var(--mu)">'+resp+' / '+total+' responded</span>'
+    +'<div style="font-size:11px;color:var(--mu);background:#ede7f6;border-radius:5px;padding:4px 10px">'
+    +'<b style="color:#6f42c1">VAL</b> items → copy Testing Notes &nbsp;|&nbsp; Others → check Result only'
+    +'</div>'
+    +'</div>';
+  SECS.forEach(function(sec){
+    var si=auditData.filter(function(i){return i.section===sec;});
+    var done=si.filter(function(i){return results[i.id];}).length;
+    html+='<div class="abh-sec-card">'
+      +'<div class="abh-sec-hdr">'+esc(sec)
+      +'<span style="font-size:10px;font-weight:400;opacity:.75;margin-left:auto">'+done+' / '+si.length+' responded</span>'
+      +'</div>';
+    si.forEach(function(item,idx){
+      var res=results[item.id]||'';
+      var note=notes[item.id]||'';
+      var samp=samples[item.id]||'';
+      var isVal=VAL_IDS.has(item.id);
+      var wsT=lang==='ko'?item.wsKR:(lang==='ja'?(JP_WS[item.id]||item.wsEN):item.wsEN);
+      var brief=wsT.split('\n')[0];
+      if(brief.length>90)brief=brief.substring(0,90)+'…';
+      var resCls=res==='yes'?'abh-y':res==='no'?'abh-n':res==='na'?'abh-na':'abh-p';
+      var resTxt=res==='yes'?'YES':res==='no'?'NO':res==='na'?'N/A':'—';
+      var copyTxt=[samp,note].filter(Boolean).join('\n').trim();
+      html+='<div class="abh-item'+(res?'':' abh-item-empty')+'">'
+        +'<div class="abh-num">#'+(idx+1)+'</div>'
+        +(isVal?'<div class="abh-val">VAL</div>':'')
+        +'<div class="abh-txt">'+esc(brief)+'</div>'
+        +'<div class="abh-res '+resCls+'">'+resTxt+'</div>';
+      if(isVal){
+        html+='<div class="abh-notes-box">';
+        if(copyTxt){
+          html+='<span class="abh-notes-preview">'+esc(copyTxt.replace(/\n/g,' '))+'</span>'
+            +'<button class="abh-copy-btn" onclick="copyABNote(this,'+JSON.stringify(copyTxt)+')">📋 Copy Notes</button>';
+        } else {
+          html+='<span style="font-size:10px;color:#adb5bd;font-style:italic">No notes yet</span>';
+        }
+        html+='</div>';
+      }
+      html+='</div>';
+    });
+    html+='</div>';
+  });
   html+='</div>';
   db.innerHTML=html;
 }
