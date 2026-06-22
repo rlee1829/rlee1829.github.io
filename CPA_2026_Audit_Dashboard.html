@@ -1205,10 +1205,14 @@ function handleImport(e){
   reader.onload=function(ev){
     try{
       var d=JSON.parse(ev.target.result);
-      if(d.hotelName&&d.hotelName!==currentHotel){
-        var ok=confirm('⚠️ 호텔명 불일치 / Hotel Mismatch\n\n파일: '+d.hotelName+'\n현재 작업 중: '+currentHotel+'\n\n현재 데이터가 덮어씌워집니다. 계속하시겠습니까?\n(File hotel does not match current property. Overwrite?)');
-        if(!ok){e.target.value='';return;}
+      var fileHotel=(d.hotelName||'').trim().toLowerCase();
+      var curHotel=currentHotel.trim().toLowerCase();
+      if(fileHotel&&fileHotel!==curHotel){
+        alert('⛔ 다른 호텔의 데이터입니다.\n\n파일: '+d.hotelName+'\n현재 작업 중: '+currentHotel+'\n\n"'+d.hotelName+'" 세션으로 전환한 후 다시 Import해주세요.\n(This file belongs to a different property. Please switch to that hotel session first.)');
+        e.target.value='';return;
       }
+      if(!confirm('현재 작업 중인 ['+currentHotel+'] 데이터가 파일 내용으로 덮어씌워집니다.\n계속하시겠습니까?\n(Current data will be overwritten. Continue?)'))
+        {e.target.value='';return;}
       if(d.data)localStorage.setItem(hotelKey('cpa2026v2'),JSON.stringify(d.data));
       if(d.prep)localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(d.prep));
       if(d.prepTypes)localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(d.prepTypes));
