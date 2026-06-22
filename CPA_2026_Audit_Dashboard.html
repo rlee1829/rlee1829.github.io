@@ -240,6 +240,19 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .prep-type-btn.t-file{background:#198754;color:#fff;border-color:#198754}
 .prep-type-btn.t-paper{background:#c8a96e;color:#fff;border-color:#b8935a}
 .prep-txt{font-size:12.5px;color:var(--tx);line-height:1.5;flex:1}
+.prep-remark input{padding:3px 7px;border:1px solid var(--bd);border-radius:4px;font-size:11px;font-family:inherit;color:var(--tx);background:#fff;width:160px;flex-shrink:0}
+.prep-remark input:focus{outline:none;border-color:var(--p)}
+.prep-remark input::placeholder{color:var(--mu)}
+.bsnotes-wrap{padding:16px 20px;max-width:900px;margin:0 auto}
+.bsnotes-top{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.bsnotes-title{font-size:15px;font-weight:700;color:var(--tx);flex:1}
+.bsnotes-item{background:#fff;border-radius:8px;box-shadow:var(--sh);padding:12px 16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start}
+.bsnotes-dot{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin-top:1px}
+.bsnotes-body{flex:1;min-width:0}
+.bsnotes-hdr{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.bsnotes-sub{font-size:10px;color:var(--mu);margin-bottom:5px}
+.bsnotes-note{font-size:12px;color:var(--tx);line-height:1.6;white-space:pre-wrap;background:#f8f9fa;border-radius:4px;padding:7px 10px;border:1px solid #eee}
+.bsnotes-empty{text-align:center;color:var(--mu);padding:40px 20px;font-size:13px}
 .prep-item.ck .prep-txt{text-decoration:line-through;color:#aaa}
 .prep-print-hdr{display:none}
 #print-hdr{display:none}
@@ -264,8 +277,9 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .val-warn-req{background:#fde8ea;border-color:#dc3545;color:#721c24;font-weight:600}
 .val-warn-ok{background:#e8f5e9;border-color:#198754;color:#1a6645}
 @media print{
-  #hdr,#prg,#nav,.prep-top{display:none!important}
+  #hdr,#prg,#nav,.prep-top,.bsnotes-top{display:none!important}
   #print-hdr{display:block!important;padding-bottom:12px;margin-bottom:16px;border-bottom:2px solid #1a2456}
+  .bsnotes-item{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
   .print-hdr-title{font-size:16px;font-weight:700;color:#1a2456;margin-bottom:7px}
   .print-hdr-meta{display:flex;gap:28px;font-size:11px;color:#333;flex-wrap:wrap}
   .print-hdr-meta b{color:#1a2456;margin-right:3px}
@@ -337,7 +351,9 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
   <div class="prg-stats" id="bs-ps" style="margin-top:2px;font-size:10px"></div>
 </div>
 <div id="nav">
+  <button id="tab-prev" class="tab-scroll-btn tsb-hidden" onclick="scrollTabs(-1)">&#10094;</button>
   <div id="tabs"></div>
+  <button id="tab-next" class="tab-scroll-btn" onclick="scrollTabs(1)">&#10095;</button>
   <div id="flt">
     <button class="fb act" id="flt-all" onclick="setFlt('all')">All</button>
     <button class="fb" id="flt-key" onclick="setFlt('key')">Key</button>
@@ -639,6 +655,11 @@ function buildNav(){
   var bsc=(viewMode==='bsguide')?' active ftab':' ftab';
   html+='<div class="tab'+bsc+'" onclick="selBSGuide()" style="color:#1a2456">BS Guide'
     +'<span class="tn" style="background:#e8f0fe;color:#1a2456">39</span></div>';
+  var bsnc=(viewMode==='bsnotes')?' active ftab':' ftab';
+  var bsNotesCnt=bsData.filter(function(i){return bsNotes[i.id]&&bsNotes[i.id].trim();}).length;
+  html+='<div class="tab'+bsnc+'" onclick="selBSNotes()" style="color:#1a2456">BS Notes'
+    +(bsNotesCnt?'<span class="tn" style="background:#e8f0fe;color:#1a2456">'+bsNotesCnt+'</span>':'')
+    +'</div>';
   document.getElementById('tabs').innerHTML=html;
 }
 
@@ -742,6 +763,7 @@ function selItem(id){
 
 function buildRP(){
   if(viewMode==='bsguide'){buildBSRP();return;}
+  if(viewMode==='bsnotes'){return;}
   var rp=document.getElementById('rp');
   if(!curId){
     rp.innerHTML='<div class="empty"><div class="empty-icon">&#128203;</div><div class="empty-tx">Select an item</div></div>';
@@ -832,16 +854,34 @@ function leaveDash(){
 
 var prepChecks={};
 var prepTypes={};
+var prepRemarks={};
 function loadPrepChecks(){
   try{var s=localStorage.getItem(hotelKey('cpa_prep'));if(s)prepChecks=JSON.parse(s);}catch(e){}
 }
 function loadPrepTypes(){
-  try{var s=localStorage.getItem(hotelKey('cpa_prep_types'));if(s)prepTypes=JSON.parse(s);}catch(e){}
+  try{
+    var s=localStorage.getItem(hotelKey('cpa_prep_types'));
+    if(s){
+      var raw=JSON.parse(s);
+      Object.keys(raw).forEach(function(k){if(typeof raw[k]==='string')raw[k]=[raw[k]];});
+      prepTypes=raw;
+    }
+  }catch(e){}
+}
+function loadPrepRemarks(){
+  try{var s=localStorage.getItem(hotelKey('cpa_prep_remarks'));if(s)prepRemarks=JSON.parse(s);}catch(e){}
 }
 function savePrepType(id,t){
-  if(prepTypes[id]===t){delete prepTypes[id];}else{prepTypes[id]=t;}
+  if(!prepTypes[id])prepTypes[id]=[];
+  var idx=prepTypes[id].indexOf(t);
+  if(idx>-1)prepTypes[id].splice(idx,1);else prepTypes[id].push(t);
+  if(prepTypes[id].length===0)delete prepTypes[id];
   try{localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(prepTypes));}catch(e){}
   buildPrepView();
+}
+function savePrepRemark(id,val){
+  if(val)prepRemarks[id]=val;else delete prepRemarks[id];
+  try{localStorage.setItem(hotelKey('cpa_prep_remarks'),JSON.stringify(prepRemarks));}catch(e){}
 }
 function savePrepCheck(id,v){
   prepChecks[id]=v;
@@ -909,18 +949,23 @@ function buildPrepView(){
       var pd=prepData[item.id];
       var txt=pd?(pd[lk]||pd.en):'—';
       var chk=!!prepChecks[item.id];
-      var tp=prepTypes[item.id]||'';
+      var tps=prepTypes[item.id]||[];
+      var rmk=prepRemarks[item.id]||'';
+      var hasDmx=tps.indexOf('dmx')>-1;
+      var hasFile=tps.indexOf('file')>-1;
+      var hasPaper=tps.indexOf('paper')>-1;
       html+='<div class="prep-item'+(chk?' ck':'')+'">'
         +'<label>'
         +'<input type="checkbox"'+(chk?' checked':'')+' onchange="savePrepCheck('+item.id+',this.checked)">'
         +'<span class="prep-num">'+item.id+'</span>'
         +'</label>'
         +'<span class="prep-type">'
-        +'<button class="prep-type-btn'+(tp==='dmx'?' t-dmx':'')+'" onclick="savePrepType('+item.id+',\'dmx\')">Doc-mx</button>'
-        +'<button class="prep-type-btn'+(tp==='file'?' t-file':'')+'" onclick="savePrepType('+item.id+',\'file\')">File</button>'
-        +'<button class="prep-type-btn'+(tp==='paper'?' t-paper':'')+'" onclick="savePrepType('+item.id+',\'paper\')">Paper</button>'
+        +'<button class="prep-type-btn'+(hasDmx?' t-dmx':'')+'" onclick="savePrepType('+item.id+',\'dmx\')">Doc-mx</button>'
+        +'<button class="prep-type-btn'+(hasFile?' t-file':'')+'" onclick="savePrepType('+item.id+',\'file\')">File</button>'
+        +'<button class="prep-type-btn'+(hasPaper?' t-paper':'')+'" onclick="savePrepType('+item.id+',\'paper\')">Paper</button>'
         +'</span>'
         +'<span class="prep-txt">'+esc(txt)+'</span>'
+        +'<span class="prep-remark"><input type="text" value="'+esc(rmk)+'" placeholder="Remark..." oninput="savePrepRemark('+item.id+',this.value)"></span>'
         +'</div>';
     });
     html+='</div>';
@@ -1086,7 +1131,7 @@ function handleImport(e){
       if(d.prepTypes)localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(d.prepTypes));
       curId=null;results={};notes={};samples={};tstamps={};bsResults={};bsChecks={};bsNotes={};
       prepChecks={};prepTypes={};
-      loadStore();loadPrepChecks();loadPrepTypes();
+      loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();
       updPrg();selDash();
       alert('가져오기 완료! / Import successful!');
     }catch(err){
@@ -1751,6 +1796,63 @@ function selBSItem(id){
   setMobView('detail');
 }
 
+function selBSNotes(){
+  viewMode='bsnotes';
+  document.getElementById('app').classList.add('dash-mode');
+  document.body.classList.add('dash-scroll');
+  buildNav();
+  buildBSNotes();
+  setTimeout(function(){
+    var hdrH=document.getElementById('hdr').offsetHeight;
+    var prgH=document.getElementById('prg').offsetHeight;
+    document.getElementById('prg').style.top=hdrH+'px';
+    document.getElementById('nav').style.top=(hdrH+prgH)+'px';
+  },0);
+}
+
+function buildBSNotes(){
+  var db=document.getElementById('db');
+  if(!db)return;
+  var hotelVal=document.getElementById('hi-hotel').value||'';
+  var periodVal=document.getElementById('hi-period').value||'';
+  var withNotes=bsData.filter(function(i){return bsNotes[i.id]&&bsNotes[i.id].trim();});
+  var titleTxt=lang==='ko'?'BS Guide — 노트 / 발견 사항':'BS Guide — All Notes & Findings';
+  var cntTxt=lang==='ko'?withNotes.length+' / '+bsData.length+' 항목에 노트 있음':withNotes.length+' / '+bsData.length+' items with notes';
+  var printLbl=lang==='ko'?'인쇄':'Print';
+  var noNoteTxt=lang==='ko'?'작성된 노트가 없습니다.':'No notes recorded yet.';
+  var html='<div class="bsnotes-wrap">'
+    +'<div class="bsnotes-top">'
+    +'<div class="bsnotes-title">'+esc(titleTxt)+(hotelVal?' — '+esc(hotelVal):'')+(periodVal?' ('+esc(periodVal)+')':'')+'</div>'
+    +'<span style="font-size:12px;color:var(--mu)">'+cntTxt+'</span>'
+    +'<button class="btn btn-g" onclick="window.print()" style="padding:5px 12px;font-size:12px">&#128438; '+printLbl+'</button>'
+    +'</div>';
+  if(withNotes.length===0){
+    html+='<div class="bsnotes-empty">'+noNoteTxt+'</div>';
+  } else {
+    ['ASSETS','LIABILITIES'].forEach(function(cat){
+      var catItems=withNotes.filter(function(i){return i.cat===cat;});
+      if(!catItems.length)return;
+      html+='<div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;padding:0 2px">'+cat+'</div>';
+      catItems.forEach(function(item){
+        var res=bsResults[item.id]||'';
+        var note=bsNotes[item.id]||'';
+        var dc=res==='yes'?'var(--yc)':res==='no'?'var(--nc)':res==='na'?'var(--ac)':'#dee2e6';
+        var dt=res==='yes'?'Y':res==='no'?'N':res==='na'?'-':'?';
+        html+='<div class="bsnotes-item">'
+          +'<div class="bsnotes-dot" style="background:'+dc+'">'+dt+'</div>'
+          +'<div class="bsnotes-body">'
+          +'<div class="bsnotes-hdr">#'+item.num+' '+esc(item.title)+'</div>'
+          +(item.account?'<div class="bsnotes-sub">GL: '+esc(item.account)+'</div>':'')
+          +'<div class="bsnotes-note">'+esc(note)+'</div>'
+          +'</div>'
+          +'</div>';
+      });
+    });
+  }
+  html+='</div>';
+  db.innerHTML=html;
+}
+
 function buildBSLP(){
   var html='';
   var cats=['ASSETS','LIABILITIES'];
@@ -2150,7 +2252,7 @@ function selectHotel(name){
   document.getElementById('hotel-gate').style.display='none';
   curId=null;results={};notes={};samples={};tstamps={};bsResults={};bsChecks={};bsNotes={};
   prepChecks={};prepTypes={};
-  loadStore();loadPrepChecks();loadPrepTypes();
+  loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();
   // Pre-fill hotel name if empty
   var hi=document.getElementById('hi-hotel');if(hi&&!hi.value){hi.value=name;saveDbc();}
   updPrg();selDash();
@@ -2201,7 +2303,7 @@ if(sessionStorage.getItem('cpa_auth')==='1'){
   var _sh=sessionStorage.getItem('cpa_hotel');
   if(_sh){
     currentHotel=_sh;
-    loadStore();loadPrepChecks();loadPrepTypes();updPrg();selDash();
+    loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();updPrg();selDash();
     updateHotelBtn();
   }else{
     buildHotelGate();
