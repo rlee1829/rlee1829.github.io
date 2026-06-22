@@ -110,7 +110,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 .rby{border-color:var(--yc);color:var(--yc)}.rby.act{background:var(--yc);color:#fff}
 .rbn{border-color:var(--nc);color:var(--nc)}.rbn.act{background:var(--nc);color:#fff}
 .rbna{border-color:var(--ac);color:var(--ac)}.rbna.act{background:var(--ac);color:#fff}
-.irow{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.irow{display:flex;gap:10px;margin-top:12px;margin-bottom:8px;flex-wrap:wrap}
 .ig{display:flex;flex-direction:column;gap:4px}
 .ig.igsamp{min-width:240px;flex:1}.ig.ignotes{flex:2;min-width:280px}
 .ig label{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
@@ -750,36 +750,35 @@ function buildLP(){
       items.forEach(function(i){if(secs.indexOf(i.section)===-1)secs.push(i.section);});
       secs.forEach(function(s){
         html+='<div class="lsl">'+esc(s)+'</div>';
-        items.filter(function(i){return i.section===s;}).forEach(function(item,idx){html+=mkLI(item,idx+1);});
+        items.filter(function(i){return i.section===s;}).forEach(function(item){html+=mkLI(item);});
       });
     }
   } else {
     if(items.length===0){
       html='<div style="padding:20px;text-align:center;color:#6c757d;font-size:12px;">No items match filter</div>';
     } else {
-      items.forEach(function(item,idx){html+=mkLI(item,idx+1);});
+      items.forEach(function(item){html+=mkLI(item);});
     }
   }
   document.getElementById('lp').innerHTML=html;
   if(curId){var el=document.getElementById('li-'+curId);if(el)el.scrollIntoView({block:'nearest'});}
 }
 
-function mkLI(item,num){
+function mkLI(item){
   var res=results[item.id]||'';
-  var dc,dt;
-  if(res==='yes'){dc='dy';dt='Y';}
-  else if(res==='no'){dc='dn';dt='N';}
-  else if(res==='na'){dc='dna';dt='-';}
-  else{dc='dnone';dt=num||'?';}
-  var bc=item.risk==='Key'?'bk':'bh';
+  var dc=res==='yes'?'dy':res==='no'?'dn':res==='na'?'dna':'dnone';
+  var resBadge='';
+  if(res==='yes')resBadge='<div class="lbadge" style="background:#d4edda;color:#155724">YES</div>';
+  else if(res==='no')resBadge='<div class="lbadge" style="background:#f8d7da;color:#721c24">NO</div>';
+  else if(res==='na')resBadge='<div class="lbadge" style="background:#e2e3e5;color:#383d41">N/A</div>';
   var tx=lang==='ko'?item.wsKR:(lang==='ja'?(JP_WS[item.id]||item.wsEN):item.wsEN);
   var lines=tx.split('\n').filter(function(l){return l.trim();});
   var title=lines[0]||'';
   if(title.length>75)title=title.substring(0,75)+'...';
   var ac=(curId===item.id)?' act':'';
   return '<div class="li'+ac+'" id="li-'+item.id+'" onclick="selItem('+item.id+')">'
-    +'<div class="ldot '+dc+'">'+esc(res?dt:num)+'</div>'
-    +'<div class="lbadge '+bc+'">'+esc(item.risk)+'</div>'
+    +'<div class="ldot '+dc+'">'+item.id+'</div>'
+    +resBadge
     +(VAL_IDS.has(item.id)?'<div class="li-val-tag">VAL</div>':'')
     +'<div class="ltx">'+esc(title)+'</div>'
     +'</div>';
@@ -830,7 +829,6 @@ function buildRP(){
     ?'<a href="'+pdfUrl+'" target="_blank" class="btnpdf">&#128196; View Policy PDF</a>'
     :'<span class="nopdf">No PDF available</span>';
   var si=auditData.filter(function(i){return i.section===item.section;});
-  var sIdx=si.findIndex(function(i){return i.id===item.id;});
   var rbg=item.risk==='Key'?'rgba(220,53,69,.25)':'rgba(253,126,20,.25)';
   var rfc=item.risk==='Key'?'#ff8a93':'#ffc07a';
   var isVal=VAL_IDS.has(item.id);
@@ -855,7 +853,7 @@ function buildRP(){
     +'<div class="dcard">'
     +'<div class="dhdr">'
     +'<div class="dta"><div class="dsec">'+esc(item.section)
-    +' <span class="dnum">#'+(sIdx+1)+'.</span>'
+    +' <span class="dnum">#'+item.id+'.</span>'
     +' <span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:'+rbg+';color:'+rfc+'">'+(item.risk==='HR'?'High risk':esc(item.risk))+'</span>'
     +' <span class="cat-tag '+catCls+'">'+esc(catLabel)+'</span>'
     +'</div></div>'
