@@ -215,8 +215,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 .db-pct{font-weight:700;font-size:12px;white-space:nowrap}
 .db-cnt{font-size:12px;font-weight:700;text-align:center;min-width:24px}
 .db-cnt-y{color:var(--yc)}.db-cnt-n{color:var(--nc)}.db-cnt-na{color:var(--ac)}.db-cnt-p{color:#adb5bd}
-.tab.tab-ov{background:#f0f2f5;border-right:2px solid var(--bd);font-size:11px}
-.tab.tab-ov.active{background:#e8edf8;color:var(--p)}
+.tab.tab-ov{background:#e8edf8;border-right:2px solid var(--bd);font-size:13px;font-weight:800;color:var(--p);letter-spacing:.2px}
+.tab.tab-ov.active{background:var(--p);color:#fff}
 /* ── DASH SCROLL MODE ── */
 body.dash-scroll{height:auto!important;overflow-y:auto!important}
 body.dash-scroll #app{height:auto!important;overflow:visible!important}
@@ -2186,8 +2186,8 @@ var JP_TS={
   document.body.appendChild(top);
   setTimeout(function(){
     var h=document.getElementById('hdr');
-    if(h) top.style.top=Math.round((h.offsetHeight-top.offsetHeight)/2)+'px';
-    else top.style.top='14px';
+    if(h) top.style.top=(h.offsetHeight-top.offsetHeight-4)+'px';
+    else top.style.top='28px';
   },0);
   // Bottom - center (dark gray)
   var bot=document.createElement('div');
