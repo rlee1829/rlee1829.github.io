@@ -914,10 +914,10 @@ function loadPrepRemarks(){
 function mkPrepInlineHtml(id){
   var tps=prepTypes[id]||[];
   var rmk=prepRemarks[id]||'';
-  if(tps.length===0&&!rmk)return '';
   var pd=prepData[id];
   var lk=lang==='ko'?'ko':lang==='ja'?'ja':'en';
   var docName=pd?(pd[lk]||pd.en):'';
+  if(!docName&&tps.length===0&&!rmk)return '';
   var hasDmx=tps.indexOf('dmx')>-1;
   var hasFile=tps.indexOf('file')>-1;
   var hasPaper=tps.indexOf('paper')>-1;
