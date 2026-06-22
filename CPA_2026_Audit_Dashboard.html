@@ -1128,6 +1128,16 @@ function save(){
              auditor:document.getElementById('hi-auditor').value,
              period:document.getElementById('hi-period').value}};
     localStorage.setItem(hotelKey('cpa2026v2'),JSON.stringify(d));
+    if(currentHotel){
+      localStorage.setItem('cpa2026_autobackup',JSON.stringify({
+        hotelName:currentHotel,
+        savedAt:new Date().toISOString(),
+        data:d,
+        prep:JSON.parse(localStorage.getItem(hotelKey('cpa_prep'))||'{}'),
+        prepTypes:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_types'))||'{}'),
+        prepRemarks:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_remarks'))||'{}')
+      }));
+    }
     var si=document.getElementById('si');
     var _n=new Date();
     si.textContent='✓ Saved '+String(_n.getHours()).padStart(2,'0')+':'+String(_n.getMinutes()).padStart(2,'0');
@@ -1150,6 +1160,27 @@ function loadStore(){
     }
   }catch(e){}
   updatePrintHdr();
+  checkAutoBackup();
+}
+function checkAutoBackup(){
+  try{
+    if(Object.keys(results).length>0)return;
+    var bk=JSON.parse(localStorage.getItem('cpa2026_autobackup')||'null');
+    if(!bk||!bk.data)return;
+    if((bk.hotelName||'').trim().toLowerCase()!==currentHotel.trim().toLowerCase())return;
+    if(Object.keys(bk.data.results||{}).length===0)return;
+    var t=bk.savedAt?new Date(bk.savedAt).toLocaleString('ko-KR'):'';
+    var ok=confirm('⚠️ 데이터가 비어 있습니다. 자동 백업을 복원할까요?\n\n최종 백업: '+t+'\n호텔: '+bk.hotelName+'\n\n(Auto-backup found. Restore?)');
+    if(!ok)return;
+    localStorage.setItem(hotelKey('cpa2026v2'),JSON.stringify(bk.data));
+    if(bk.prep)localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(bk.prep));
+    if(bk.prepTypes)localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(bk.prepTypes));
+    if(bk.prepRemarks)localStorage.setItem(hotelKey('cpa_prep_remarks'),JSON.stringify(bk.prepRemarks));
+    results=bk.data.results||{};notes=bk.data.notes||{};samples=bk.data.samples||{};tstamps=bk.data.tstamps||{};
+    bsResults=bk.data.bsResults||{};bsChecks=bk.data.bsChecks||{};bsNotes=bk.data.bsNotes||{};
+    loadPrepChecks();loadPrepTypes();loadPrepRemarks();
+    updPrg();buildNav();buildLP();buildRP();
+  }catch(e){}
 }
 
 function setLang(l){
@@ -2535,6 +2566,7 @@ if(sessionStorage.getItem('cpa_auth')==='1'){
   updPrg();selDash();
 }
 setInterval(save,30000);
+window.addEventListener('beforeunload',function(){if(currentHotel)save();});
 </script>
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
 </body>
