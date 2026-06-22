@@ -255,6 +255,14 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
   .prep-txt{font-size:11px}
   .prep-num{min-width:14px;font-size:10px}
 }
+.cat-tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;vertical-align:middle;margin-left:4px}
+.cat-cpa{background:#e8edf8;color:#1a2456}
+.cat-val{background:#fff3cd;color:#856404}
+.li-val-tag{display:inline-block;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;background:#fff3cd;color:#856404;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.val-warn{border-radius:6px;padding:8px 12px;font-size:12px;margin-top:10px;display:flex;align-items:flex-start;gap:8px;line-height:1.5;border:1px solid}
+.val-warn-idle{background:#fff3cd;border-color:#ffc107;color:#664d03}
+.val-warn-req{background:#fde8ea;border-color:#dc3545;color:#721c24;font-weight:600}
+.val-warn-ok{background:#e8f5e9;border-color:#198754;color:#1a6645}
 @media print{
   #hdr,#prg,#nav,.prep-top{display:none!important}
   #print-hdr{display:block!important;padding-bottom:12px;margin-bottom:16px;border-bottom:2px solid #1a2456}
@@ -429,6 +437,7 @@ const auditData = [
 
 
 const SECS=['AP','AR','Balance Sheet','Cash','Financial Close','ITGC','MA Compliance','Management','Payroll','Procurement','Revenue'];
+const VAL_IDS=new Set([8,9,10,11,12,13,22,23,24,25,28,29,34,35,36,42,50,55,56,57,58,60,61,65,67,68,70,71,72,78]);
 
 var prepData={
   1:{en:'Rent journal entries — 2 most recent months',ko:'임차료 Journal Entry — 최근 2개월분',ja:'賃料Journal Entry — 直近2ヶ月分'},
@@ -710,6 +719,7 @@ function mkLI(item,num){
   return '<div class="li'+ac+'" id="li-'+item.id+'" onclick="selItem('+item.id+')">'
     +'<div class="ldot '+dc+'">'+esc(res?dt:num)+'</div>'
     +'<div class="lbadge '+bc+'">'+esc(item.risk)+'</div>'
+    +(VAL_IDS.has(item.id)?'<div class="li-val-tag">VAL</div>':'')
     +'<div class="ltx">'+esc(title)+'</div>'
     +'</div>';
 }
@@ -761,12 +771,31 @@ function buildRP(){
   var sIdx=si.findIndex(function(i){return i.id===item.id;});
   var rbg=item.risk==='Key'?'rgba(220,53,69,.25)':'rgba(253,126,20,.25)';
   var rfc=item.risk==='Key'?'#ff8a93':'#ffc07a';
+  var isVal=VAL_IDS.has(item.id);
+  var catLabel=isVal?'CPA Validation':'CSA / CPA';
+  var catCls=isVal?'cat-val':'cat-cpa';
+  var valWarnHtml='';
+  if(isVal){
+    var warnMsg,warnCls;
+    if(res&&!note.trim()){
+      warnMsg=lang==='ko'?'⚠️ CPA Validation 항목입니다 — Test Notes를 반드시 작성해야 합니다.':(lang==='ja'?'⚠️ CPA Validation項目 — Test Notesを必ず記入してください。':'⚠️ CPA Validation item — Test Notes are required.');
+      warnCls='val-warn val-warn-req';
+    } else if(res&&note.trim()){
+      warnMsg=lang==='ko'?'✓ Test Notes 입력 완료':(lang==='ja'?'✓ Test Notes入力済み':'✓ Test Notes recorded');
+      warnCls='val-warn val-warn-ok';
+    } else {
+      warnMsg=lang==='ko'?'CPA Validation 항목 — 응답 입력 시 Test Notes를 작성해야 합니다.':(lang==='ja'?'CPA Validation項目 — 回答入力時にTest Notesの記入が必要です。':'CPA Validation item — Test Notes required when entering a response.');
+      warnCls='val-warn val-warn-idle';
+    }
+    valWarnHtml='<div id="val-warn" class="'+warnCls+'">'+esc(warnMsg)+'</div>';
+  }
   var html='<button class="mob-back" onclick="backToList()">&#8592; '+(lang==='ko'?'목록으로':(lang==='ja'?'リストへ':'Back'))+'</button>'
     +'<div class="dcard">'
     +'<div class="dhdr">'
     +'<div class="dta"><div class="dsec">'+esc(item.section)
     +' <span class="dnum">#'+(sIdx+1)+'.</span>'
     +' <span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:'+rbg+';color:'+rfc+'">'+(item.risk==='HR'?'High risk':esc(item.risk))+'</span>'
+    +' <span class="cat-tag '+catCls+'">'+esc(catLabel)+'</span>'
     +'</div></div>'
     +(tst?'<div class="dts">Tested: '+esc(tst)+'</div>':'')
     +'</div>'
@@ -783,6 +812,7 @@ function buildRP(){
     +'<button class="rsb rbn'+(res==='no'?' act':'')+'" onclick="setRes('+item.id+',\'no\')">No</button>'
     +'<button class="rsb rbna'+(res==='na'?' act':'')+'" onclick="setRes('+item.id+',\'na\')">N/A</button>'
     +'</div>'
+    +valWarnHtml
     +'<div class="irow">'
     +'<div class="ig igsamp"><label>'+sampL+'</label>'
     +'<input type="text" value="'+esc(samp)+'" placeholder="'+esc(sampPH)+'" oninput="setSamp('+item.id+',this.value)"></div>'
@@ -952,7 +982,25 @@ function setRes(id,val){
   if(viewMode==='bsguide'){buildBSLP();buildBSRP();}
 }
 
-function setNote(id,val){notes[id]=val;saveDbc();}
+function setNote(id,val){
+  notes[id]=val;
+  saveDbc();
+  if(VAL_IDS.has(id)){
+    var el=document.getElementById('val-warn');
+    if(!el)return;
+    var r=results[id]||'';
+    if(r&&!val.trim()){
+      el.className='val-warn val-warn-req';
+      el.textContent=lang==='ko'?'⚠️ CPA Validation 항목입니다 — Test Notes를 반드시 작성해야 합니다.':(lang==='ja'?'⚠️ CPA Validation項目 — Test Notesを必ず記入してください。':'⚠️ CPA Validation item — Test Notes are required.');
+    } else if(r&&val.trim()){
+      el.className='val-warn val-warn-ok';
+      el.textContent=lang==='ko'?'✓ Test Notes 입력 완료':(lang==='ja'?'✓ Test Notes入力済み':'✓ Test Notes recorded');
+    } else {
+      el.className='val-warn val-warn-idle';
+      el.textContent=lang==='ko'?'CPA Validation 항목 — 응답 입력 시 Test Notes를 작성해야 합니다.':(lang==='ja'?'CPA Validation項目 — 回答入力時にTest Notesの記入が必要です。':'CPA Validation item — Test Notes required when entering a response.');
+    }
+  }
+}
 function setSamp(id,val){samples[id]=val;saveDbc();}
 
 var _st=null;
