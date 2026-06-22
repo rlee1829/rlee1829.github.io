@@ -1165,12 +1165,26 @@ function loadStore(){
 function checkAutoBackup(){
   try{
     if(Object.keys(results).length>0)return;
+    // 1. Check named auto-backup
     var bk=JSON.parse(localStorage.getItem('cpa2026_autobackup')||'null');
-    if(!bk||!bk.data)return;
-    if((bk.hotelName||'').trim().toLowerCase()!==currentHotel.trim().toLowerCase())return;
-    if(Object.keys(bk.data.results||{}).length===0)return;
-    var t=bk.savedAt?new Date(bk.savedAt).toLocaleString('ko-KR'):'';
-    var ok=confirm('⚠️ 데이터가 비어 있습니다. 자동 백업을 복원할까요?\n\n최종 백업: '+t+'\n호텔: '+bk.hotelName+'\n\n(Auto-backup found. Restore?)');
+    var matched=bk&&bk.data&&(bk.hotelName||'').trim().toLowerCase()===currentHotel.trim().toLowerCase()&&Object.keys(bk.data.results||{}).length>0;
+    // 2. Scan all localStorage keys for any CPA data matching this hotel
+    if(!matched){
+      var cur=currentHotel.trim().toLowerCase().replace(/\s+/g,'_');
+      for(var i=0;i<localStorage.length;i++){
+        var k=localStorage.key(i);
+        if(!k||k.indexOf('cpa2026v2__')<0)continue;
+        var slug=k.replace('cpa2026v2__','').trim().toLowerCase();
+        if(slug!==cur)continue;
+        try{
+          var d=JSON.parse(localStorage.getItem(k));
+          if(Object.keys(d.results||{}).length>0){bk={data:d,hotelName:currentHotel,savedAt:null};matched=true;break;}
+        }catch(e){}
+      }
+    }
+    if(!matched)return;
+    var t=bk.savedAt?new Date(bk.savedAt).toLocaleString('ko-KR'):'(시간 미상)';
+    var ok=confirm('⚠️ 데이터가 비어 있습니다. 저장된 백업을 복원할까요?\n\n최종 저장: '+t+'\n호텔: '+bk.hotelName+'\n\n복원하면 입력 내용이 돌아옵니다. (Restore?)');
     if(!ok)return;
     localStorage.setItem(hotelKey('cpa2026v2'),JSON.stringify(bk.data));
     if(bk.prep)localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(bk.prep));
@@ -2411,7 +2425,8 @@ window.onbeforeprint=function(){
 };
 // HOTEL SELECTION
 var currentHotel='';
-function hotelKey(base){return currentHotel?base+'__'+currentHotel.replace(/\s+/g,'_'):base;}
+function hotelKey(base){return currentHotel?base+'__'+currentHotel.trim().toLowerCase().replace(/\s+/g,'_'):base;}
+function hotelKeyOld(base){return currentHotel?base+'__'+currentHotel.trim().replace(/\s+/g,'_'):base;}
 function getHotelList(){try{var s=localStorage.getItem('cpa2026_hotels');return s?JSON.parse(s):[];}catch(e){return[];}}
 function saveHotelList(list){try{localStorage.setItem('cpa2026_hotels',JSON.stringify(list));}catch(e){}}
 function buildHotelGate(){
@@ -2440,14 +2455,23 @@ function selectHotel(name){
   try{localStorage.setItem('cpa_last_hotel',name);}catch(e){}
   var list=getHotelList();
   if(list.indexOf(name)<0){list.unshift(name);saveHotelList(list);}
-  // One-time migration: if new key is empty, try migrating old flat data
+  // Migration: old flat key → old cased key → new normalized key
   var nk=hotelKey('cpa2026v2');
   if(!localStorage.getItem(nk)){
     try{
+      // Try old case-sensitive key (pre-normalization)
+      var oldCased=hotelKeyOld('cpa2026v2');
+      if(oldCased!==nk&&localStorage.getItem(oldCased)){
+        ['cpa2026v2','cpa_prep','cpa_prep_types','cpa_prep_remarks'].forEach(function(b){
+          var ok=hotelKeyOld(b),nw=hotelKey(b);
+          if(ok!==nw&&localStorage.getItem(ok))localStorage.setItem(nw,localStorage.getItem(ok));
+        });
+      }
+      // Try original flat key (no hotel suffix)
       var old=localStorage.getItem('cpa2026v2');
-      if(old){var op=JSON.parse(old);if(op.hotel&&op.hotel.hotel===name){localStorage.setItem(nk,old);}}
-      var p2=localStorage.getItem('cpa_prep');if(p2)localStorage.setItem(hotelKey('cpa_prep'),p2);
-      var p3=localStorage.getItem('cpa_prep_types');if(p3)localStorage.setItem(hotelKey('cpa_prep_types'),p3);
+      if(!localStorage.getItem(nk)&&old){var op=JSON.parse(old);if(op.hotel&&op.hotel.hotel&&op.hotel.hotel.trim().toLowerCase()===name.trim().toLowerCase())localStorage.setItem(nk,old);}
+      var p2=localStorage.getItem('cpa_prep');if(p2&&!localStorage.getItem(hotelKey('cpa_prep')))localStorage.setItem(hotelKey('cpa_prep'),p2);
+      var p3=localStorage.getItem('cpa_prep_types');if(p3&&!localStorage.getItem(hotelKey('cpa_prep_types')))localStorage.setItem(hotelKey('cpa_prep_types'),p3);
     }catch(e){}
   }
   document.getElementById('hotel-gate').style.display='none';
