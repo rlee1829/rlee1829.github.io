@@ -914,6 +914,7 @@ function loadPrepRemarks(){
 function mkPrepInlineHtml(id){
   var tps=prepTypes[id]||[];
   var rmk=prepRemarks[id]||'';
+  var chk=!!prepChecks[id];
   var pd=prepData[id];
   var lk=lang==='ko'?'ko':lang==='ja'?'ja':'en';
   var docName=pd?(pd[lk]||pd.en):'';
@@ -925,8 +926,12 @@ function mkPrepInlineHtml(id){
   if(hasDmx)badges+='<span class="prep-type-btn t-dmx">Doc-mx</span>';
   if(hasFile)badges+='<span class="prep-type-btn t-file">File</span>';
   if(hasPaper)badges+='<span class="prep-type-btn t-paper">Paper</span>';
+  var chkBadge=chk
+    ?'<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:#198754;flex-shrink:0">&#10003; Ready</span>'
+    :'<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:#adb5bd;flex-shrink:0">&#9744; Pending</span>';
   return '<div class="prep-inline-hdr">PREP</div>'
     +'<div class="prep-inline">'
+    +chkBadge
     +(badges?'<span class="prep-inline-types">'+badges+'</span>':'')
     +(docName?'<span class="prep-inline-name">'+esc(docName)+'</span>':'')
     +(rmk?'<span class="prep-inline-rmk">'+esc(rmk)+'</span>':'')
@@ -956,6 +961,7 @@ function savePrepCheck(id,v){
   prepChecks[id]=v;
   try{localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(prepChecks));}catch(e){}
   buildPrepView();
+  updPrepInline(id);
 }
 function resetPrepChecks(){
   if(!confirm('Reset all prep checklist? This cannot be undone.'))return;
@@ -1174,9 +1180,11 @@ function resetAll(){
 
 function exportJSON(){
   var hotel=document.getElementById('hi-hotel').value||currentHotel||'Hotel';
+  var auditor=document.getElementById('hi-auditor').value||'';
   var date=new Date().toISOString().slice(0,10);
   var d={
     hotelName:hotel,
+    auditorName:auditor,
     exportedAt:date,
     data:JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}'),
     prep:JSON.parse(localStorage.getItem(hotelKey('cpa_prep'))||'{}'),
@@ -1186,8 +1194,9 @@ function exportJSON(){
   var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
-  a.href=url;a.download='CPA_2026_'+hotel.replace(/\s+/g,'_')+'_'+date+'.json';
-  a.click();URL.revokeObjectURL(url);
+  a.href=url;
+  var fn='CPA_2026_'+hotel.replace(/\s+/g,'_')+(auditor?'_'+auditor.replace(/\s+/g,'_'):'')+'_'+date+'.json';
+  a.download=fn;a.click();URL.revokeObjectURL(url);
 }
 function importJSON(){document.getElementById('import-file').click();}
 function handleImport(e){
@@ -1196,6 +1205,10 @@ function handleImport(e){
   reader.onload=function(ev){
     try{
       var d=JSON.parse(ev.target.result);
+      if(d.hotelName&&d.hotelName!==currentHotel){
+        var ok=confirm('⚠️ 호텔명 불일치 / Hotel Mismatch\n\n파일: '+d.hotelName+'\n현재 작업 중: '+currentHotel+'\n\n현재 데이터가 덮어씌워집니다. 계속하시겠습니까?\n(File hotel does not match current property. Overwrite?)');
+        if(!ok){e.target.value='';return;}
+      }
       if(d.data)localStorage.setItem(hotelKey('cpa2026v2'),JSON.stringify(d.data));
       if(d.prep)localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(d.prep));
       if(d.prepTypes)localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(d.prepTypes));
@@ -2396,6 +2409,7 @@ function selectHotel(name){
   name=(name||'').trim();if(!name)return;
   currentHotel=name;
   sessionStorage.setItem('cpa_hotel',name);
+  try{localStorage.setItem('cpa_last_hotel',name);}catch(e){}
   var list=getHotelList();
   if(list.indexOf(name)<0){list.unshift(name);saveHotelList(list);}
   // One-time migration: if new key is empty, try migrating old flat data
@@ -2448,8 +2462,17 @@ function checkPw(){
     resetZoom();
     sessionStorage.setItem('cpa_auth','1');
     document.getElementById('pw-gate').style.display='none';
-    buildHotelGate();
-    document.getElementById('hotel-gate').style.display='flex';
+    var lastHotel=localStorage.getItem('cpa_last_hotel')||'';
+    var hotelList=getHotelList();
+    if(lastHotel&&hotelList.indexOf(lastHotel)>=0){
+      currentHotel=lastHotel;
+      sessionStorage.setItem('cpa_hotel',lastHotel);
+      loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();
+      updateHotelBtn();updPrg();selDash();
+    }else{
+      buildHotelGate();
+      document.getElementById('hotel-gate').style.display='flex';
+    }
   }else{
     document.getElementById('pw-err').textContent='Incorrect password.';
     document.getElementById('pw-input').value='';
