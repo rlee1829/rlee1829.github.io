@@ -1181,7 +1181,8 @@ function exportJSON(){
     exportedAt:date,
     data:JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}'),
     prep:JSON.parse(localStorage.getItem(hotelKey('cpa_prep'))||'{}'),
-    prepTypes:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_types'))||'{}')
+    prepTypes:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_types'))||'{}'),
+    prepRemarks:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_remarks'))||'{}')
   };
   var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
   var url=URL.createObjectURL(blob);
@@ -1199,6 +1200,7 @@ function handleImport(e){
       if(d.data)localStorage.setItem(hotelKey('cpa2026v2'),JSON.stringify(d.data));
       if(d.prep)localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(d.prep));
       if(d.prepTypes)localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(d.prepTypes));
+      if(d.prepRemarks)localStorage.setItem(hotelKey('cpa_prep_remarks'),JSON.stringify(d.prepRemarks));
       curId=null;results={};notes={};samples={};tstamps={};bsResults={};bsChecks={};bsNotes={};
       prepChecks={};prepTypes={};
       loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();
