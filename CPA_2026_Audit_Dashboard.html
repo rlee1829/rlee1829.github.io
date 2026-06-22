@@ -1988,7 +1988,7 @@ function buildABHelper(){
       var resTxt=res==='yes'?'YES':res==='no'?'NO':res==='na'?'N/A':'—';
       var copyTxt=[samp,note].filter(Boolean).join('\n').trim();
       html+='<div class="abh-item'+(res?'':' abh-item-empty')+'">'
-        +'<div class="abh-num">#'+(idx+1)+'</div>'
+        +'<div class="abh-num">#'+item.id+'</div>'
         +(isVal?'<div class="abh-val">VAL</div>':'')
         +'<div class="abh-txt">'+esc(brief)+'</div>'
         +'<div class="abh-res '+resCls+'">'+resTxt+'</div>';
@@ -2018,18 +2018,19 @@ function buildBSLP(){
     html+='<div class="lsl">'+cat+'</div>';
     items.forEach(function(item){
       var res=bsResults[item.id]||'';
-      var dc,dt;
-      if(res==='yes'){dc='dy';dt='Y';}
-      else if(res==='no'){dc='dn';dt='N';}
-      else if(res==='na'){dc='dna';dt='-';}
-      else{dc='dnone';dt=item.num;}
+      var dc=res==='yes'?'dy':res==='no'?'dn':res==='na'?'dna':'dnone';
+      var bsResBadge='';
+      if(res==='yes')bsResBadge='<div class="lbadge" style="background:#d4edda;color:#155724">YES</div>';
+      else if(res==='no')bsResBadge='<div class="lbadge" style="background:#f8d7da;color:#721c24">NO</div>';
+      else if(res==='na')bsResBadge='<div class="lbadge" style="background:#e2e3e5;color:#383d41">N/A</div>';
       var chks=bsChecks[item.id]||{};
       var done=item.checks.filter(function(c,i){return chks[i];}).length;
       var pct=item.checks.length?Math.round(done/item.checks.length*100):0;
       var ac=(curBsId===item.id)?' act':'';
       var accountTx=item.account?'<span style="color:var(--mu);font-size:9px;"> ('+esc(item.account)+')</span>':'';
       html+='<div class="li'+ac+'" id="bsli-'+item.id+'" onclick="selBSItem(\''+item.id+'\')">'
-        +'<div class="ldot '+dc+'">'+esc(dc==='dnone'?String(item.num):dt)+'</div>'
+        +'<div class="ldot '+dc+'">'+item.num+'</div>'
+        +bsResBadge
         +'<div style="flex:1;min-width:0">'
         +'<div class="ltx">'+esc(item.title)+accountTx+'</div>'
         +'<div style="margin-top:3px;height:3px;background:#e9ecef;border-radius:2px;overflow:hidden">'
