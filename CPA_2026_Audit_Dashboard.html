@@ -367,6 +367,7 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
     <button class="btn" onclick="importJSON()" title="Import JSON data" style="background:#198754;color:#fff">&#8681; Import</button>
     <button class="btn btn-o" onclick="window.print()">&#128438; Print</button>
     <button class="btn btn-o" onclick="resetAll()" title="Reset all results">&#8635;</button>
+    <button class="btn" onclick="showCloseModal()" title="Exit / Close" style="background:#c0392b;color:#fff;margin-left:4px">&#10005; Exit</button>
   </div>
 </div>
 <div id="prg">
@@ -526,7 +527,7 @@ var prepData={
   40:{en:'General Cashier Report + Bank Deposit Slip — 3 days',ko:'General Cashier Report + 은행 입금 의뢰서(Deposit Slip) — 3일분',ja:'General Cashier Report + 銀行入金伝票（Deposit Slip） — 3日分'},
   41:{en:'E-banking setup screenshot — current EFT authorized users list',ko:'전자뱅킹(E-banking) 현재 EFT 권한자 설정 스크린샷',ja:'電子バンキング（E-banking）現在のEFT権限者設定スクリーンショット'},
   42:{en:'3 Refunds from PMS system-generated refund report (e.g. REFUNDRT in OnQ) or DocMX Bill Query / Manual EFT',ko:'PMS 환불 보고서(예: OnQ REFUNDRT) 또는 DocMX Bill Query/수동 EFT에서 Refund 3건',ja:'PMSシステム生成Refundレポート（例：OnQ REFUNDRT）またはDocMX Bill Query/手動EFTからRefund 3件'},
-  43:{en:'GL change summary or significant adjustment list — RFD/VP approval documentation if applicable',ko:'GL 변경 내역 요약 또는 주요 조정 내역 — 해당 시 RFD/VP 승인 서류',ja:'GL変更内容要約または重要調整一覧 — 該当する場合はRFD/VP承認書類'},
+  43:{en:'FF&E bank account reconciliation and FF&E bank account disbursement listing',ko:'FF&E 은행 계좌 조정표 및 FF&E 은행 계좌 지출 내역서',ja:'FF&E銀行口座照合資料およびFF&E銀行口座支出リスト'},
   44:{en:'Trial Balance Reconciliation (Local GL vs PeopleSoft) — 2 most recent months',ko:'Trial Balance Reconciliation (로컬 GL vs PeopleSoft) — 최근 2개월분',ja:'Trial Balance Reconciliation（ローカルGL vs PeopleSoft） — 直近2ヶ月分'},
   45:{en:'Bank Reconciliation — 2 weeks (1 from current month + 1 from previous month)',ko:'Bank Reconciliation — 2주분 (당월 1주분 + 전월 1주분)',ja:'Bank Reconciliation — 2週分（当月1週分 + 前月1週分）'},
   46:{en:'3 Journal Entries incl. at least 1 CheckSCM journal entry',ko:'Journal Entry 3건 (CheckSCM Journal Entry 최소 1건 포함)',ja:'Journal Entry 3件（CheckSCM Journal Entry最低1件含む）'},
@@ -1128,6 +1129,9 @@ function save(){
              auditor:document.getElementById('hi-auditor').value,
              period:document.getElementById('hi-period').value}};
     localStorage.setItem(hotelKey('cpa2026v2'),JSON.stringify(d));
+    try{localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(prepChecks));}catch(e){}
+    try{localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(prepTypes));}catch(e){}
+    try{localStorage.setItem(hotelKey('cpa_prep_remarks'),JSON.stringify(prepRemarks));}catch(e){}
     if(currentHotel){
       localStorage.setItem('cpa2026_autobackup',JSON.stringify({
         hotelName:currentHotel,
@@ -2590,8 +2594,55 @@ if(sessionStorage.getItem('cpa_auth')==='1'){
   updPrg();selDash();
 }
 setInterval(save,30000);
-window.addEventListener('beforeunload',function(){if(currentHotel)save();});
+window.addEventListener('beforeunload',function(e){if(currentHotel)save();e.preventDefault();e.returnValue='작업 내용을 백업(Export)하셨나요? 닫기 전에 Export JSON을 권장합니다.';return e.returnValue;});
 </script>
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<!-- Close / Backup Reminder Modal -->
+<div id="close-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:14px;padding:32px 28px;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.25);text-align:center;position:relative">
+    <div style="font-size:44px;margin-bottom:10px">💾</div>
+    <div style="font-size:17px;font-weight:800;color:#1a2456;margin-bottom:6px" id="close-modal-title">닫기 전에 백업하셨나요?</div>
+    <div style="font-size:12px;color:#6c757d;line-height:1.7;margin-bottom:20px" id="close-modal-body">
+      입력한 심사 결과와 메모가 저장되어 있습니다.<br>
+      <strong>Export JSON</strong>으로 백업 파일을 저장한 뒤 닫으시길 권장합니다.<br>
+      <span style="color:#c0392b;font-size:11px">⚠ 백업 없이 닫으면 브라우저 데이터가 초기화될 수 있습니다.</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button onclick="exportJSON();document.getElementById('close-modal').style.display='none'" style="padding:11px;font-size:13px;font-weight:700;background:#1a2456;color:#fff;border:none;border-radius:8px;cursor:pointer">
+        &#8679; Export JSON 백업 후 계속 작업
+      </button>
+      <button onclick="document.getElementById('close-modal').style.display='none'" style="padding:10px;font-size:13px;font-weight:600;background:#f0f2f5;color:#1a2456;border:1px solid #dee2e6;border-radius:8px;cursor:pointer">
+        &#10003; 이미 백업함 / 계속 작업
+      </button>
+      <button onclick="document.getElementById('close-modal').style.display='none';window.close()" style="padding:9px;font-size:12px;font-weight:600;background:#fff;color:#c0392b;border:1px solid #f5c6cb;border-radius:8px;cursor:pointer">
+        &#10005; 백업 없이 닫기
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showCloseModal(){
+  var m=document.getElementById('close-modal');
+  m.style.display='flex';
+  // language-aware title/body
+  var isKo=(document.getElementById('lang-ko')&&document.getElementById('lang-ko').classList.contains('lang-act'));
+  var isJa=(document.getElementById('lang-ja')&&document.getElementById('lang-ja').classList.contains('lang-act'));
+  var t=document.getElementById('close-modal-title');
+  var b=document.getElementById('close-modal-body');
+  if(isJa){
+    t.textContent='閉じる前にバックアップしましたか？';
+    b.innerHTML='入力した審査結果とメモが保存されています。<br><strong>Export JSON</strong>でバックアップファイルを保存してから閉じることをお勧めします。<br><span style="color:#c0392b;font-size:11px">⚠ バックアップなしで閉じると、ブラウザデータが初期化される可能性があります。</span>';
+  }else if(!isKo){
+    t.textContent='Ready to close? Please back up first.';
+    b.innerHTML='Your audit results and notes are saved locally.<br>We recommend downloading an <strong>Export JSON</strong> backup before closing.<br><span style="color:#c0392b;font-size:11px">⚠ Without a backup, browser storage may be cleared unexpectedly.</span>';
+  }else{
+    t.textContent='닫기 전에 백업하셨나요?';
+    b.innerHTML='입력한 심사 결과와 메모가 저장되어 있습니다.<br><strong>Export JSON</strong>으로 백업 파일을 저장한 뒤 닫으시길 권장합니다.<br><span style="color:#c0392b;font-size:11px">⚠ 백업 없이 닫으면 브라우저 데이터가 초기화될 수 있습니다.</span>';
+  }
+}
+document.getElementById('close-modal').addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+</script>
 </body>
 </html>
