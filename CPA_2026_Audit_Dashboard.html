@@ -442,8 +442,7 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
     <button class="btn" onclick="exportJSON()" title="Export data as JSON" style="background:#3a7bd5;color:#fff">&#8679; Export</button>
     <button class="btn" onclick="importJSON()" title="Import JSON data" style="background:#198754;color:#fff">&#8681; Import</button>
     <button class="btn btn-o" onclick="window.print()">&#128438; Print</button>
-    <button class="btn btn-o" onclick="resetAll()" title="Reset all results">&#8635;</button>
-    <button class="btn" onclick="showCloseModal()" title="Exit / Close" style="background:#c0392b;color:#fff;margin-left:4px">&#10005; Exit</button>
+    <button class="btn btn-o" onclick="resetAll()" title="Reset all results" style="color:#c0392b;font-weight:800;font-size:11px;letter-spacing:.5px">RESET</button>
   </div>
 </div>
 <div id="prg">
@@ -1070,12 +1069,12 @@ function buildNav(){
     +'<span class="tn" style="'+(nc>0?'background:#fde8ea;color:#dc3545':'')+'">'
     +nc+'</span></div>';
   var bsc=(viewMode==='bsguide')?' active ftab':' ftab';
-  html+='<div class="tab'+bsc+'" onclick="selBSGuide()" style="color:#1a2456">BS Guide'
-    +'<span class="tn" style="background:#e8f0fe;color:#1a2456">39</span></div>';
+  html+='<div class="tab'+bsc+'" onclick="selBSGuide()" style="color:#0369a1;background:#e0f2fe;border-top:2px solid #7dd3fc">BS Guide'
+    +'<span class="tn" style="background:#bae6fd;color:#0369a1">39</span></div>';
   var bsnc=(viewMode==='bsnotes')?' active ftab':' ftab';
   var bsNotesCnt=bsData.filter(function(i){return bsNotes[i.id]&&bsNotes[i.id].trim();}).length;
-  html+='<div class="tab'+bsnc+'" onclick="selBSNotes()" style="color:#1a2456">BS Notes'
-    +(bsNotesCnt?'<span class="tn" style="background:#e8f0fe;color:#1a2456">'+bsNotesCnt+'</span>':'')
+  html+='<div class="tab'+bsnc+'" onclick="selBSNotes()" style="color:#0369a1;background:#e0f2fe;border-top:2px solid #7dd3fc">BS Notes'
+    +(bsNotesCnt?'<span class="tn" style="background:#bae6fd;color:#0369a1">'+bsNotesCnt+'</span>':'')
     +'</div>';
   var abhc=(viewMode==='abhelper')?' active ftab':' ftab';
   var abhResp=getAuditData().filter(function(i){return results[i.id];}).length;
@@ -1084,6 +1083,8 @@ function buildNav(){
     +'</div>';
   document.getElementById('tabs').innerHTML=html;
   updTabBtns();
+  sessionStorage.setItem('cpa_viewmode',viewMode);
+  sessionStorage.setItem('cpa_cursec',curSec||'');
 }
 
 function updPrg(){
@@ -3240,6 +3241,18 @@ window.onbeforeprint=function(){
   if(el)el.textContent=t;
 };
 // HOTEL SELECTION
+function _restoreNav(){
+  var vm=sessionStorage.getItem('cpa_viewmode');
+  var sc=sessionStorage.getItem('cpa_cursec');
+  if(!vm||vm==='dash'){selDash();return;}
+  if(vm==='section'&&sc){selSec(sc);return;}
+  if(vm==='findings'){selFindings();return;}
+  if(vm==='bsguide'){selBSGuide();return;}
+  if(vm==='bsnotes'){selBSNotes();return;}
+  if(vm==='abhelper'){selABHelper();return;}
+  if(vm==='prep'){selPrep();return;}
+  selDash();
+}
 var currentHotel='';
 var currentServiceType='full';
 function setServiceType(t){currentServiceType=t;sessionStorage.setItem('cpa_service_type',t);}
@@ -3448,7 +3461,7 @@ if(sessionStorage.getItem('cpa_auth')==='1'){
   if(_sh){
     currentServiceType=sessionStorage.getItem('cpa_service_type')||'full';
     currentHotel=_sh;
-    loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();updPrg();selDash();
+    loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();updPrg();_restoreNav();
     updateHotelBtn();
   }else{
     showSvcStep();
@@ -3459,7 +3472,11 @@ if(sessionStorage.getItem('cpa_auth')==='1'){
   updPrg();selDash();
 }
 setInterval(save,30000);
-window.addEventListener('beforeunload',function(e){if(currentHotel)save();e.preventDefault();e.returnValue='작업 내용을 백업(Export)하셨나요? 닫기 전에 Export JSON을 권장합니다.';return e.returnValue;});
+window.addEventListener('beforeunload',function(e){
+  if(currentHotel)save();
+  var msg=lang==='ko'?'⚠ 닫기 전에 Export JSON으로 백업하셨나요?\n백업 없이 닫으면 작업 내용이 사라질 수 있습니다.\n상단의 Export 버튼을 눌러 백업 파일을 저장해 주세요.':lang==='ja'?'⚠ 閉じる前にExport JSONでバックアップしましたか？\nバックアップなしで閉じるとデータが失われる可能性があります。\n上部のExportボタンでバックアップしてください。':'⚠ Have you exported a backup before closing?\nWithout an Export JSON backup, your audit data may be lost.\nPlease click the Export button above to save your backup file.';
+  e.preventDefault();e.returnValue=msg;return msg;
+});
 </script>
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
 
@@ -3502,60 +3519,5 @@ window.addEventListener('beforeunload',function(e){if(currentHotel)save();e.prev
   </div>
 </div>
 
-<!-- Close / Backup Reminder Modal -->
-<div id="close-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:14px;padding:32px 28px;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.25);text-align:center;position:relative">
-    <div style="font-size:44px;margin-bottom:10px">💾</div>
-    <div style="font-size:17px;font-weight:800;color:#1a2456;margin-bottom:6px" id="close-modal-title">닫기 전에 백업하셨나요?</div>
-    <div style="font-size:12px;color:#6c757d;line-height:1.7;margin-bottom:20px" id="close-modal-body">
-      입력한 심사 결과와 메모가 저장되어 있습니다.<br>
-      <strong>Export JSON</strong>으로 백업 파일을 저장한 뒤 닫으시길 권장합니다.<br>
-      <span style="color:#c0392b;font-size:11px">⚠ 백업 없이 닫으면 브라우저 데이터가 초기화될 수 있습니다.</span>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:9px">
-      <button onclick="exportJSON();document.getElementById('close-modal').style.display='none'" style="padding:11px;font-size:13px;font-weight:700;background:#1a2456;color:#fff;border:none;border-radius:8px;cursor:pointer">
-        &#8679; Export JSON 백업 후 계속 작업
-      </button>
-      <button onclick="document.getElementById('close-modal').style.display='none'" style="padding:10px;font-size:13px;font-weight:600;background:#f0f2f5;color:#1a2456;border:1px solid #dee2e6;border-radius:8px;cursor:pointer">
-        &#10003; 이미 백업함 / 계속 작업
-      </button>
-      <button onclick="closeWindow()" style="padding:9px;font-size:12px;font-weight:600;background:#fff;color:#c0392b;border:1px solid #f5c6cb;border-radius:8px;cursor:pointer">
-        &#10005; 백업 없이 닫기
-      </button>
-    </div>
-  </div>
-</div>
-
-<script>
-function showCloseModal(){
-  var m=document.getElementById('close-modal');
-  m.style.display='flex';
-  // language-aware title/body
-  var isKo=(document.getElementById('lang-ko')&&document.getElementById('lang-ko').classList.contains('lang-act'));
-  var isJa=(document.getElementById('lang-ja')&&document.getElementById('lang-ja').classList.contains('lang-act'));
-  var t=document.getElementById('close-modal-title');
-  var b=document.getElementById('close-modal-body');
-  if(isJa){
-    t.textContent='閉じる前にバックアップしましたか？';
-    b.innerHTML='入力した審査結果とメモが保存されています。<br><strong>Export JSON</strong>でバックアップファイルを保存してから閉じることをお勧めします。<br><span style="color:#c0392b;font-size:11px">⚠ バックアップなしで閉じると、ブラウザデータが初期化される可能性があります。</span>';
-  }else if(!isKo){
-    t.textContent='Ready to close? Please back up first.';
-    b.innerHTML='Your audit results and notes are saved locally.<br>We recommend downloading an <strong>Export JSON</strong> backup before closing.<br><span style="color:#c0392b;font-size:11px">⚠ Without a backup, browser storage may be cleared unexpectedly.</span>';
-  }else{
-    t.textContent='닫기 전에 백업하셨나요?';
-    b.innerHTML='입력한 심사 결과와 메모가 저장되어 있습니다.<br><strong>Export JSON</strong>으로 백업 파일을 저장한 뒤 닫으시길 권장합니다.<br><span style="color:#c0392b;font-size:11px">⚠ 백업 없이 닫으면 브라우저 데이터가 초기화될 수 있습니다.</span>';
-  }
-}
-document.getElementById('close-modal').addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
-function closeWindow(){
-  document.getElementById('close-modal').style.display='none';
-  window.close();
-  setTimeout(function(){
-    var isKo=lang==='ko', isJa=lang==='ja';
-    var msg=isJa?'このタブを手動で閉じてください。\n(Ctrl+W / Cmd+W)':isKo?'이 탭을 직접 닫아주세요.\n(Ctrl+W / Cmd+W)':'Please close this tab manually.\n(Ctrl+W / Cmd+W)';
-    alert(msg);
-  },300);
-}
-</script>
 </body>
 </html>
