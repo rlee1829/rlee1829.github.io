@@ -1026,7 +1026,7 @@ function getPdfUrl(pol){
   return PDF_FOLDER+encodeURIComponent(f);
 }
 
-var lang='en';
+var lang=sessionStorage.getItem('cpa_lang')||'en';
 var results={};
 var notes={};
 var samples={};
@@ -1653,6 +1653,7 @@ function checkAutoBackup(){
 
 function setLang(l){
   lang=l;
+  sessionStorage.setItem('cpa_lang',l);
   ['ko','en','ja'].forEach(function(x){
     var b=document.getElementById('lang-'+x);
     if(b)b.classList.toggle('lang-act',x===l);
@@ -3442,6 +3443,7 @@ function updTabBtns(){
 // INIT
 if(sessionStorage.getItem('cpa_auth')==='1'){
   document.getElementById('pw-gate').style.display='none';
+  ['ko','en','ja'].forEach(function(x){var b=document.getElementById('lang-'+x);if(b)b.classList.toggle('lang-act',x===lang);});
   var _sh=sessionStorage.getItem('cpa_hotel');
   if(_sh){
     currentServiceType=sessionStorage.getItem('cpa_service_type')||'full';
