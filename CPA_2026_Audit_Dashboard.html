@@ -574,18 +574,24 @@ function saveTestCell(id,r,c,val){
 }
 function _tsHdr(id,ts){
   return '<div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span>'
-    +'<button id="ts-copy-btn-'+id+'" class="ts-copy-btn" onclick="copyTestSheet('+id+')">&#128203; Copy</button></div>';
+    +'<button id="ts-copy-btn-'+id+'" class="ts-copy-btn" onclick="copyTestSheet('+id+')">&#128203; Copy All</button></div>';
 }
-function copyTestSheet(id){
+function _tsSubHdr(label,id,tblIdx){
+  return '<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between">'
+    +'<span>'+label+'</span>'
+    +'<button id="ts-copy-btn-'+id+'-'+tblIdx+'" class="ts-copy-btn" onclick="copyTestSheet('+id+','+tblIdx+')">&#128203; Copy</button>'
+    +'</div>';
+}
+function copyTestSheet(id,tblIdx){
   var wrap=document.getElementById('ts-wrap-'+id);if(!wrap)return;
-  var ts=TEST_SHEETS[id];
+  var allTables=wrap.querySelectorAll('table.ts-tbl');
+  var tables=tblIdx!==undefined?[allTables[tblIdx]]:Array.prototype.slice.call(allTables);
   var tsvParts=[],htmlParts=[];
   var htmlStyle='border-collapse:collapse;font-size:12px;font-family:Calibri,Arial,sans-serif';
-  var thStyle='background:#1a2456;color:#fff;border:1px solid #aaa;padding:5px 8px;font-weight:700;white-space:nowrap';
   var tdStyle='border:1px solid #aaa;padding:4px 8px;vertical-align:top';
-  wrap.querySelectorAll('table.ts-tbl').forEach(function(table,ti){
-    var headers=[],dataRows=[];
-    table.querySelectorAll('thead th').forEach(function(th){headers.push(th.textContent.trim());});
+  tables.forEach(function(table){
+    if(!table)return;
+    var dataRows=[];
     table.querySelectorAll('tbody tr').forEach(function(tr){
       var row=[];
       tr.querySelectorAll('td').forEach(function(td){
@@ -595,11 +601,8 @@ function copyTestSheet(id){
       });
       if(row.length)dataRows.push(row);
     });
-    if(!headers.length)return;
-    /* TSV — data rows only, no header */
     dataRows.forEach(function(r){tsvParts.push(r.join('\t'));});
     tsvParts.push('');
-    /* HTML table — data rows only, no header */
     var htrs=dataRows.map(function(r){
       return '<tr>'+r.map(function(v){return '<td style="'+tdStyle+'">'+(v||'')+'</td>';}).join('')+'</tr>';
     }).join('');
@@ -607,9 +610,9 @@ function copyTestSheet(id){
   });
   var tsv=tsvParts.join('\n');
   var html='<html><body>'+htmlParts.join('<br>')+'</body></html>';
-  var btn=document.getElementById('ts-copy-btn-'+id);
+  var btnId=tblIdx!==undefined?'ts-copy-btn-'+id+'-'+tblIdx:'ts-copy-btn-'+id;
+  var btn=document.getElementById(btnId);
   function flash(){if(btn){btn.textContent='✓ Copied!';btn.classList.add('copied');setTimeout(function(){btn.textContent='📋 Copy';btn.classList.remove('copied');},2000);}}
-  /* Try ClipboardItem (HTML+TSV) → fallback to plain TSV */
   if(navigator.clipboard&&window.ClipboardItem){
     try{
       navigator.clipboard.write([new ClipboardItem({
@@ -678,8 +681,9 @@ function mkAP7Html(id,ts){
     s2+='<tr><td class="ts-rn">'+(r2+1)+'</td>'+_tsInp(id,r2+2,0,d2[0]||'','Month')+_tsInp(id,r2+2,1,d2[1]||'','Y/N',60)+_tsInp(id,r2+2,2,d2[2]||'','Jnl No.')+_tsInp(id,r2+2,3,d2[3]||'','Accrual Amt')+_tsInp(id,r2+2,4,d2[4]||'','Reviewed By')+'</tr>';
   }
   return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
+    +_tsSubHdr('Open PO Review',id,0)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>Open PO Review Performed? (Y/N)</th><th>Aged Items &gt;6m Investigated? (Y/N)</th><th>Reviewed By</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
-    +'<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">Accrual Verification</div>'
+    +_tsSubHdr('Accrual Verification',id,1)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>Accrual Recognized Only If Goods Received / Not Yet Invoiced? (Y/N)</th><th>Journal No.</th><th>Accrual Amount</th><th>Reviewed By</th></tr></thead><tbody>'+s2+'</tbody></table></div></div>';
 }
 function mkAR4Html(id,ts){
@@ -691,8 +695,9 @@ function mkAR4Html(id,ts){
     s2+='<tr><td class="ts-rn">'+(r+1)+'</td>'+_tsInp(id,r+1,0,d[0]||'','Form No.')+_tsInp(id,r+1,1,d[1]||'','Y / N',80)+'</tr>';
   }
   return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
+    +_tsSubHdr('CC Details Check',id,0)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th colspan="2">Full CC Details NOT Maintained Outside PMS? (Y/N)</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
-    +'<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">If Applicable — CC Auth Form Check</div>'
+    +_tsSubHdr('If Applicable — CC Auth Form Check',id,1)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>CC Auth Form No.</th><th>Full CC Details Mentioned? (Y/N)</th></tr></thead><tbody>'+s2+'</tbody></table></div></div>';
 }
 function mkITHtml(id,ts){
@@ -730,8 +735,9 @@ function mkMA3Html(id,ts){
       +'</tr>';
   }
   return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
+    +_tsSubHdr('MA/BAMA FF&amp;E Terms',id,0)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>MA/BAMA FF&amp;E Terms</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
-    +'<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">FF&amp;E Provision Verification (2 Months)</div>'
+    +_tsSubHdr('FF&amp;E Provision Verification (2 Months)',id,1)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>FF&amp;E Provision per Hotel</th><th>Calculation Correct? (Y/N)</th><th>FF&amp;E JV No.</th><th>Accounting Treatment per Guide? (Y/N)</th></tr></thead><tbody>'+s2+'</tbody></table></div></div>';
 }
 function mkTestSheetHtml(id){
