@@ -1595,8 +1595,8 @@ function handleImport(e){
       var fileHotel=(d.hotelName||'').trim().toLowerCase();
       var curHotel=currentHotel.trim().toLowerCase();
       if(fileHotel&&fileHotel!==curHotel){
-        alert('⛔ 다른 호텔의 데이터입니다.\n\n파일: '+d.hotelName+'\n현재 작업 중: '+currentHotel+'\n\n"'+d.hotelName+'" 세션으로 전환한 후 다시 Import해주세요.');
-        e.target.value='';return;
+        var ok=confirm('⚠️ 호텔 이름이 다릅니다. 같은 호텔이지만 이름이 다르게 입력된 경우 계속 진행할 수 있습니다.\n\n파일: "'+d.hotelName+'"\n현재 세션: "'+currentHotel+'"\n\n계속 진행하시겠습니까?\n(Hotel names differ. If this is the same property with a slightly different name, you can continue.)');
+        if(!ok){e.target.value='';return;}
       }
       /* detect which sections have data in the file */
       var fileSecs=d.sections||SECS;
