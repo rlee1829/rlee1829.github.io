@@ -1532,29 +1532,34 @@ function handleImport(e){
 function exportCSV(){
   var hotel=document.getElementById('hi-hotel').value||'Hotel';
   var date=document.getElementById('hi-date').value||new Date().toISOString().slice(0,10);
-  var hdr=['No','Section','Risk','Work Step (EN)','Test Step (EN)','Work Step (KR)','Test Step (KR)','Policy Reference','Result','Sample Tested','Notes'].join(',');
-  var rows=[hdr];
+  var hdrs=['No','Section','Risk','Work Step (EN)','Test Step (EN)','Work Step (KR)','Test Step (KR)','Policy Reference','Result','Sample Tested','Notes'];
+  var thRow='<tr>'+hdrs.map(function(h){return'<th>'+esc(h)+'</th>';}).join('')+'</tr>';
+  var tbRows='';
   auditData.forEach(function(item,idx){
-    var res=results[item.id]||'';
-    var nt=(notes[item.id]||'').replace(/"/g,'""').replace(/[\r\n]+/g,' ');
-    var sp=(samples[item.id]||'').replace(/"/g,'""');
-    var we=item.wsEN.replace(/"/g,'""').replace(/[\r\n]+/g,' ');
-    var te=item.tsEN.replace(/"/g,'""').replace(/[\r\n]+/g,' ');
-    var wk=(item.wsKR||'').replace(/"/g,'""').replace(/[\r\n]+/g,' ');
-    var tk=(item.tsKR||'').replace(/"/g,'""').replace(/[\r\n]+/g,' ');
-    var po=item.pol.replace(/"/g,'""');
-    rows.push([idx+1,'"'+item.section+'"','"'+item.risk+'"','"'+we+'"','"'+te+'"','"'+wk+'"','"'+tk+'"','"'+po+'"','"'+res+'"','"'+sp+'"','"'+nt+'"'].join(','));
+    var cells=[
+      idx+1,
+      item.section,
+      item.risk,
+      item.wsEN,
+      item.tsEN,
+      item.wsKR||'',
+      item.tsKR||'',
+      item.pol,
+      results[item.id]||'',
+      samples[item.id]||'',
+      notes[item.id]||''
+    ];
+    tbRows+='<tr>'+cells.map(function(c){return'<td>'+esc(String(c))+'</td>';}).join('')+'</tr>';
   });
-  var csv=rows.join('\r\n');
-  // UTF-16 LE encoding — Excel on any locale (KO/JA/EN) reads this correctly
-  var buf=new ArrayBuffer(2+csv.length*2);
-  var view=new Uint16Array(buf);
-  view[0]=0xFEFF;
-  for(var i=0;i<csv.length;i++)view[i+1]=csv.charCodeAt(i);
-  var blob=new Blob([buf],{type:'text/csv;charset=utf-16le'});
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    +'<style>table{border-collapse:collapse}th,td{border:1px solid #aaa;padding:4px 8px;font-size:11px;vertical-align:top;white-space:pre-wrap}'
+    +'th{background:#1a2456;color:#fff;font-weight:700}</style></head><body>'
+    +'<table><thead>'+thRow+'</thead><tbody>'+tbRows+'</tbody></table>'
+    +'</body></html>';
+  var blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
-  a.href=url;a.download='CPA2026_'+hotel.replace(/\s+/g,'_')+'_'+date+'.csv';
+  a.href=url;a.download='CPA2026_'+hotel.replace(/\s+/g,'_')+'_'+date+'.xls';
   a.click();URL.revokeObjectURL(url);
 }
 
