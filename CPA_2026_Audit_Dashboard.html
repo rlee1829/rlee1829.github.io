@@ -3260,8 +3260,9 @@ function dispId(id){
 }
 function getJPWS(){return currentServiceType==='focused'?FOCUSED_JP_WS:JP_WS;}
 function getJPTS(){return currentServiceType==='focused'?FOCUSED_JP_TS:JP_TS;}
-function getHotelList(){try{var s=localStorage.getItem('cpa2026_hotels');return s?JSON.parse(s):[];}catch(e){return[];}}
-function saveHotelList(list){try{localStorage.setItem('cpa2026_hotels',JSON.stringify(list));}catch(e){}}
+function _hotelListKey(){return 'cpa2026_hotels__'+(currentServiceType||'full');}
+function getHotelList(){try{var s=localStorage.getItem(_hotelListKey());return s?JSON.parse(s):[];}catch(e){return[];}}
+function saveHotelList(list){try{localStorage.setItem(_hotelListKey(),JSON.stringify(list));}catch(e){}}
 function selectSvcType(t){
   setServiceType(t);
   document.getElementById('svc-step').style.display='none';
