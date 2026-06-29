@@ -533,7 +533,7 @@ const auditData = [
 
 
 const SECS=['AP','AR','Balance Sheet','Cash','Financial Close','ITGC','MA Compliance','Management','Payroll','Procurement','Revenue'];
-const FOCUSED_SECS=['AP','AR','Balance Sheet','Cash','Financial Close','ITGC','MA Compliance','Management','Payroll','Procurement','Revenue'];
+const FOCUSED_SECS=['AR','Balance Sheet','Cash','Financial Close','MA Compliance','Management','ITGC','Payroll','Procurement','Revenue','AP'];
 const VAL_IDS=new Set([8,9,10,11,12,13,22,23,24,25,28,29,34,35,36,41,42,50,55,56,57,58,60,61,65,67,68,70,71,72,78]);
 const FOCUSED_VAL_IDS=new Set(['f2','f4','f9','f10','f11','f12','f13','f14','f15','f19','f22','f23','f29','f32','f34','f38','f39','f40','f43','f44','f46','f47','f48','f53','f55','f56','f58','f59','f60','f61']);
 
@@ -1137,7 +1137,7 @@ function mkLI(item){
   var ac=(curId===item.id)?' act':'';
   var qid=typeof item.id==='string'?"'"+item.id+"'":item.id;
   return '<div class="li'+ac+'" id="li-'+item.id+'" onclick="selItem('+qid+')">'
-    +'<div class="ldot '+dc+'">'+item.id+'</div>'
+    +'<div class="ldot '+dc+'">'+dispId(item.id)+'</div>'
     +resBadge
     +(getValIds().has(item.id)?'<div class="li-val-tag">VAL</div>':'')
     +'<div class="ltx">'+esc(title)+'</div>'
@@ -1213,7 +1213,7 @@ function buildRP(){
     +'<div class="dcard">'
     +'<div class="dhdr">'
     +'<div class="dta"><div class="dsec">'+esc(item.section)
-    +' <span class="dnum">#'+item.id+'.</span>'
+    +' <span class="dnum">#'+dispId(item.id)+'.</span>'
     +' <span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:'+rbg+';color:'+rfc+'">'+(item.risk==='HR'?'High risk':esc(item.risk))+'</span>'
     +' <span class="cat-tag '+catCls+'">'+esc(catLabel)+'</span>'
     +'</div></div>'
@@ -1444,7 +1444,7 @@ function buildPrepView(){
       html+='<div class="prep-item'+(chk?' ck':'')+'" style="align-items:flex-start">'
         +'<label style="padding-top:2px">'
         +'<input type="checkbox"'+(chk?' checked':'')+' onchange="savePrepCheck('+pqid+',this.checked)">'
-        +'<span class="prep-num">'+item.id+'</span>'
+        +'<span class="prep-num">'+dispId(item.id)+'</span>'
         +'</label>'
         +'<span class="prep-type" style="padding-top:1px">'
         +'<button class="prep-type-btn'+(hasDmx?' t-dmx':'')+'" onclick="savePrepType('+pqid+',\'dmx\')">Doc-mx</button>'
@@ -2591,7 +2591,7 @@ function buildABHelper(){
       var resTxt=res==='yes'?'YES':res==='no'?'NO':res==='na'?'N/A':'—';
       var copyTxt=[samp,note].filter(Boolean).join('\n').trim();
       html+='<div class="abh-item'+(res?'':' abh-item-empty')+'">'
-        +'<div class="abh-num">#'+item.id+'</div>'
+        +'<div class="abh-num">#'+dispId(item.id)+'</div>'
         +(isVal?'<div class="abh-val">VAL</div>':'')
         +'<div class="abh-txt">'+esc(brief)+'</div>'
         +'<div class="abh-res '+resCls+'">'+resTxt+'</div>';
@@ -3229,6 +3229,10 @@ function getPrepData(){return currentServiceType==='focused'?FOCUSED_PREP_DATA:p
 function getGeneralPrep(){return currentServiceType==='focused'?FOCUSED_GENERAL_PREP:GENERAL_PREP;}
 function getAuditSecs(){return currentServiceType==='focused'?FOCUSED_SECS:SECS;}
 function getValIds(){return currentServiceType==='focused'?FOCUSED_VAL_IDS:VAL_IDS;}
+function dispId(id){
+  if(typeof id==='string'&&id.charAt(0)==='f'&&!isNaN(id.slice(1)))return parseInt(id.slice(1),10);
+  return id;
+}
 function getJPWS(){return currentServiceType==='focused'?FOCUSED_JP_WS:JP_WS;}
 function getJPTS(){return currentServiceType==='focused'?FOCUSED_JP_TS:JP_TS;}
 function getHotelList(){try{var s=localStorage.getItem('cpa2026_hotels');return s?JSON.parse(s):[];}catch(e){return[];}}
