@@ -494,38 +494,38 @@ const auditData = [
 const SECS=['AP','AR','Balance Sheet','Cash','Financial Close','ITGC','MA Compliance','Management','Payroll','Procurement','Revenue'];
 const VAL_IDS=new Set([8,9,10,11,12,13,22,23,24,25,28,29,34,35,36,41,42,50,55,56,57,58,60,61,65,67,68,70,71,72,78]);
 
+const IT_SYSTEMS=['SUN / Navision GL','OnQ OA','Payroll System','PROPPLAN','Micros / Agilysys / Infrasys POS','OnQ / Opera / PEP PMS','CheckSCM / Birchstreet Procurement','DocMX','Bank Portal'];
 const TEST_SHEETS={
-  8:{name:'AP 6',custom:'ap6',months:2,vendors:3},
-  9:{name:'AP 2',cols:['Month','Batch Ref','Payment Run Amount','Approver','Approval Date'],rows:2},
-  10:{name:'AP 7',cols:['Month','Open PO Review Performed? (Y/N)','Aged Items >6m Investigated? (Y/N)','Reviewed By'],rows:2},
-  11:{name:'AP 5',cols:['Vendor','Type of Service','Contract / PO Amount','No. of Competitive Bids','Remarks'],rows:3},
-  12:{name:'AP 3',cols:['Month','Batch Ref','Payment Run Amount','Vendor Name','Invoice No.'],rows:2},
-  13:{name:'AP 4',cols:['Month','Journal No.','Accrual Amount','Approver'],rows:2},
-  22:{name:'AR 1',cols:['Debtor Code','Debtor Name','Credit App Form Filled? (Y/N)','Credit Granted Based On','Repeat Customer? (Y/N)'],rows:3},
-  23:{name:'AR 3',cols:['Annual Credit Review Performed? (Y/N)','Credit / Volume / Payment History Included? (Y/N)','Approved By','Approval Date'],rows:1},
-  24:{name:'AR 4',cols:['S/N','Credit Card Auth Form No.','Full CC Details Mentioned? (Y/N)'],rows:3},
-  25:{name:'AR 2',cols:['Month','Approver (Name & Position)','Approval Date','Amount','Calculation Correct? (Y/N)'],rows:2},
-  28:{name:'BS 2',cols:['Account No.','Description','Issue Identified? (Y/N)','Remarks'],rows:3},
-  29:{name:'BS 1',cols:['Month','All Reconciliations Independently Reviewed/Approved? (Y/N)','Approved by Business Day 20? (Y/N)'],rows:1},
-  34:{name:'BS 1',cols:['Month','All Reconciliations Independently Reviewed/Approved? (Y/N)','Approved by Business Day 20? (Y/N)'],rows:1},
-  35:{name:'BS 3',cols:['Account No.','Description','Balance Appropriate? (Y/N)','Collection Protocol in Place? (Y/N)'],rows:3},
-  36:{name:'BS 5',cols:['Account No.','Description','Amount','Issue Identified?'],rows:3},
-  41:{name:'Cash 2',cols:['Account No.','Bank','EFT Enabled? (Y/N)','Payment Initiator (Name & Position)','Payment Approver (Name & Position)'],rows:4},
-  42:{name:'Cash 1',cols:['Refund Date','Guest Name / DocMX DID','Refund Amount','Original Payment Method','Refund Method Same as Original? (Y/N)'],rows:3},
-  50:{name:'Financial Close 1',cols:['Month','Finance Leader Reviewed, Signed & Dated? (Y/N)','Operation Leader Reviewed, Signed & Dated? (Y/N)','Significant Variances Supported w/ Quality Comments? (Y/N)'],rows:2},
-  55:{name:'IT 2',cols:['System','Reviewer','System-Generated Report Used? (Y/N)','Access / User Profile Correct? (Y/N)'],rows:9},
-  56:{name:'IT 3',cols:['System','Reviewer (Name & Position)','System Administrator(s)','Reviewer ≠ Admin? (Y/N)'],rows:9},
-  57:{name:'IT 1',cols:['System','Quarter','Review Date','Completed Within 15 Days? (Y/N)'],rows:9},
-  58:{name:'MA 2',cols:['Dedicated Bank Account in Place per MA? (Y/N)','Reconciliation to FF&E Reserve Performed? (Y/N)','FF&E Reserve Balance Aligned to MA? (Y/N)'],rows:1},
-  60:{name:'MA 1',cols:['Account No.','Bank','Signatories (Name & Position)','Owner Signatories? Verify Against MA'],rows:4},
-  61:{name:'MA 2',cols:['Month','FF&E Provision per Hotel','FF&E Provision per Reviewer','Variance'],rows:2},
-  65:{name:'Payroll 3',cols:['Month','Approver (Name & Position)','Approval Date','Payroll Records in Secured Location? (Y/N)'],rows:2},
-  67:{name:'Payroll 1',cols:['Month','Total Hours per T&A','Total Hours per Payroll Register','Variances? (Y/N)','Variances Documented & Resolved? (Y/N)'],rows:2},
-  68:{name:'Procurement 2',cols:['Vendor','Contract Period','Contract Amount','Requires Legal Approval? (Y/N)','Evidence of Legal Approval? (Y/N)'],rows:3},
-  70:{name:'Procurement 1',cols:['Type of Service','Vendor','Executed in Name of Hotel Owner? (Y/N)','Contract Amount','Contract Period'],rows:3},
-  71:{name:'Procurement 3',cols:['Type of Service','Vendor','Contract Amount','Insurance Coverage (COI $)','GPIP Risk Category'],rows:3},
-  72:{name:'Revenue 4',cols:['Business Date','Reviewed By','Review Date','Within Two Weeks? (Y/N)'],rows:3},
-  78:{name:'Revenue 3',cols:['BEO No.','BEO Revenue ($)','Revenue Posted ($)','Reconciliation Performed? (Y/N)','Discrepancies Resolved? (Y/N)'],rows:3}
+  8:{name:'AP2',custom:'ap2',months:2,vendors:3},
+  9:{name:'AP3',cols:['Month','Batch Ref / Payment Date','Payment Run Amount','Approver','Approval Date','Payment Date'],rows:2},
+  10:{name:'AP6',custom:'ap7',months:2},
+  11:{name:'AP1',cols:['Vendor','Type of Service','Contract / PO Amount','No. of Competitive Bids Obtained','Remarks (if any)'],rows:3},
+  12:{name:'AP4',custom:'ap4',months:2,vendors:3},
+  13:{name:'AP5',cols:['Month','Journal No.','Accrual Amount','Approver'],rows:2},
+  22:{name:'AR 1',cols:['Debtor Code','Debtor','Credit App Form Filled?','Credit Granted Based On','Credit App Approved per Matrix?','Credit App Approved before Stay/Event Date?'],rows:3},
+  23:{name:'AR 2',cols:['Annual Credit Review Performed? (Y/N)','Approved Credit / Volume / Payment History Included? (Y/N)','Approved By (Name & Position)','Approval Date'],rows:1},
+  24:{name:'AR 3',custom:'ar3'},
+  25:{name:'AR 4',cols:['Month','Approver (Name & Position)','Approval Date','Amount','Calculation Performed Correctly? (Y/N)'],rows:2},
+  28:{name:'BS 6',cols:['Account No.','Description','Amount','Appropriately Supported? (Y/N)','Identified Issue'],rows:5},
+  29:{name:'BS 3',cols:['Account No.','Description','Amount','Appropriately Supported? (Y/N)','Identified Issue'],rows:5},
+  34:{name:'BS 2',cols:['Account No.','Description','Amount','Detail Schedule Complete & Sufficient?','Identified Issue'],rows:5},
+  35:{name:'BS 1',cols:['Account No.','Description','Amount','Identified Issue'],rows:5},
+  36:{name:'BS 5',cols:['Account No.','Description','Amount','Appropriately Supported? (Y/N)','Identified Issue'],rows:5},
+  42:{name:'Cash 1',cols:['Refund Date','Guest Name / DocMX DID','Refund Amount','Original Payment Method','Refund Method as Original? (Y/N)','CC Refund to Original Card No.? (Y/N)'],rows:3},
+  50:{name:'Financial Close 1',cols:['Month','Finance Leader Reviewed, Signed & Dated? (Y/N)','Significant Variances Supported w/ Quality Comments? (Y/N)'],rows:2},
+  55:{name:'IT 2',custom:'it',itType:'it2'},
+  56:{name:'IT 3',custom:'it',itType:'it3'},
+  57:{name:'IT 1',custom:'it',itType:'it1'},
+  58:{name:'MA 2',cols:['Dedicated Bank Account in Place per MA? (Y/N)','Reconciliation to FF&E Reserve Performed? (Y/N)','FF&E Reserve Account Funded as per MA? (Y/N)'],rows:1},
+  60:{name:'MA 1',cols:['Account No.','Bank','Signatories (Name & Position)','If Owner Signatories: Verify Against MA'],rows:4},
+  61:{name:'MA 3',custom:'ma3',months:2},
+  65:{name:'Payroll 2',cols:['Month','Approver (Name & Position)','Payroll Records in Secured Location, Restricted Access? (Y/N)'],rows:2},
+  67:{name:'Payroll 1',cols:['Month','Approver (Name & Position)','Approval Date','Payment Date'],rows:2},
+  68:{name:'Procurement 2',cols:['Vendor','Contract Period','Contract Amount','Requires Legal Approval? (Y/N)','Evidence of Legal Approval Present? (Y/N)'],rows:3},
+  70:{name:'Procurement 1',cols:['Type of Service','Vendor','Executed in Name of Hotel Owner? (Y/N)','Contract Amount','Contract Period','Approval in Line with Matrix? (Y/N)'],rows:3},
+  71:{name:'Procurement 3',cols:['Type of Service','Vendor','Contract Amount','COI Coverage ($)','GPIP Risk Category','GPIP Requirement ($)','Adequate Coverage / Waiver Obtained? (Y/N)'],rows:3},
+  72:{name:'Revenue 2',cols:['Business Date','Reviewed By','Review Date','Reviewed Within Two Weeks? (Y/N)'],rows:3},
+  78:{name:'Revenue 1',cols:['BEO No.','BEO Revenue ($)','Revenue Posted ($)','Reconciliation Performed?','Discrepancies Resolved?'],rows:3}
 };
 
 var testSheetData={};
@@ -539,63 +539,134 @@ function saveTestCell(id,r,c,val){
   testSheetData[k][r][c]=val;
   try{localStorage.setItem(hotelKey('cpa_ts'),JSON.stringify(testSheetData));}catch(e){}
 }
+function _tsInp(id,r,c,val,ph,w){
+  return '<td'+(w?' style="padding:0"':'')+'><input class="ts-inp" type="text" value="'+esc(val)+'" oninput="saveTestCell('+id+','+r+','+c+',this.value)" placeholder="'+esc(ph||'')+'"'+(w?' style="width:'+w+'px"':'')+' autocomplete="off"></td>';
+}
 function mkAP6Html(id,ts){
-  var k=String(id);
-  var data=testSheetData[k]||{};
-  var bodyRows='';
+  var k=String(id);var data=testSheetData[k]||{};var rows='';
   for(var m=0;m<ts.months;m++){
-    var mData=data[m]||{};
-    var monthVal=mData[0]||'';
-    var approvedVal=mData[1]||'';
+    var d=data[m]||{};
     for(var v=0;v<ts.vendors;v++){
-      var vendorVal=mData[2+v*2]||'';
-      var okVal=mData[3+v*2]||'';
-      if(v===0){
-        bodyRows+='<tr>'
-          +'<td class="ts-rn" rowspan="'+ts.vendors+'">'+(m+1)+'</td>'
-          +'<td rowspan="'+ts.vendors+'" style="padding:0"><input class="ts-inp" type="text" value="'+esc(monthVal)+'" oninput="saveTestCell('+id+','+m+',0,this.value)" placeholder="Month"></td>'
-          +'<td><input class="ts-inp" type="text" value="'+esc(vendorVal)+'" oninput="saveTestCell('+id+','+m+','+(2+v*2)+',this.value)" placeholder="Vendor '+(v+1)+'"></td>'
-          +'<td><input class="ts-inp" type="text" value="'+esc(okVal)+'" oninput="saveTestCell('+id+','+m+','+(3+v*2)+',this.value)" placeholder="Y / N" style="width:70px"></td>'
-          +'<td rowspan="'+ts.vendors+'" style="padding:0"><input class="ts-inp" type="text" value="'+esc(approvedVal)+'" oninput="saveTestCell('+id+','+m+',1,this.value)" placeholder="Name"></td>'
-          +'</tr>';
-      } else {
-        bodyRows+='<tr>'
-          +'<td><input class="ts-inp" type="text" value="'+esc(vendorVal)+'" oninput="saveTestCell('+id+','+m+','+(2+v*2)+',this.value)" placeholder="Vendor '+(v+1)+'"></td>'
-          +'<td><input class="ts-inp" type="text" value="'+esc(okVal)+'" oninput="saveTestCell('+id+','+m+','+(3+v*2)+',this.value)" placeholder="Y / N" style="width:70px"></td>'
-          +'</tr>';
-      }
+      if(v===0){rows+='<tr><td class="ts-rn" rowspan="3">'+(m+1)+'</td><td rowspan="3" style="padding:0"><input class="ts-inp" type="text" value="'+esc(d[0]||'')+'" oninput="saveTestCell('+id+','+m+',0,this.value)" placeholder="Month" autocomplete="off"></td>';}
+      else{rows+='<tr>';}
+      rows+=_tsInp(id,m,2+v*2,d[2+v*2]||'','Vendor '+(v+1))
+           +_tsInp(id,m,3+v*2,d[3+v*2]||'','Y / N',60);
+      if(v===0)rows+='<td rowspan="3" style="padding:0"><input class="ts-inp" type="text" value="'+esc(d[1]||'')+'" oninput="saveTestCell('+id+','+m+',1,this.value)" placeholder="Approved By" autocomplete="off"></td>';
+      rows+='</tr>';
     }
   }
-  return '<div class="ts-wrap">'
-    +'<div class="ts-hdr">Test Sheet <span class="ts-badge">AP 6</span></div>'
-    +'<div class="ts-tbl-wrap"><table class="ts-tbl">'
-    +'<thead><tr><th>#</th><th>Month</th><th>Vendor Selected</th><th>Accurate? (Y/N)</th><th>Approved By</th></tr></thead>'
-    +'<tbody>'+bodyRows+'</tbody>'
-    +'</table></div></div>';
+  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>Vendor Selected</th><th>Accurate? (Y/N)</th><th>Approved By</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table></div></div>';
+}
+function mkAP4Html(id,ts){
+  var k=String(id);var data=testSheetData[k]||{};var rows='';
+  for(var m=0;m<ts.months;m++){
+    var d=data[m]||{};
+    for(var v=0;v<ts.vendors;v++){
+      if(v===0){
+        rows+='<tr><td class="ts-rn" rowspan="3">'+(m+1)+'</td>'
+          +'<td rowspan="3" style="padding:0"><input class="ts-inp" type="text" value="'+esc(d[0]||'')+'" oninput="saveTestCell('+id+','+m+',0,this.value)" placeholder="Month" autocomplete="off"></td>'
+          +'<td rowspan="3" style="padding:0"><input class="ts-inp" type="text" value="'+esc(d[1]||'')+'" oninput="saveTestCell('+id+','+m+',1,this.value)" placeholder="Payment Date" autocomplete="off"></td>';
+      } else {rows+='<tr>';}
+      rows+=_tsInp(id,m,2+v*5,d[2+v*5]||'','Vendor '+(v+1))
+           +_tsInp(id,m,3+v*5,d[3+v*5]||'','Pmt Run Amt')
+           +_tsInp(id,m,4+v*5,d[4+v*5]||'','Invoice No.')
+           +_tsInp(id,m,5+v*5,d[5+v*5]||'','Invoice Amt')
+           +_tsInp(id,m,6+v*5,d[6+v*5]||'','Y / N',60);
+      rows+='</tr>';
+    }
+  }
+  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>Payment Date</th><th>Vendor Name</th><th>Payment Run Amount</th><th>Invoice No.</th><th>Invoice Amount</th><th>Reconciled? (Y/N)</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table></div></div>';
+}
+function mkAP7Html(id,ts){
+  var k=String(id);var data=testSheetData[k]||{};
+  var s1='';
+  for(var r=0;r<2;r++){var d=data[r]||{};
+    s1+='<tr><td class="ts-rn">'+(r+1)+'</td>'+_tsInp(id,r,0,d[0]||'','Month')+_tsInp(id,r,1,d[1]||'','Y/N',60)+_tsInp(id,r,2,d[2]||'','Y/N',60)+_tsInp(id,r,3,d[3]||'','Reviewed By')+'</tr>';
+  }
+  var s2='';
+  for(var r2=0;r2<2;r2++){var d2=data[r2+2]||{};
+    s2+='<tr><td class="ts-rn">'+(r2+1)+'</td>'+_tsInp(id,r2+2,0,d2[0]||'','Month')+_tsInp(id,r2+2,1,d2[1]||'','Y/N',60)+_tsInp(id,r2+2,2,d2[2]||'','Jnl No.')+_tsInp(id,r2+2,3,d2[3]||'','Accrual Amt')+_tsInp(id,r2+2,4,d2[4]||'','Reviewed By')+'</tr>';
+  }
+  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>Open PO Review Performed? (Y/N)</th><th>Aged Items &gt;6m Investigated? (Y/N)</th><th>Reviewed By</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
+    +'<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">Accrual Verification</div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>Accrual Recognized Only If Goods Received / Not Yet Invoiced? (Y/N)</th><th>Journal No.</th><th>Accrual Amount</th><th>Reviewed By</th></tr></thead><tbody>'+s2+'</tbody></table></div></div>';
+}
+function mkAR4Html(id,ts){
+  var k=String(id);var data=testSheetData[k]||{};
+  var d0=data[0]||{};
+  var s1='<tr><td class="ts-rn">1</td><td colspan="2"><input class="ts-inp" type="text" value="'+esc(d0[0]||'')+'" oninput="saveTestCell('+id+',0,0,this.value)" placeholder="Y / N" style="width:80px" autocomplete="off"></td></tr>';
+  var s2='';
+  for(var r=0;r<3;r++){var d=data[r+1]||{};
+    s2+='<tr><td class="ts-rn">'+(r+1)+'</td>'+_tsInp(id,r+1,0,d[0]||'','Form No.')+_tsInp(id,r+1,1,d[1]||'','Y / N',80)+'</tr>';
+  }
+  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th colspan="2">Full CC Details NOT Maintained Outside PMS? (Y/N)</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
+    +'<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">If Applicable — CC Auth Form Check</div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>CC Auth Form No.</th><th>Full CC Details Mentioned? (Y/N)</th></tr></thead><tbody>'+s2+'</tbody></table></div></div>';
+}
+function mkITHtml(id,ts){
+  var cfgs={
+    it1:{cols:['Quarter','Review Date']},
+    it2:{cols:['Quarter','Reviewer','Included in IAM?','System-Generated Report Used? (Y/N/NA)','Access / User Profile Group Correct? (Y/N)']},
+    it3:{cols:['Quarter','Reviewer (Name & Position)','System Administrator(s)']}
+  };
+  var cfg=cfgs[ts.itType];var k=String(id);var data=testSheetData[k]||{};
+  var thCells=cfg.cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('');
+  var rows='';
+  for(var r=0;r<IT_SYSTEMS.length;r++){
+    var rData=data[r]||{};
+    var tds=cfg.cols.map(function(c,ci){return _tsInp(id,r,ci,rData[ci]||'','');}).join('');
+    rows+='<tr><td class="ts-rn">'+(r+1)+'</td>'
+      +'<td style="background:#eef2fb;color:#1a2456;font-size:11px;font-weight:600;padding:4px 8px;white-space:nowrap;border:1px solid #c8d0e8">'+esc(IT_SYSTEMS[r])+'</td>'
+      +tds+'</tr>';
+  }
+  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>System</th>'+thCells+'</tr></thead>'
+    +'<tbody>'+rows+'</tbody></table></div></div>';
+}
+function mkMA3Html(id,ts){
+  var k=String(id);var data=testSheetData[k]||{};
+  var d0=data[0]||{};
+  var s1='<tr><td class="ts-rn">1</td>'+_tsInp(id,0,0,d0[0]||'','Enter MA/BAMA FF&E terms (concept, percentage, etc.)')+'</tr>';
+  var s2='';
+  for(var r=0;r<2;r++){var d=data[r+1]||{};
+    s2+='<tr><td class="ts-rn">'+(r+1)+'</td>'
+      +_tsInp(id,r+1,0,d[0]||'','Month')
+      +_tsInp(id,r+1,1,d[1]||'','FF&E Provision per Hotel')
+      +_tsInp(id,r+1,2,d[2]||'','Y / N',60)
+      +_tsInp(id,r+1,3,d[3]||'','JV No.')
+      +_tsInp(id,r+1,4,d[4]||'','Y / N',60)
+      +'</tr>';
+  }
+  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>MA/BAMA FF&amp;E Terms</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
+    +'<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">FF&amp;E Provision Verification (2 Months)</div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>FF&amp;E Provision per Hotel</th><th>Calculation Correct? (Y/N)</th><th>FF&amp;E JV No.</th><th>Accounting Treatment per Guide? (Y/N)</th></tr></thead><tbody>'+s2+'</tbody></table></div></div>';
 }
 function mkTestSheetHtml(id){
-  var ts=TEST_SHEETS[id];
-  if(!ts)return '';
-  if(ts.custom==='ap6')return mkAP6Html(id,ts);
-  var k=String(id);
-  var data=testSheetData[k]||{};
+  var ts=TEST_SHEETS[id];if(!ts)return '';
+  if(ts.custom==='ap2')return mkAP6Html(id,ts);
+  if(ts.custom==='ap4')return mkAP4Html(id,ts);
+  if(ts.custom==='ap7')return mkAP7Html(id,ts);
+  if(ts.custom==='ar3')return mkAR4Html(id,ts);
+  if(ts.custom==='ma3')return mkMA3Html(id,ts);
+  if(ts.custom==='it')return mkITHtml(id,ts);
+  var k=String(id);var data=testSheetData[k]||{};
   var thCells=ts.cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('');
   var bodyRows='';
   for(var r=0;r<ts.rows;r++){
     var rData=data[r]||{};
-    var tds=ts.cols.map(function(c,ci){
-      var v=rData[ci]||'';
-      return '<td><input class="ts-inp" type="text" value="'+esc(v)+'" oninput="saveTestCell('+id+','+r+','+ci+',this.value)" placeholder=""></td>';
-    }).join('');
+    var tds=ts.cols.map(function(c,ci){return _tsInp(id,r,ci,rData[ci]||'','');}).join('');
     bodyRows+='<tr><td class="ts-rn">'+(r+1)+'</td>'+tds+'</tr>';
   }
-  return '<div class="ts-wrap">'
-    +'<div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
-    +'<div class="ts-tbl-wrap"><table class="ts-tbl">'
-    +'<thead><tr><th>#</th>'+thCells+'</tr></thead>'
-    +'<tbody>'+bodyRows+'</tbody>'
-    +'</table></div>'
-    +'</div>';
+  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th>'+thCells+'</tr></thead>'
+    +'<tbody>'+bodyRows+'</tbody></table></div></div>';
 }
 
 var prepData={
