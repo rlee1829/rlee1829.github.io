@@ -495,7 +495,7 @@ const SECS=['AP','AR','Balance Sheet','Cash','Financial Close','ITGC','MA Compli
 const VAL_IDS=new Set([8,9,10,11,12,13,22,23,24,25,28,29,34,35,36,41,42,50,55,56,57,58,60,61,65,67,68,70,71,72,78]);
 
 const TEST_SHEETS={
-  8:{name:'AP 6',cols:['Month','Vendor Selected','Details Accurate? (Y/N)','Approved By'],rows:2},
+  8:{name:'AP 6',custom:'ap6',months:2,vendors:3},
   9:{name:'AP 2',cols:['Month','Batch Ref','Payment Run Amount','Approver','Approval Date'],rows:2},
   10:{name:'AP 7',cols:['Month','Open PO Review Performed? (Y/N)','Aged Items >6m Investigated? (Y/N)','Reviewed By'],rows:2},
   11:{name:'AP 5',cols:['Vendor','Type of Service','Contract / PO Amount','No. of Competitive Bids','Remarks'],rows:3},
@@ -539,9 +539,44 @@ function saveTestCell(id,r,c,val){
   testSheetData[k][r][c]=val;
   try{localStorage.setItem(hotelKey('cpa_ts'),JSON.stringify(testSheetData));}catch(e){}
 }
+function mkAP6Html(id,ts){
+  var k=String(id);
+  var data=testSheetData[k]||{};
+  var bodyRows='';
+  for(var m=0;m<ts.months;m++){
+    var mData=data[m]||{};
+    var monthVal=mData[0]||'';
+    var approvedVal=mData[1]||'';
+    for(var v=0;v<ts.vendors;v++){
+      var vendorVal=mData[2+v*2]||'';
+      var okVal=mData[3+v*2]||'';
+      if(v===0){
+        bodyRows+='<tr>'
+          +'<td class="ts-rn" rowspan="'+ts.vendors+'">'+(m+1)+'</td>'
+          +'<td rowspan="'+ts.vendors+'" style="padding:0"><input class="ts-inp" type="text" value="'+esc(monthVal)+'" oninput="saveTestCell('+id+','+m+',0,this.value)" placeholder="Month"></td>'
+          +'<td><input class="ts-inp" type="text" value="'+esc(vendorVal)+'" oninput="saveTestCell('+id+','+m+','+(2+v*2)+',this.value)" placeholder="Vendor '+(v+1)+'"></td>'
+          +'<td><input class="ts-inp" type="text" value="'+esc(okVal)+'" oninput="saveTestCell('+id+','+m+','+(3+v*2)+',this.value)" placeholder="Y / N" style="width:70px"></td>'
+          +'<td rowspan="'+ts.vendors+'" style="padding:0"><input class="ts-inp" type="text" value="'+esc(approvedVal)+'" oninput="saveTestCell('+id+','+m+',1,this.value)" placeholder="Name"></td>'
+          +'</tr>';
+      } else {
+        bodyRows+='<tr>'
+          +'<td><input class="ts-inp" type="text" value="'+esc(vendorVal)+'" oninput="saveTestCell('+id+','+m+','+(2+v*2)+',this.value)" placeholder="Vendor '+(v+1)+'"></td>'
+          +'<td><input class="ts-inp" type="text" value="'+esc(okVal)+'" oninput="saveTestCell('+id+','+m+','+(3+v*2)+',this.value)" placeholder="Y / N" style="width:70px"></td>'
+          +'</tr>';
+      }
+    }
+  }
+  return '<div class="ts-wrap">'
+    +'<div class="ts-hdr">Test Sheet <span class="ts-badge">AP 6</span></div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl">'
+    +'<thead><tr><th>#</th><th>Month</th><th>Vendor Selected</th><th>Accurate? (Y/N)</th><th>Approved By</th></tr></thead>'
+    +'<tbody>'+bodyRows+'</tbody>'
+    +'</table></div></div>';
+}
 function mkTestSheetHtml(id){
   var ts=TEST_SHEETS[id];
   if(!ts)return '';
+  if(ts.custom==='ap6')return mkAP6Html(id,ts);
   var k=String(id);
   var data=testSheetData[k]||{};
   var thCells=ts.cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('');
