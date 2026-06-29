@@ -249,6 +249,11 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .prep-remark input{padding:3px 7px;border:1px solid var(--bd);border-radius:4px;font-size:11px;font-family:inherit;color:var(--tx);background:#fff;width:160px;flex-shrink:0}
 .prep-remark input:focus{outline:none;border-color:var(--p)}
 .prep-remark input::placeholder{color:var(--mu)}
+.prep-txt-wrap{flex:1;min-width:0}
+.prep-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}
+.prep-period,.prep-dmxref{font-size:10px;color:var(--mu);background:#f0f2f5;border-radius:3px;padding:1px 5px;line-height:1.5;white-space:nowrap}
+.prep-period{color:#0d6efd}
+.prep-dmxref{color:#6f42c1}
 .bsnotes-wrap{padding:16px 20px;max-width:900px;margin:0 auto}
 .bsnotes-top{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .bsnotes-title{font-size:15px;font-weight:700;color:var(--tx);flex:1}
@@ -670,87 +675,104 @@ function mkTestSheetHtml(id){
 }
 
 var prepData={
-  1:{en:'Rent journal entries — 2 most recent months',ko:'임차료 Journal Entry — 최근 2개월분',ja:'賃料Journal Entry — 直近2ヶ月分'},
-  2:{en:'Master Vendor Report — latest',ko:'Master Vendor Report — 최신',ja:'Master Vendor Report — 最新版'},
-  3:{en:'Names of TMs responsible for each AP/procurement task (SOD verification)',ko:'AP/구매 시스템 각 업무 담당 Team Member 명단 (직무분장 확인용)',ja:'AP・調達業務担当Team Member名簿（職務分離確認用）'},
-  4:{en:'AP Aging Report — 2 most recent months',ko:'AP Aging Report — 최근 2개월분',ja:'AP Aging Report — 直近2ヶ月分'},
-  5:{en:'3 submitted Expense Claims (incl. OL & FL) + Travel Advance Forms [N/A if using Concur]',ko:'Expense Claim 3건 (OL·FL 포함) + Travel Advance Form [Concur 사용 호텔 해당 없음]',ja:'Expense Claim 3件（OL・FL含む）+ Travel Advance Form【Concur使用ホテルは対象外】'},
-  6:{en:'Written internal procedure for goods receiving & after-hours deliveries',ko:'물품 수령(입고) 및 영업시간 외 납품 서면 내부 절차서',ja:'検収（入荷）および時間外納品に関する社内書面手続書'},
-  7:{en:'Lease / Management Agreement (latest terms) + Rent or Management Fee calculation support — 2 months',ko:'임대차/위탁경영 계약서 최신 조항 + 임차료/위탁수수료 계산 근거 자료 — 최근 2개월분',ja:'賃貸借/運営委託契約書（最新条項）+ 賃料/委託手数料計算根拠資料 — 直近2ヶ月分'},
-  8:{en:'Master Vendor Change Report — 2 most recent months',ko:'Master Vendor Change Report — 최근 2개월분',ja:'Master Vendor Change Report — 直近2ヶ月分'},
-  9:{en:'Payment Run Report — 1 run from each of 2 different months',ko:'Payment Run Report — 서로 다른 2개월 각 1회분',ja:'Payment Run Report — 異なる2ヶ月 各1回分'},
-  10:{en:'Open PO Report + "Goods Received Without Invoice" Report — 2 most recent months (PO report: no date filter)',ko:'Open PO Report + Goods Received Without Invoice Report — 최근 2개월분 (PO 보고서: 날짜 필터 없이)',ja:'Open PO Report + Goods Received Without Invoice Report — 直近2ヶ月分（PO報告書：日付フィルターなし）'},
-  11:{en:'3 purchases above USD 5,000 (PO / Contracts)',ko:'USD 5,000 초과 구매 3건 (PO / 계약서)',ja:'USD 5,000超の購買3件（PO / 契約書）'},
-  12:{en:'Vendor invoices for reconciliation against Payment Run Reports (from #9)',ko:'공급업체 Invoice — Payment Run Report 대조용 (#9 보고서 활용)',ja:'Payment Run Report照合用の仕入先Invoice（#9のレポートを活用）'},
-  13:{en:'Month-end AP Accrual Listing — 2 most recent months',ko:'월말 AP Accrual Listing — 최근 2개월분',ja:'月末AP Accrual Listing — 直近2ヶ月分'},
-  14:{en:'3 Sales Contracts (group/guest deposits)',ko:'Sales Contract 3건 (단체/고객 Deposit 관련)',ja:'Sales Contract 3件（団体/ゲストDeposit関連）'},
-  15:{en:'High Balance Report — 3 days',ko:'High Balance Report — 3일분',ja:'High Balance Report — 3日分'},
-  16:{en:'Credit Card Reconciliation — 3 days',ko:'신용카드 Reconciliation — 3일분',ja:'クレジットカードReconciliation — 3日分'},
-  17:{en:'AR Accounts Listing (e.g. ARACCNTS in OnQ) + AR Aging Report from PMS — most recent month; select 3 active AR accounts',ko:'AR 계정 리스트(예: OnQ ARACCNTS) + PMS AR Aging Report — 최근 1개월; 활성 AR 계정 3건 선정',ja:'AR Accounts Listing（例：OnQ ARACCNTS）+ PMS AR Aging Report — 直近1ヶ月；アクティブARアカウント3件選定'},
-  18:{en:'Credit Meeting Minutes — 2 most recent months',ko:'Credit Meeting 회의록 — 최근 2개월분',ja:'Credit Meeting議事録 — 直近2ヶ月分'},
-  19:{en:'List of TMs authorized to process refunds via credit card terminal',ko:'신용카드 단말기 Refund 처리 권한자 Team Member 명단',ja:'クレジットカード端末でのRefund処理権限者Team Member名簿'},
-  20:{en:'3 Sales Contracts incl. political events & social/promotional events if possible',ko:'Sales Contract 3건 (가능 시 정치 행사·사교/판촉 행사 포함)',ja:'Sales Contract 3件（可能な場合、政治関連イベント・社交/販促イベント含む）'},
-  21:{en:'Monthly audited Credit Card Refund documents — 2 most recent months',ko:'월간 감사된 신용카드 Refund 서류 — 최근 2개월분',ja:'月次監査済みクレジットカードRefund書類 — 直近2ヶ月分'},
-  22:{en:'AR Account Listing + 3 debtor accounts newly created this year (recurring & one-time) + authorized Credit Application Forms',ko:'AR 계정 리스트 + 올해 신규 개설 채무자 계정 3건(정기·일회성 포함) + 승인된 Credit Application Form',ja:'ARアカウントリスト + 今年度新規開設の債務者アカウント3件（定期・スポット顧客含む）+ 承認済みCredit Application Form'},
-  23:{en:'Annual Credit Review documentation (approved credit limits, business volume, payment history)',ko:'Annual Credit Review 서류 (승인 여신 한도·거래 규모·지급 이력 포함)',ja:'Annual Credit Review書類（承認済み与信枠・取引量・支払履歴を含む）'},
-  24:{en:'3 Credit Card Authorization Forms / POS Receipts (check full CC details are not exposed)',ko:'신용카드 승인 서식(CC Auth Form) / POS 영수증 3건 (전체 카드 정보 노출 여부 확인용)',ja:'クレジットカード承認書式（CC Auth Form）/ POSレシート3件（全カード情報露出確認用）'},
-  25:{en:'Bad Debt Provision calculation — 2 most recent months (include even if provision amount is zero)',ko:'대손충당금 계산 내역 — 최근 2개월분 (금액이 0인 경우도 포함)',ja:'貸倒引当金計算明細 — 直近2ヶ月分（引当金額がゼロの場合も含む）'},
-  26:{en:'BS Account Reconciliations — Clearing Accounts & Zero-balance accounts with activity',ko:'BS 계정 조정 명세서 — Clearing Account 및 거래 내역 있는 Zero Balance 계정',ja:'BS Account Reconciliation — Clearing AccountおよびZero Balance（取引あり）勘定'},
-  27:{en:'All latest BS Account Reconciliations — full set',ko:'최신 BS 계정 조정 명세서 — 전체',ja:'BS Account Reconciliation — 全勘定の最新セット'},
-  28:{en:'BS Account Reconciliations — accounts not covered in other BS questions',ko:'BS 계정 조정 명세서 — 다른 항목에서 별도 검토되지 않는 기타 계정',ja:'BS Account Reconciliation — 他のBS質問項目で個別検討されないその他勘定'},
-  29:{en:'BS Account Reconciliations — all Accrual accounts + supporting docs',ko:'BS 계정 조정 명세서 — 전체 Accrual 계정 + 관련 증빙 자료',ja:'BS Account Reconciliation — 全Accrual勘定 + 関連証憑書類'},
-  30:{en:'BS Account Reconciliations — Owner-related accounts',ko:'BS 계정 조정 명세서 — Owner 관련 계정',ja:'BS Account Reconciliation — Owner関連勘定'},
-  31:{en:'BS Account Reconciliations — Deferred Income accounts (memberships, annual fees, attrition/cancellation)',ko:'BS 계정 조정 명세서 — Deferred Income 계정 (회원권·연회비·위약금 등)',ja:'BS Account Reconciliation — Deferred Income勘定（会員権・年会費・違約金等）'},
-  32:{en:'BS Account Reconciliations + detailed Gift Card / Gift Certificate tracking schedule',ko:'BS 계정 조정 명세서 + Gift Card/Certificate 세부 추적 명세서',ja:'BS Account Reconciliation + Gift Card/Gift Certificate詳細追跡明細書'},
-  33:{en:'BS Account Reconciliations — Owner Distribution & Contribution accounts + Management Contract',ko:'BS 계정 조정 명세서 — Owner Distribution/Contribution 계정 + 위탁경영 계약서',ja:'BS Account Reconciliation — Owner Distribution/Contribution勘定 + 運営委託契約書'},
-  34:{en:'BS Account Reconciliations — Prepaid / Depreciation / Amortization schedules',ko:'BS 계정 조정 명세서 — Prepaid / 감가상각 / 무형자산상각 명세서',ja:'BS Account Reconciliation — Prepaid / 減価償却 / 償却スケジュール'},
-  35:{en:'BS Account Reconciliations — Other Receivable accounts',ko:'BS 계정 조정 명세서 — 기타 미수금(Other Receivable) 계정',ja:'BS Account Reconciliation — その他未収金（Other Receivable）勘定'},
-  36:{en:'BS Account Reconciliations — Other Liability accounts',ko:'BS 계정 조정 명세서 — 기타 부채(Other Liability) 계정',ja:'BS Account Reconciliation — その他負債（Other Liability）勘定'},
-  37:{en:'EFT documentation — 1 sample per vendor payment run, from 2 different months',ko:'EFT 서류 — 서로 다른 2개월 각 1건 (공급업체 지급 실행 건)',ja:'EFT書類 — 異なる2ヶ月 各1件（仕入先支払実行分）'},
-  38:{en:'House Fund Audit Sheets — 3 consecutive months',ko:'House Fund Audit Sheet — 연속 3개월분',ja:'House Fund Audit Sheet — 連続3ヶ月分'},
-  39:{en:'Cash collection agreement with bank or professional security firm',ko:'은행 또는 전문 보안업체와의 현금 수거(호송) 계약서',ja:'銀行または警備会社との現金回収（護送）契約書'},
-  40:{en:'General Cashier Report + Bank Deposit Slip — 3 days',ko:'General Cashier Report + 은행 입금 의뢰서(Deposit Slip) — 3일분',ja:'General Cashier Report + 銀行入金伝票（Deposit Slip） — 3日分'},
-  41:{en:'E-banking setup screenshot — current EFT authorized users list',ko:'전자뱅킹(E-banking) 현재 EFT 권한자 설정 스크린샷',ja:'電子バンキング（E-banking）現在のEFT権限者設定スクリーンショット'},
-  42:{en:'3 Refunds from PMS system-generated refund report (e.g. REFUNDRT in OnQ) or DocMX Bill Query / Manual EFT',ko:'PMS 환불 보고서(예: OnQ REFUNDRT) 또는 DocMX Bill Query/수동 EFT에서 Refund 3건',ja:'PMSシステム生成Refundレポート（例：OnQ REFUNDRT）またはDocMX Bill Query/手動EFTからRefund 3件'},
-  43:{en:'FF&E bank account reconciliation and FF&E bank account disbursement listing',ko:'FF&E 은행 계좌 조정표 및 FF&E 은행 계좌 지출 내역서',ja:'FF&E銀行口座照合資料およびFF&E銀行口座支出リスト'},
-  44:{en:'Trial Balance Reconciliation (Local GL vs PeopleSoft) — 2 most recent months',ko:'Trial Balance Reconciliation (로컬 GL vs PeopleSoft) — 최근 2개월분',ja:'Trial Balance Reconciliation（ローカルGL vs PeopleSoft） — 直近2ヶ月分'},
-  45:{en:'Bank Reconciliation — 2 weeks (1 from current month + 1 from previous month)',ko:'Bank Reconciliation — 2주분 (당월 1주분 + 전월 1주분)',ja:'Bank Reconciliation — 2週分（当月1週分 + 前月1週分）'},
-  46:{en:'3 Journal Entries incl. at least 1 CheckSCM journal entry',ko:'Journal Entry 3건 (CheckSCM Journal Entry 최소 1건 포함)',ja:'Journal Entry 3件（CheckSCM Journal Entry最低1件含む）'},
-  47:{en:'Inventory count documentation (count sheet, variance report, follow-up) — 1 month [variance follow-up focus]',ko:'재고 실사 서류 (실사표·차이 보고서·후속 조치) — 1개월분 [차이 후속 조치 중심]',ja:'棚卸書類（カウントシート・差異報告書・フォローアップ） — 1ヶ月分【差異フォローアップ重点】'},
-  48:{en:'Inventory count documentation (count sheet, variance report, follow-up) — 1 month [count procedure focus]',ko:'재고 실사 서류 (실사표·차이 보고서·후속 조치) — 1개월분 [실사 절차 준수 중심]',ja:'棚卸書類（カウントシート・差異報告書・フォローアップ） — 1ヶ月分【棚卸手順遵守重点】'},
-  49:{en:'Recurring & standard Journal Entry monthly checklist — 2 most recent months',ko:'반복 및 표준 Journal Entry 월간 체크리스트 — 최근 2개월분',ja:'定期・標準Journal Entry月次チェックリスト — 直近2ヶ月分'},
-  50:{en:'012 MPR (Monthly Performance Report) — 2 most recent samples',ko:'012 MPR (월간 실적 보고서) — 최근 2건',ja:'012 MPR（月次業績報告書） — 直近2件'},
-  51:{en:'Month-end Bank Reconciliation documentation — 1 most recent month',ko:'월말 Bank Reconciliation 서류 — 최근 1개월분',ja:'月末Bank Reconciliation書類 — 直近1ヶ月分'},
-  52:{en:'P&L Meeting Minutes — 2 most recent months',ko:'P&L Meeting 회의록 — 최근 2개월분',ja:'P&L Meeting議事録 — 直近2ヶ月分'},
-  53:{en:'3 user termination forms (past 2 months) + 2 weekly catch-all samples from previous month',ko:'퇴사자 양식(User Termination Form) 3건 (최근 2개월) + 전월 주간 catch-all 샘플 2건',ja:'ユーザー退職フォーム3件（過去2ヶ月）+ 前月週次catch-allサンプル2件'},
-  54:{en:'Latest Quarterly UAR — all systems excl. IDM (GL, OnQ OA, Payroll, PROPPLAN, POS, PMS, Procurement, DocMX, Bank Portal)',ko:'최신 분기별 UAR — IDM 미포함 시스템 전체 (GL·OnQ OA·급여·PROPPLAN·POS·PMS·구매·DocMX·은행 포털)',ja:'最新四半期UAR — IDM対象外の全システム（GL・OnQ OA・給与・PROPPLAN・POS・PMS・調達・DocMX・銀行ポータル）'},
-  55:{en:'Latest Quarterly UAR — system-generated reports for all applicable systems',ko:'최신 분기별 UAR — 해당 시스템 생성 UAR 보고서 전체',ja:'最新四半期UAR — 全該当システムのシステム生成UARレポート'},
-  56:{en:'Latest Quarterly UAR — confirm reviewers are not system admins (OA & PROPPLAN: reviewed by AFC or GM)',ko:'최신 분기별 UAR — UAR 검토자와 시스템 관리자 분리 확인 (OA·PROPPLAN: AFC 또는 GM 검토)',ja:'最新四半期UAR — UAR審査者とシステム管理者の分離確認（OA・PROPPLAN: AFCまたはGMが審査）'},
-  57:{en:'Latest Quarterly UAR — completed within 15 days of quarter-end for all applicable systems',ko:'최신 분기별 UAR — 분기 종료 후 15일 이내 완료 확인 (전체 해당 시스템)',ja:'最新四半期UAR — 四半期終了後15日以内の完了確認（全該当システム）'},
-  58:{en:'MA/BAMA FF&E terms + FF&E dedicated bank account docs + BS account reconciliation',ko:'MA/BAMA FF&E 조항 + FF&E 전용 은행 계좌 관련 서류 + BS 계정 조정 명세서',ja:'MA/BAMA FF&E条項 + FF&E専用銀行口座関連書類 + BS Account Reconciliation'},
-  59:{en:'BS Account balances — Owner-related accounts (Owner Distribution, Receivable from Owner, etc.)',ko:'소유주 관련 BS 계정 잔액 (Owner Distribution·Receivable from Owner 등)',ja:'Owner関連BS勘定残高（Owner Distribution・Receivable from Owner等）'},
-  60:{en:'Current authorized bank signatory list issued by bank — all operational accounts',ko:'은행 발행 승인 서명 권한자 명단 — 전체 운영 계좌',ja:'銀行発行の承認済み銀行署名権限者名簿 — 全運営口座'},
-  61:{en:'Latest MA/BAMA FF&E terms + FF&E provision calculation — 2 months + GL entries & BS accounts',ko:'최신 MA/BAMA FF&E 조항 + FF&E 충당금 계산 근거 — 2개월분 + GL 전표 및 BS 계정',ja:'最新MA/BAMA FF&E条項 + FF&E引当金計算根拠 — 2ヶ月分 + GL仕訳・BS勘定'},
-  62:{en:'List of required operating licenses & permits held by the hotel',ko:'호텔 운영 필수 허가·면허 목록',ja:'ホテル運営に必要な許認可リスト'},
-  63:{en:'2 most recent completed SOD Matrices',ko:'최근 완료된 SOD 매트릭스 2건',ja:'直近完了済みSODマトリックス2件'},
-  64:{en:'Payroll Change Report — incl. duplicate bank account check (use reports from #65)',ko:'Payroll Change Report — 중복 은행 계좌 검색 포함 (#65 보고서 활용)',ja:'Payroll Change Report — 重複銀行口座チェック含む（#65のレポートを活用）'},
-  65:{en:'Payroll Change Report — 1 pay period from each of 2 months',ko:'Payroll Change Report — 2개월, 각 1개 급여 지급 기간',ja:'Payroll Change Report — 2ヶ月 各1給与支払期間'},
-  66:{en:'Payroll Change Report — select 5 changes per report (use reports from #65)',ko:'Payroll Change Report — 보고서당 변경 사항 5건 선정 (#65 보고서 활용)',ja:'Payroll Change Report — レポートごとに変更事項5件選定（#65のレポートを活用）'},
-  67:{en:'Payroll Register (or equivalent) — each pay period from 2 months',ko:'Payroll Register (또는 이에 준하는 보고서) — 2개월, 각 급여 지급 기간',ja:'Payroll Register（または同等レポート） — 2ヶ月 各給与支払期間'},
-  68:{en:'3 contracts — verify Hilton standard template used or Legal approval obtained',ko:'계약서 3건 — 힐튼 표준 템플릿 사용 또는 법무 승인 여부 확인',ja:'契約書3件 — ヒルトン標準テンプレート使用または法務承認の確認'},
-  69:{en:'3 sole-source supplier purchases + supporting docs & approvals (if none, confirm management awareness)',ko:'단독 소스 공급업체 구매 3건 + 관련 서류 및 승인 자료 (해당 없으면 경영진 인지 여부 확인)',ja:'単独調達先（Sole Source）購買3件 + 関連書類・承認資料（該当なし場合は経営陣の認識確認）'},
-  70:{en:'3 high-value, high-risk active contracts',ko:'금액이 크고 리스크가 높은 활성화된 계약 3건',ja:'高額かつ高リスクなアクティブ契約3件'},
-  71:{en:'3 high-risk category vendors + Certificates of Insurance (or approved waiver)',ko:'고위험 범주 벤더 3개 + 보험 증명서(Certificate of Insurance) 또는 승인된 면제 서류',ja:'高リスク区分のベンダー3社 + 保険証明書（Certificate of Insurance）または承認済み免除書類'},
-  72:{en:'System-generated Allowances & Adjustments report — 3 days',ko:'시스템 생성 Allowance & Adjustment 보고서 — 3일분',ja:'システム生成AllowanceおよびAdjustmentレポート — 3日分'},
-  73:{en:'3 days of Voids/Discounts report + list of TMs authorized for voids/discounts in POS',ko:'취소(Voids)/할인(Discounts) 보고서 3일분 + POS 취소·할인 권한자 Team Member 명단',ja:'Void/Discount報告書3日分 + POSでのVoid・Discount権限者Team Member名簿'},
-  74:{en:'PMS Guest Ledger + City Ledger reports — 2 most recent month-ends',ko:'PMS 객실 원장(Guest Ledger) + 미수 원장(City Ledger) 보고서 — 최근 2개월 월말',ja:'PMS Guest Ledger + City Ledgerレポート — 直近2ヶ月末時点'},
-  75:{en:'Rate Report + Rate Override Report — 3 days (printed after Night Audit completion)',ko:'Rate Report + Rate Override Report — 3일분 (Night Audit 완료 후 출력)',ja:'Rate Report + Rate Override Report — 3日分（Night Audit完了後に出力）'},
-  76:{en:'3 OA Adjustments from different Business Days',ko:'서로 다른 영업일(Business Day)의 OA Adjustment 3건',ja:'異なる営業日（Business Day）のOA Adjustment 3件'},
-  77:{en:'PMS/POS Allowances & Adjustments report — 3 days + supporting docs (guest letters, emails, chargebacks, etc.)',ko:'PMS/POS Allowance & Adjustment 보고서 — 3일분 + 증빙 서류 (고객 서신·이메일·차지백 등)',ja:'PMS/POS AllowanceおよびAdjustmentレポート — 3日分 + 証憑書類（ゲスト書簡・メール・チャージバック等）'},
-  78:{en:'C&E function tracker (system report if possible) + 3 high-value functions with BEO',ko:'C&E 행사 트래커 (가능 시 시스템 보고서) + 고액 행사 3건의 BEO',ja:'C&Eファンクショントラッカー（可能であればシステムレポート）+ 高額行事3件のBEO'},
-  79:{en:'Duty meal summary + Entertainment/promotional F&B charges — 3 days',ko:'Duty Meal 요약본 + 접대/판촉용 F&B 비용 내역 — 3일분',ja:'Duty Meal要約 + 接待/販促用F&B費用 — 3日分'},
-  80:{en:'3 group contracts with free rooms/promo packages or barter agreements + revenue report for corresponding dates',ko:'무료 객실/판촉 패키지 포함 단체 계약 또는 바터 계약 3건 + 해당 날짜 Revenue 보고서',ja:'無料客室/販促パッケージ付き団体契約またはバーター契約3件 + 該当日付のRevenueレポート'}
+  1:{en:'Rent journal entries — 2 most recent months',ko:'임차료 Journal Entry — 최근 2개월분',ja:'賃料Journal Entry — 直近2ヶ月分',period:'Last 2 completed months',docmxRef:''},
+  2:{en:'Master Vendor Report — latest',ko:'Master Vendor Report — 최신',ja:'Master Vendor Report — 最新版',period:'Current',docmxRef:''},
+  3:{en:'Names of TMs responsible for each AP/procurement task (SOD verification)',ko:'AP/구매 시스템 각 업무 담당 Team Member 명단 (직무분장 확인용)',ja:'AP・調達業務担当Team Member名簿（職務分離確認用）',period:'Current',docmxRef:''},
+  4:{en:'AP Aging Report — 2 most recent months',ko:'AP Aging Report — 최근 2개월분',ja:'AP Aging Report — 直近2ヶ月分',period:'Last 2 completed months',docmxRef:'DocMX: Vendor Aging'},
+  5:{en:'3 submitted Expense Claims (incl. OL & FL) + Travel Advance Forms [N/A if using Concur]',ko:'Expense Claim 3건 (OL·FL 포함) + Travel Advance Form [Concur 사용 호텔 해당 없음]',ja:'Expense Claim 3件（OL・FL含む）+ Travel Advance Form【Concur使用ホテルは対象外】',period:'Last 2 completed months',docmxRef:'DocMX: Manual EFT'},
+  6:{en:'Written internal procedure for goods receiving & after-hours deliveries',ko:'물품 수령(입고) 및 영업시간 외 납품 서면 내부 절차서',ja:'検収（入荷）および時間外納品に関する社内書面手続書',period:'Current version',docmxRef:''},
+  7:{en:'Lease / Management Agreement (latest terms) + Rent or Management Fee calculation support — 2 months',ko:'임대차/위탁경영 계약서 최신 조항 + 임차료/위탁수수료 계산 근거 자료 — 최근 2개월분',ja:'賃貸借/運営委託契約書（最新条項）+ 賃料/委託手数料計算根拠資料 — 直近2ヶ月分',period:'Latest available',docmxRef:''},
+  8:{en:'Master Vendor Change Report — 2 most recent months',ko:'Master Vendor Change Report — 최근 2개월분',ja:'Master Vendor Change Report — 直近2ヶ月分',period:'Last 2 completed months',docmxRef:'DocMX: Master Vendors Report'},
+  9:{en:'Payment Run Report — 1 run from each of 2 different months',ko:'Payment Run Report — 서로 다른 2개월 각 1회분',ja:'Payment Run Report — 異なる2ヶ月 各1回分',period:'Last 2 completed months',docmxRef:'DocMX: Payment Document'},
+  10:{en:'Open PO Report + "Goods Received Without Invoice" Report — 2 most recent months (PO report: no date filter)',ko:'Open PO Report + Goods Received Without Invoice Report — 최근 2개월분 (PO 보고서: 날짜 필터 없이)',ja:'Open PO Report + Goods Received Without Invoice Report — 直近2ヶ月分（PO報告書：日付フィルターなし）',period:'Last 2 completed months',docmxRef:'DocMX: Open PO'},
+  11:{en:'3 purchases above USD 5,000 (PO / Contracts)',ko:'USD 5,000 초과 구매 3건 (PO / 계약서)',ja:'USD 5,000超の購買3件（PO / 契約書）',period:'Current year (non-sole source > USD 5,000)',docmxRef:''},
+  12:{en:'Vendor invoices for reconciliation against Payment Run Reports (from #9)',ko:'공급업체 Invoice — Payment Run Report 대조용 (#9 보고서 활용)',ja:'Payment Run Report照合用の仕入先Invoice（#9のレポートを活用）',period:'Last 2 completed months',docmxRef:'DocMX: Payment Document'},
+  13:{en:'Month-end AP Accrual Listing — 2 most recent months',ko:'월말 AP Accrual Listing — 최근 2개월분',ja:'月末AP Accrual Listing — 直近2ヶ月分',period:'Last 2 completed months',docmxRef:''},
+  14:{en:'3 Sales Contracts (group/guest deposits)',ko:'Sales Contract 3건 (단체/고객 Deposit 관련)',ja:'Sales Contract 3件（団体/ゲストDeposit関連）',period:'Latest available',docmxRef:''},
+  15:{en:'High Balance Report — 3 days',ko:'High Balance Report — 3일분',ja:'High Balance Report — 3日分',period:'Select 3 days from last 2 completed months',docmxRef:'DocMX: High Balance - All Payment Methods (OTC)'},
+  16:{en:'Credit Card Reconciliation — 3 days',ko:'신용카드 Reconciliation — 3일분',ja:'クレジットカードReconciliation — 3日分',period:'Select 3 days',docmxRef:''},
+  17:{en:'AR Accounts Listing (e.g. ARACCNTS in OnQ) + AR Aging Report from PMS — most recent month; select 3 active AR accounts',ko:'AR 계정 리스트(예: OnQ ARACCNTS) + PMS AR Aging Report — 최근 1개월; 활성 AR 계정 3건 선정',ja:'AR Accounts Listing（例：OnQ ARACCNTS）+ PMS AR Aging Report — 直近1ヶ月；アクティブARアカウント3件選定',period:'Latest (AR Listing); Last 2 completed months (AR Aging)',docmxRef:'ONQ: AR Account List / Opera: AR Aging Summary'},
+  18:{en:'Credit Meeting Minutes — 2 most recent months',ko:'Credit Meeting 회의록 — 최근 2개월분',ja:'Credit Meeting議事録 — 直近2ヶ月分',period:'Last 2 completed months',docmxRef:'DocMX: Credit Meeting Pack'},
+  19:{en:'List of TMs authorized to process refunds via credit card terminal',ko:'신용카드 단말기 Refund 처리 권한자 Team Member 명단',ja:'クレジットカード端末でのRefund処理権限者Team Member名簿',period:'Current',docmxRef:''},
+  20:{en:'3 Sales Contracts incl. political events & social/promotional events if possible',ko:'Sales Contract 3건 (가능 시 정치 행사·사교/판촉 행사 포함)',ja:'Sales Contract 3件（可能な場合、政治関連イベント・社交/販促イベント含む）',period:'Latest available',docmxRef:''},
+  21:{en:'Monthly audited Credit Card Refund documents — 2 most recent months',ko:'월간 감사된 신용카드 Refund 서류 — 최근 2개월분',ja:'月次監査済みクレジットカードRefund書類 — 直近2ヶ月分',period:'Last 2 completed months',docmxRef:''},
+  22:{en:'AR Account Listing + 3 debtor accounts newly created this year (recurring & one-time) + authorized Credit Application Forms',ko:'AR 계정 리스트 + 올해 신규 개설 채무자 계정 3건(정기·일회성 포함) + 승인된 Credit Application Form',ja:'ARアカウントリスト + 今年度新規開設の債務者アカウント3件（定期・スポット顧客含む）+ 承認済みCredit Application Form',period:'Latest available (AR Listing)',docmxRef:'ONQ: AR Account List'},
+  23:{en:'Annual Credit Review documentation (approved credit limits, business volume, payment history)',ko:'Annual Credit Review 서류 (승인 여신 한도·거래 규모·지급 이력 포함)',ja:'Annual Credit Review書類（承認済み与信枠・取引量・支払履歴を含む）',period:'Latest available',docmxRef:'DocMX: Credit Meeting Pack / Annual Credit Renewal'},
+  24:{en:'3 Credit Card Authorization Forms / POS Receipts (check full CC details are not exposed)',ko:'신용카드 승인 서식(CC Auth Form) / POS 영수증 3건 (전체 카드 정보 노출 여부 확인용)',ja:'クレジットカード承認書式（CC Auth Form）/ POSレシート3件（全カード情報露出確認用）',period:'Select 3 samples',docmxRef:''},
+  25:{en:'Bad Debt Provision calculation — 2 most recent months (include even if provision amount is zero)',ko:'대손충당금 계산 내역 — 최근 2개월분 (금액이 0인 경우도 포함)',ja:'貸倒引当金計算明細 — 直近2ヶ月分（引当金額がゼロの場合も含む）',period:'Last 2 completed months',docmxRef:'DocMX: Bad Debts Provision'},
+  26:{en:'BS Account Reconciliations — Clearing Accounts & Zero-balance accounts with activity',ko:'BS 계정 조정 명세서 — Clearing Account 및 거래 내역 있는 Zero Balance 계정',ja:'BS Account Reconciliation — Clearing AccountおよびZero Balance（取引あり）勘定',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  27:{en:'All latest BS Account Reconciliations — full set',ko:'최신 BS 계정 조정 명세서 — 전체',ja:'BS Account Reconciliation — 全勘定の最新セット',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  28:{en:'BS Account Reconciliations — accounts not covered in other BS questions',ko:'BS 계정 조정 명세서 — 다른 항목에서 별도 검토되지 않는 기타 계정',ja:'BS Account Reconciliation — 他のBS質問項目で個別検討されないその他勘定',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  29:{en:'BS Account Reconciliations — all Accrual accounts + supporting docs',ko:'BS 계정 조정 명세서 — 전체 Accrual 계정 + 관련 증빙 자료',ja:'BS Account Reconciliation — 全Accrual勘定 + 関連証憑書類',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  30:{en:'BS Account Reconciliations — Owner-related accounts',ko:'BS 계정 조정 명세서 — Owner 관련 계정',ja:'BS Account Reconciliation — Owner関連勘定',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  31:{en:'BS Account Reconciliations — Deferred Income accounts (memberships, annual fees, attrition/cancellation)',ko:'BS 계정 조정 명세서 — Deferred Income 계정 (회원권·연회비·위약금 등)',ja:'BS Account Reconciliation — Deferred Income勘定（会員権・年会費・違約金等）',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  32:{en:'BS Account Reconciliations + detailed Gift Card / Gift Certificate tracking schedule',ko:'BS 계정 조정 명세서 + Gift Card/Certificate 세부 추적 명세서',ja:'BS Account Reconciliation + Gift Card/Gift Certificate詳細追跡明細書',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  33:{en:'BS Account Reconciliations — Owner Distribution & Contribution accounts + Management Contract',ko:'BS 계정 조정 명세서 — Owner Distribution/Contribution 계정 + 위탁경영 계약서',ja:'BS Account Reconciliation — Owner Distribution/Contribution勘定 + 運営委託契約書',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  34:{en:'BS Account Reconciliations — Prepaid / Depreciation / Amortization schedules',ko:'BS 계정 조정 명세서 — Prepaid / 감가상각 / 무형자산상각 명세서',ja:'BS Account Reconciliation — Prepaid / 減価償却 / 償却スケジュール',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  35:{en:'BS Account Reconciliations — Other Receivable accounts',ko:'BS 계정 조정 명세서 — 기타 미수금(Other Receivable) 계정',ja:'BS Account Reconciliation — その他未収金（Other Receivable）勘定',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  36:{en:'BS Account Reconciliations — Other Liability accounts',ko:'BS 계정 조정 명세서 — 기타 부채(Other Liability) 계정',ja:'BS Account Reconciliation — その他負債（Other Liability）勘定',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  37:{en:'EFT documentation — 1 sample per vendor payment run, from 2 different months',ko:'EFT 서류 — 서로 다른 2개월 각 1건 (공급업체 지급 실행 건)',ja:'EFT書類 — 異なる2ヶ月 各1件（仕入先支払実行分）',period:'Last 2 completed months',docmxRef:'DocMX: Payment Document'},
+  38:{en:'House Fund Audit Sheets — 3 consecutive months',ko:'House Fund Audit Sheet — 연속 3개월분',ja:'House Fund Audit Sheet — 連続3ヶ月分',period:'Last 3 consecutive months',docmxRef:''},
+  39:{en:'Cash collection agreement with bank or professional security firm',ko:'은행 또는 전문 보안업체와의 현금 수거(호송) 계약서',ja:'銀行または警備会社との現金回収（護送）契約書',period:'Current',docmxRef:''},
+  40:{en:'General Cashier Report + Bank Deposit Slip — 3 days',ko:'General Cashier Report + 은행 입금 의뢰서(Deposit Slip) — 3일분',ja:'General Cashier Report + 銀行入金伝票（Deposit Slip） — 3日分',period:'Select 3 days from last 2 completed months',docmxRef:'DocMX: Cash Report'},
+  41:{en:'E-banking setup screenshot — current EFT authorized users list',ko:'전자뱅킹(E-banking) 현재 EFT 권한자 설정 스크린샷',ja:'電子バンキング（E-banking）現在のEFT権限者設定スクリーンショット',period:'Current version',docmxRef:''},
+  42:{en:'3 Refunds from PMS system-generated refund report (e.g. REFUNDRT in OnQ) or DocMX Bill Query / Manual EFT',ko:'PMS 환불 보고서(예: OnQ REFUNDRT) 또는 DocMX Bill Query/수동 EFT에서 Refund 3건',ja:'PMSシステム生成Refundレポート（例：OnQ REFUNDRT）またはDocMX Bill Query/手動EFTからRefund 3件',period:'Select 3 samples from last 2 completed months',docmxRef:'DocMX: Bill Query / Manual EFT History'},
+  43:{en:'FF&E bank account reconciliation and FF&E bank account disbursement listing',ko:'FF&E 은행 계좌 조정표 및 FF&E 은행 계좌 지출 내역서',ja:'FF&E銀行口座照合資料およびFF&E銀行口座支出リスト',period:'Last 2 completed months',docmxRef:''},
+  44:{en:'Trial Balance Reconciliation (Local GL vs PeopleSoft) — 2 most recent months',ko:'Trial Balance Reconciliation (로컬 GL vs PeopleSoft) — 최근 2개월분',ja:'Trial Balance Reconciliation（ローカルGL vs PeopleSoft） — 直近2ヶ月分',period:'Last 2 completed months',docmxRef:'DocMX: PeopleSoft Reconciliation'},
+  45:{en:'Bank Reconciliation — 2 weeks (1 from current month + 1 from previous month)',ko:'Bank Reconciliation — 2주분 (당월 1주분 + 전월 1주분)',ja:'Bank Reconciliation — 2週分（当月1週分 + 前月1週分）',period:'2 weeks: 1 from current month + 1 from previous month',docmxRef:''},
+  46:{en:'3 Journal Entries incl. at least 1 CheckSCM journal entry',ko:'Journal Entry 3건 (CheckSCM Journal Entry 최소 1건 포함)',ja:'Journal Entry 3件（CheckSCM Journal Entry最低1件含む）',period:'Last 2 completed months',docmxRef:'DocMX: Journal Voucher / EOM Checklist'},
+  47:{en:'Inventory count documentation (count sheet, variance report, follow-up) — 1 month [variance follow-up focus]',ko:'재고 실사 서류 (실사표·차이 보고서·후속 조치) — 1개월분 [차이 후속 조치 중심]',ja:'棚卸書類（カウントシート・差異報告書・フォローアップ） — 1ヶ月分【差異フォローアップ重点】',period:'Last 1 month',docmxRef:''},
+  48:{en:'Inventory count documentation (count sheet, variance report, follow-up) — 1 month [count procedure focus]',ko:'재고 실사 서류 (실사표·차이 보고서·후속 조치) — 1개월분 [실사 절차 준수 중심]',ja:'棚卸書類（カウントシート・差異報告書・フォローアップ） — 1ヶ月分【棚卸手順遵守重点】',period:'Last 1 month',docmxRef:''},
+  49:{en:'Recurring & standard Journal Entry monthly checklist — 2 most recent months',ko:'반복 및 표준 Journal Entry 월간 체크리스트 — 최근 2개월분',ja:'定期・標準Journal Entry月次チェックリスト — 直近2ヶ月分',period:'Last 2 completed months',docmxRef:'DocMX: EOM Checklist'},
+  50:{en:'012 MPR (Monthly Performance Report) — 2 most recent samples',ko:'012 MPR (월간 실적 보고서) — 최근 2건',ja:'012 MPR（月次業績報告書） — 直近2件',period:'Last 2 completed months',docmxRef:'DocMX: Monthly Performance Report'},
+  51:{en:'Month-end Bank Reconciliation documentation — 1 most recent month',ko:'월말 Bank Reconciliation 서류 — 최근 1개월분',ja:'月末Bank Reconciliation書類 — 直近1ヶ月分',period:'Last completed month',docmxRef:''},
+  52:{en:'P&L Meeting Minutes — 2 most recent months',ko:'P&L Meeting 회의록 — 최근 2개월분',ja:'P&L Meeting議事録 — 直近2ヶ月分',period:'Last 2 completed months',docmxRef:''},
+  53:{en:'3 user termination forms (past 2 months) + 2 weekly catch-all samples from previous month',ko:'퇴사자 양식(User Termination Form) 3건 (최근 2개월) + 전월 주간 catch-all 샘플 2건',ja:'ユーザー退職フォーム3件（過去2ヶ月）+ 前月週次catch-allサンプル2件',period:'Termination: last 2 months; Catch-all: 2 samples from previous month',docmxRef:''},
+  54:{en:'Latest Quarterly UAR — all systems excl. IDM (GL, OnQ OA, Payroll, PROPPLAN, POS, PMS, Procurement, DocMX, Bank Portal)',ko:'최신 분기별 UAR — IDM 미포함 시스템 전체 (GL·OnQ OA·급여·PROPPLAN·POS·PMS·구매·DocMX·은행 포털)',ja:'最新四半期UAR — IDM対象外の全システム（GL・OnQ OA・給与・PROPPLAN・POS・PMS・調達・DocMX・銀行ポータル）',period:'Last completed quarter',docmxRef:''},
+  55:{en:'Latest Quarterly UAR — system-generated reports for all applicable systems',ko:'최신 분기별 UAR — 해당 시스템 생성 UAR 보고서 전체',ja:'最新四半期UAR — 全該当システムのシステム生成UARレポート',period:'Last completed quarter',docmxRef:''},
+  56:{en:'Latest Quarterly UAR — confirm reviewers are not system admins (OA & PROPPLAN: reviewed by AFC or GM)',ko:'최신 분기별 UAR — UAR 검토자와 시스템 관리자 분리 확인 (OA·PROPPLAN: AFC 또는 GM 검토)',ja:'最新四半期UAR — UAR審査者とシステム管理者の分離確認（OA・PROPPLAN: AFCまたはGMが審査）',period:'Last completed quarter',docmxRef:''},
+  57:{en:'Latest Quarterly UAR — completed within 15 days of quarter-end for all applicable systems',ko:'최신 분기별 UAR — 분기 종료 후 15일 이내 완료 확인 (전체 해당 시스템)',ja:'最新四半期UAR — 四半期終了後15日以内の完了確認（全該当システム）',period:'Last completed quarter',docmxRef:''},
+  58:{en:'MA/BAMA FF&E terms + FF&E dedicated bank account docs + BS account reconciliation',ko:'MA/BAMA FF&E 조항 + FF&E 전용 은행 계좌 관련 서류 + BS 계정 조정 명세서',ja:'MA/BAMA FF&E条項 + FF&E専用銀行口座関連書類 + BS Account Reconciliation',period:'Latest available',docmxRef:''},
+  59:{en:'BS Account balances — Owner-related accounts (Owner Distribution, Receivable from Owner, etc.)',ko:'소유주 관련 BS 계정 잔액 (Owner Distribution·Receivable from Owner 등)',ja:'Owner関連BS勘定残高（Owner Distribution・Receivable from Owner等）',period:'Last completed month',docmxRef:'DocMX: Balance Sheet'},
+  60:{en:'Current authorized bank signatory list issued by bank — all operational accounts',ko:'은행 발행 승인 서명 권한자 명단 — 전체 운영 계좌',ja:'銀行発行の承認済み銀行署名権限者名簿 — 全運営口座',period:'Current version',docmxRef:''},
+  61:{en:'Latest MA/BAMA FF&E terms + FF&E provision calculation — 2 months + GL entries & BS accounts',ko:'최신 MA/BAMA FF&E 조항 + FF&E 충당금 계산 근거 — 2개월분 + GL 전표 및 BS 계정',ja:'最新MA/BAMA FF&E条項 + FF&E引当金計算根拠 — 2ヶ月分 + GL仕訳・BS勘定',period:'Last 2 completed months',docmxRef:''},
+  62:{en:'List of required operating licenses & permits held by the hotel',ko:'호텔 운영 필수 허가·면허 목록',ja:'ホテル運営に必要な許認可リスト',period:'Current',docmxRef:''},
+  63:{en:'2 most recent completed SOD Matrices',ko:'최근 완료된 SOD 매트릭스 2건',ja:'直近完了済みSODマトリックス2件',period:'Last 2 completed',docmxRef:''},
+  64:{en:'Payroll Change Report — incl. duplicate bank account check (use reports from #65)',ko:'Payroll Change Report — 중복 은행 계좌 검색 포함 (#65 보고서 활용)',ja:'Payroll Change Report — 重複銀行口座チェック含む（#65のレポートを活用）',period:'Last 2 completed months',docmxRef:'DocMX: Payroll Change Report'},
+  65:{en:'Payroll Change Report — 1 pay period from each of 2 months',ko:'Payroll Change Report — 2개월, 각 1개 급여 지급 기간',ja:'Payroll Change Report — 2ヶ月 各1給与支払期間',period:'Last 2 completed months',docmxRef:'DocMX: Payroll Change Report'},
+  66:{en:'Payroll Change Report — select 5 changes per report (use reports from #65)',ko:'Payroll Change Report — 보고서당 변경 사항 5건 선정 (#65 보고서 활용)',ja:'Payroll Change Report — レポートごとに変更事項5件選定（#65のレポートを활用）',period:'Last 2 completed months',docmxRef:'DocMX: Payroll Change Report'},
+  67:{en:'Payroll Register (or equivalent) — each pay period from 2 months',ko:'Payroll Register (또는 이에 준하는 보고서) — 2개월, 각 급여 지급 기간',ja:'Payroll Register（または同等レポート） — 2ヶ月 各給与支払期間',period:'Last 2 completed months',docmxRef:'DocMX: Monthly Payroll Report'},
+  68:{en:'3 contracts — verify Hilton standard template used or Legal approval obtained',ko:'계약서 3건 — 힐튼 표준 템플릿 사용 또는 법무 승인 여부 확인',ja:'契約書3件 — ヒルトン標準テンプレート使用または法務承認の確認',period:'Current (active contracts)',docmxRef:''},
+  69:{en:'3 sole-source supplier purchases + supporting docs & approvals (if none, confirm management awareness)',ko:'단독 소스 공급업체 구매 3건 + 관련 서류 및 승인 자료 (해당 없으면 경영진 인지 여부 확인)',ja:'単独調達先（Sole Source）購買3件 + 関連書類・承認資料（該当なし場合は経営陣の認識確認）',period:'Current year',docmxRef:''},
+  70:{en:'3 high-value, high-risk active contracts',ko:'금액이 크고 리스크가 높은 활성화된 계약 3건',ja:'高額かつ高リスクなアクティブ契約3件',period:'Current (active contracts)',docmxRef:''},
+  71:{en:'3 high-risk category vendors + Certificates of Insurance (or approved waiver)',ko:'고위험 범주 벤더 3개 + 보험 증명서(Certificate of Insurance) 또는 승인된 면제 서류',ja:'高リスク区分のベンダー3社 + 保険証明書（Certificate of Insurance）または承認済み免除書類',period:'Current',docmxRef:''},
+  72:{en:'System-generated Allowances & Adjustments report — 3 days',ko:'시스템 생성 Allowance & Adjustment 보고서 — 3일분',ja:'システム生成AllowanceおよびAdjustmentレポート — 3日分',period:'Select 3 days from last 2 completed months',docmxRef:'DocMX: Allowance Management Report'},
+  73:{en:'3 days of Voids/Discounts report + list of TMs authorized for voids/discounts in POS',ko:'취소(Voids)/할인(Discounts) 보고서 3일분 + POS 취소·할인 권한자 Team Member 명단',ja:'Void/Discount報告書3日分 + POSでのVoid・Discount権限者Team Member名簿',period:'Select 3 days',docmxRef:'DocMX: Void Report'},
+  74:{en:'PMS Guest Ledger + City Ledger reports — 2 most recent month-ends',ko:'PMS 객실 원장(Guest Ledger) + 미수 원장(City Ledger) 보고서 — 최근 2개월 월말',ja:'PMS Guest Ledger + City Ledgerレポート — 直近2ヶ月末時点',period:'Last 2 month-ends',docmxRef:'DocMX: Balance Sheet'},
+  75:{en:'Rate Report + Rate Override Report — 3 days (printed after Night Audit completion)',ko:'Rate Report + Rate Override Report — 3일분 (Night Audit 완료 후 출력)',ja:'Rate Report + Rate Override Report — 3日分（Night Audit完了後に出力）',period:'Select 3 days (after Night Audit)',docmxRef:'DocMX: Rate Report / Rate Override Reports'},
+  76:{en:'3 OA Adjustments from different Business Days',ko:'서로 다른 영업일(Business Day)의 OA Adjustment 3건',ja:'異なる営業日（Business Day）のOA Adjustment 3件',period:'Select 3 different business days',docmxRef:'DocMX: Allowance Management Report'},
+  77:{en:'PMS/POS Allowances & Adjustments report — 3 days + supporting docs (guest letters, emails, chargebacks, etc.)',ko:'PMS/POS Allowance & Adjustment 보고서 — 3일분 + 증빙 서류 (고객 서신·이메일·차지백 등)',ja:'PMS/POS AllowanceおよびAdjustmentレポート — 3日分 + 証憑書類（ゲスト書簡・メール・チャージバック等）',period:'Select 3 days from last 2 completed months',docmxRef:'DocMX: Allowance Management Report'},
+  78:{en:'C&E function tracker (system report if possible) + 3 high-value functions with BEO',ko:'C&E 행사 트래커 (가능 시 시스템 보고서) + 고액 행사 3건의 BEO',ja:'C&Eファンクショントラッカー（可能であればシステムレポート）+ 高額行事3件のBEO',period:'Select 3 high-value functions from recent months',docmxRef:'DocMX: Daily Revenue Report / BEO'},
+  79:{en:'Duty meal summary + Entertainment/promotional F&B charges — 3 days',ko:'Duty Meal 요약본 + 접대/판촉용 F&B 비용 내역 — 3일분',ja:'Duty Meal要約 + 接待/販促用F&B費用 — 3日分',period:'Select 3 days from last 2 completed months',docmxRef:''},
+  80:{en:'3 group contracts with free rooms/promo packages or barter agreements + revenue report for corresponding dates',ko:'무료 객실/판촉 패키지 포함 단체 계약 또는 바터 계약 3건 + 해당 날짜 Revenue 보고서',ja:'無料客室/販促パッケージ付き団体契約またはバーター契約3件 + 該当日付のRevenueレポート',period:'Latest available',docmxRef:''}
 };
+const GENERAL_PREP=[
+  {id:'g1',en:'Controls Self Assessment (CSA) file',ko:'내부 통제 자가 평가(CSA) 파일',period:'Latest version',docmxRef:''},
+  {id:'g2',en:'Previous CPA report (if applicable)',ko:'이전 CPA 보고서 (해당 시)',period:'Latest',docmxRef:''},
+  {id:'g3',en:'Management Agreement survey result',ko:'경영 계약 설문 조사 결과',period:'Latest available',docmxRef:''},
+  {id:'g4',en:'Schedule of insurance maintained by hotel and owner',ko:'호텔 및 업주 보험 일정표',period:'Current',docmxRef:''},
+  {id:'g5',en:'Approved policy waivers list',ko:'정책 면제 승인 목록',period:'Current',docmxRef:''},
+  {id:'g6',en:'Sales Contract summary listing',ko:'영업 계약 요약 목록',period:'Latest available',docmxRef:''},
+  {id:'g7',en:'Purchase Order approval limit setup matrix in procurement system',ko:'구매 시스템 내 구매주문 승인 한도 매트릭스',period:'Current',docmxRef:''},
+  {id:'g8',en:'Purchase Order Listing from procurement system',ko:'구매 시스템 구매주문 목록',period:'Last 2 completed months',docmxRef:''},
+  {id:'g9',en:'Payment checks log',ko:'지급 수표 일지',period:'Current',docmxRef:''},
+  {id:'g10',en:'Comprehensive Schedule of Contracts',ko:'계약 종합 일정표',period:'Current',docmxRef:''},
+  {id:'g11',en:'Comprehensive Schedule of Contracts review documentation',ko:'계약 일정표 검토 문서',period:'Last 2 completed months',docmxRef:''},
+  {id:'g12',en:'Revolving funds policy (if applicable)',ko:'순환 기금 정책 (해당 시)',period:'Latest version',docmxRef:''},
+  {id:'g13',en:'Supporting documentation for fixed asset purchases (if applicable)',ko:'고정 자산 구매 지원 서류 (해당 시)',period:'Last 2 completed months',docmxRef:''},
+  {id:'g14',en:'Copy of the Fixed Asset Register (if applicable)',ko:'고정 자산 등록부 사본 (해당 시)',period:'Last 2 completed months',docmxRef:''}
+];
+var generalPrepChecks={};
 
 const PDF_MAP={
   'FP-OPSFIN-100':'FP_OPSFIN-100_Balance Sheet Account Reconciliations.pdf',
@@ -1077,8 +1099,15 @@ function leaveDash(){
 var prepChecks={};
 var prepTypes={};
 var prepRemarks={};
+var generalPrepChecks={};
 function loadPrepChecks(){
   try{var s=localStorage.getItem(hotelKey('cpa_prep'));if(s)prepChecks=JSON.parse(s);}catch(e){}
+  try{var sg=localStorage.getItem(hotelKey('cpa_gen_prep'));if(sg)generalPrepChecks=JSON.parse(sg);}catch(e){}
+}
+function saveGeneralPrepCheck(gid,v){
+  generalPrepChecks[gid]=v;
+  try{localStorage.setItem(hotelKey('cpa_gen_prep'),JSON.stringify(generalPrepChecks));}catch(e){}
+  buildPrepView();
 }
 function loadPrepTypes(){
   try{
@@ -1111,11 +1140,21 @@ function mkPrepInlineHtml(id){
   var chkBadge=chk
     ?'<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:#198754;flex-shrink:0">&#10003; Ready</span>'
     :'<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:#adb5bd;flex-shrink:0">&#9744; Pending</span>';
+  var period=pd&&pd.period?pd.period:'';
+  var docmxRef=pd&&pd.docmxRef?pd.docmxRef:'';
+  var metaHtml='';
+  if(period||docmxRef){
+    metaHtml='<span class="prep-meta">'
+      +(period?'<span class="prep-period">&#128337; '+esc(period)+'</span>':'')
+      +(docmxRef?'<span class="prep-dmxref">&#128196; '+esc(docmxRef)+'</span>':'')
+      +'</span>';
+  }
   return '<div class="prep-inline-hdr">PREP</div>'
     +'<div class="prep-inline">'
     +chkBadge
     +(badges?'<span class="prep-inline-types">'+badges+'</span>':'')
     +(docName?'<span class="prep-inline-name">'+esc(docName)+'</span>':'')
+    +metaHtml
     +(rmk?'<span class="prep-inline-rmk">'+esc(rmk)+'</span>':'')
     +'</div>';
 }
@@ -1147,8 +1186,9 @@ function savePrepCheck(id,v){
 }
 function resetPrepChecks(){
   if(!confirm('Reset all prep checklist? This cannot be undone.'))return;
-  prepChecks={};
+  prepChecks={};generalPrepChecks={};
   try{localStorage.removeItem(hotelKey('cpa_prep'));}catch(e){}
+  try{localStorage.removeItem(hotelKey('cpa_gen_prep'));}catch(e){}
   buildPrepView();
 }
 function selPrep(){
@@ -1167,8 +1207,12 @@ function selPrep(){
 function buildPrepView(){
   var db=document.getElementById('db');
   if(!db)return;
-  var total=auditData.length;
-  var ready=auditData.filter(function(i){return prepChecks[i.id];}).length;
+  var auditTotal=auditData.length;
+  var auditReady=auditData.filter(function(i){return prepChecks[i.id];}).length;
+  var genTotal=GENERAL_PREP.length;
+  var genReady=GENERAL_PREP.filter(function(g){return generalPrepChecks[g.id];}).length;
+  var total=auditTotal+genTotal;
+  var ready=auditReady+genReady;
   var hotelVal=document.getElementById('hi-hotel').value||'';
   var periodVal=document.getElementById('hi-period').value||'';
   var dateVal=document.getElementById('hi-date').value||'';
@@ -1193,6 +1237,32 @@ function buildPrepView(){
     +'<button class="btn btn-g" onclick="window.print()" style="padding:5px 12px;font-size:12px">&#128438; '+(lang==='ko'?'인쇄':'Print')+'</button>'
     +'<button class="btn" onclick="resetPrepChecks()" style="padding:5px 12px;font-size:12px;background:#dc3545;color:#fff;border:none">&#8635; '+(lang==='ko'?'초기화':'Reset')+'</button>'
     +'</div>';
+  /* General Prep section */
+  var genAllDone=genReady===genTotal;
+  html+='<div class="prep-sec-card">'
+    +'<div class="prep-sec-hdr">'
+    +'<span class="prep-sec-name">'+(lang==='ko'?'공통 사전 준비 서류':'General Pre-Audit Documents')+'</span>'
+    +'<span class="prep-sec-cnt'+(genAllDone?' done':'')+'">'+genReady+' / '+genTotal+'</span>'
+    +'</div>';
+  GENERAL_PREP.forEach(function(g){
+    var txt=lk==='ko'?g.ko:g.en;
+    var chk=!!generalPrepChecks[g.id];
+    html+='<div class="prep-item'+(chk?' ck':'')+'" style="align-items:flex-start">'
+      +'<label style="padding-top:2px">'
+      +'<input type="checkbox"'+(chk?' checked':'')+' onchange="saveGeneralPrepCheck(\''+g.id+'\',this.checked)">'
+      +'<span class="prep-num" style="color:#6f42c1">G</span>'
+      +'</label>'
+      +'<div class="prep-txt-wrap">'
+      +'<span class="prep-txt">'+esc(txt)+'</span>'
+      +(g.period||g.docmxRef?'<div class="prep-meta">'
+        +(g.period?'<span class="prep-period">&#128337; '+esc(g.period)+'</span>':'')
+        +(g.docmxRef?'<span class="prep-dmxref">&#128196; '+esc(g.docmxRef)+'</span>':'')
+        +'</div>':'')
+      +'</div>'
+      +'</div>';
+  });
+  html+='</div>';
+  /* Audit items by section */
   SECS.forEach(function(sec){
     var si=auditData.filter(function(i){return i.section===sec;});
     var sr=si.filter(function(i){return prepChecks[i.id];}).length;
@@ -1205,24 +1275,32 @@ function buildPrepView(){
     si.forEach(function(item){
       var pd=prepData[item.id];
       var txt=pd?(pd[lk]||pd.en):'—';
+      var period=pd&&pd.period?pd.period:'';
+      var docmxRef=pd&&pd.docmxRef?pd.docmxRef:'';
       var chk=!!prepChecks[item.id];
       var tps=prepTypes[item.id]||[];
       var rmk=prepRemarks[item.id]||'';
       var hasDmx=tps.indexOf('dmx')>-1;
       var hasFile=tps.indexOf('file')>-1;
       var hasPaper=tps.indexOf('paper')>-1;
-      html+='<div class="prep-item'+(chk?' ck':'')+'">'
-        +'<label>'
+      html+='<div class="prep-item'+(chk?' ck':'')+'" style="align-items:flex-start">'
+        +'<label style="padding-top:2px">'
         +'<input type="checkbox"'+(chk?' checked':'')+' onchange="savePrepCheck('+item.id+',this.checked)">'
         +'<span class="prep-num">'+item.id+'</span>'
         +'</label>'
-        +'<span class="prep-type">'
+        +'<span class="prep-type" style="padding-top:1px">'
         +'<button class="prep-type-btn'+(hasDmx?' t-dmx':'')+'" onclick="savePrepType('+item.id+',\'dmx\')">Doc-mx</button>'
         +'<button class="prep-type-btn'+(hasFile?' t-file':'')+'" onclick="savePrepType('+item.id+',\'file\')">File</button>'
         +'<button class="prep-type-btn'+(hasPaper?' t-paper':'')+'" onclick="savePrepType('+item.id+',\'paper\')">Paper</button>'
         +'</span>'
+        +'<div class="prep-txt-wrap">'
         +'<span class="prep-txt">'+esc(txt)+'</span>'
-        +'<span class="prep-remark"><input type="text" value="'+esc(rmk)+'" placeholder="Remark..." oninput="savePrepRemark('+item.id+',this.value)"></span>'
+        +(period||docmxRef?'<div class="prep-meta">'
+          +(period?'<span class="prep-period">&#128337; '+esc(period)+'</span>':'')
+          +(docmxRef?'<span class="prep-dmxref">&#128196; '+esc(docmxRef)+'</span>':'')
+          +'</div>':'')
+        +'</div>'
+        +'<span class="prep-remark" style="padding-top:1px"><input type="text" value="'+esc(rmk)+'" placeholder="Remark..." oninput="savePrepRemark('+item.id+',this.value)"></span>'
         +'</div>';
     });
     html+='</div>';
@@ -1419,6 +1497,7 @@ function exportJSON(){
     exportedAt:date,
     data:JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}'),
     prep:JSON.parse(localStorage.getItem(hotelKey('cpa_prep'))||'{}'),
+    genPrep:JSON.parse(localStorage.getItem(hotelKey('cpa_gen_prep'))||'{}'),
     prepTypes:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_types'))||'{}'),
     prepRemarks:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_remarks'))||'{}'),
     testSheets:JSON.parse(localStorage.getItem(hotelKey('cpa_ts'))||'{}')
@@ -1447,11 +1526,12 @@ function handleImport(e){
         {e.target.value='';return;}
       if(d.data)localStorage.setItem(hotelKey('cpa2026v2'),JSON.stringify(d.data));
       if(d.prep)localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(d.prep));
+      if(d.genPrep)localStorage.setItem(hotelKey('cpa_gen_prep'),JSON.stringify(d.genPrep));
       if(d.prepTypes)localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(d.prepTypes));
       if(d.prepRemarks)localStorage.setItem(hotelKey('cpa_prep_remarks'),JSON.stringify(d.prepRemarks));
       if(d.testSheets)localStorage.setItem(hotelKey('cpa_ts'),JSON.stringify(d.testSheets));
       curId=null;results={};notes={};samples={};tstamps={};bsResults={};bsChecks={};bsNotes={};
-      prepChecks={};prepTypes={};testSheetData={};
+      prepChecks={};prepTypes={};testSheetData={};generalPrepChecks={};
       loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();
       updPrg();selDash();
       alert('가져오기 완료! / Import successful!');
@@ -2671,7 +2751,7 @@ function selectHotel(name){
   }
   document.getElementById('hotel-gate').style.display='none';
   curId=null;results={};notes={};samples={};tstamps={};bsResults={};bsChecks={};bsNotes={};
-  prepChecks={};prepTypes={};
+  prepChecks={};prepTypes={};generalPrepChecks={};
   loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();
   // Pre-fill hotel name if empty
   var hi=document.getElementById('hi-hotel');if(hi&&!hi.value){hi.value=name;saveDbc();}
