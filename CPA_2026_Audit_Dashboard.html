@@ -392,8 +392,14 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 <div id="hotel-gate">
   <div class="pw-box hotel-box">
     <div class="pw-logo">CPA 2026 Peer Audit</div>
+    <!-- Step 0: Recent hotels -->
+    <div id="recent-step" style="display:none">
+      <div class="pw-sub">호텔을 선택하세요 · Select Hotel</div>
+      <div id="recent-hotel-list" class="hotel-list"></div>
+      <button class="gate-back" onclick="showSvcStep()" style="margin-top:14px;width:100%;text-align:center">+ 새 호텔 추가 / Add New Hotel</button>
+    </div>
     <!-- Step 1: Service Type -->
-    <div id="svc-step">
+    <div id="svc-step" style="display:none">
       <div class="pw-sub">서비스 유형을 선택하세요 · Select Service Type</div>
       <div class="svc-cards">
         <button class="svc-card" onclick="selectSvcType('full')">
@@ -3277,8 +3283,61 @@ function getJPTS(){return currentServiceType==='focused'?FOCUSED_JP_TS:JP_TS;}
 function _hotelListKey(){return 'cpa2026_hotels__'+(currentServiceType||'full');}
 function getHotelList(){try{var s=localStorage.getItem(_hotelListKey());return s?JSON.parse(s):[];}catch(e){return[];}}
 function saveHotelList(list){try{localStorage.setItem(_hotelListKey(),JSON.stringify(list));}catch(e){}}
+function _getAllHotels(){
+  var full=[],focused=[];
+  try{var f=localStorage.getItem('cpa2026_hotels__full');if(f)full=JSON.parse(f);}catch(e){}
+  try{var fc=localStorage.getItem('cpa2026_hotels__focused');if(fc)focused=JSON.parse(fc);}catch(e){}
+  return {full:full,focused:focused};
+}
+function showHotelGate(){
+  var all=_getAllHotels();
+  document.getElementById('hotel-gate').style.display='flex';
+  if(all.full.length>0||all.focused.length>0){
+    buildRecentStep(all.full,all.focused);
+    document.getElementById('recent-step').style.display='block';
+    document.getElementById('svc-step').style.display='none';
+    document.getElementById('hotel-step').style.display='none';
+  }else{
+    document.getElementById('recent-step').style.display='none';
+    showSvcStep();
+  }
+}
+function buildRecentStep(fullList,focusedList){
+  var el=document.getElementById('recent-hotel-list');if(!el)return;
+  el.innerHTML='';
+  function makeChip(h,type){
+    var wrap=document.createElement('div');wrap.className='hotel-chip-wrap';
+    var btn=document.createElement('button');btn.className='hotel-chip';
+    btn.appendChild(document.createTextNode(h));
+    var badge=document.createElement('span');
+    badge.style.cssText='font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;'+(type==='focused'?'background:#e0f2fe;color:#0369a1':'background:#dbeafe;color:#1a2456');
+    badge.textContent=type==='focused'?'Focus':'Full';
+    btn.appendChild(badge);
+    btn.onclick=function(){selectRecentHotel(h,type);};
+    var del=document.createElement('button');del.className='hotel-del';del.textContent='×';del.title='삭제 / Delete';
+    del.onclick=function(e){e.stopPropagation();deleteRecentHotel(h,type);};
+    wrap.appendChild(btn);wrap.appendChild(del);el.appendChild(wrap);
+  }
+  fullList.forEach(function(h){makeChip(h,'full');});
+  focusedList.forEach(function(h){makeChip(h,'focused');});
+}
+function selectRecentHotel(name,type){
+  setServiceType(type);
+  selectHotel(name);
+}
+function deleteRecentHotel(name,type){
+  if(!confirm('"'+name+'" 호텔을 목록에서 삭제할까요?\nDelete "'+name+'" from the list?'))return;
+  var key='cpa2026_hotels__'+type;
+  var list=[];try{var s=localStorage.getItem(key);if(s)list=JSON.parse(s);}catch(e){}
+  list=list.filter(function(h){return h!==name;});
+  try{localStorage.setItem(key,JSON.stringify(list));}catch(e){}
+  var all=_getAllHotels();
+  if(all.full.length>0||all.focused.length>0){buildRecentStep(all.full,all.focused);}
+  else{document.getElementById('recent-step').style.display='none';showSvcStep();}
+}
 function selectSvcType(t){
   setServiceType(t);
+  document.getElementById('recent-step').style.display='none';
   document.getElementById('svc-step').style.display='none';
   document.getElementById('hotel-step').style.display='block';
   var badge=document.getElementById('svc-badge');
@@ -3287,6 +3346,7 @@ function selectSvcType(t){
   var inp=document.getElementById('hotel-input');if(inp)inp.focus();
 }
 function showSvcStep(){
+  document.getElementById('recent-step').style.display='none';
   document.getElementById('svc-step').style.display='block';
   document.getElementById('hotel-step').style.display='none';
 }
@@ -3329,7 +3389,7 @@ function selectHotel(name){
   currentHotel=name;
   currentServiceType=sessionStorage.getItem('cpa_service_type')||'full';
   sessionStorage.setItem('cpa_hotel',name);
-  try{localStorage.setItem('cpa_last_hotel',name);}catch(e){}
+  try{localStorage.setItem('cpa_last_hotel',name);localStorage.setItem('cpa_last_svc_type',currentServiceType);}catch(e){}
   var list=getHotelList();
   if(list.indexOf(name)<0){list.unshift(name);saveHotelList(list);}
   // Migration: old flat key → old cased key → new normalized key
@@ -3370,8 +3430,7 @@ function switchHotel(){
   save();
   currentHotel='';
   sessionStorage.removeItem('cpa_hotel');
-  showSvcStep();
-  document.getElementById('hotel-gate').style.display='flex';
+  showHotelGate();
 }
 function updateHotelBtn(){
   var el=document.getElementById('hotel-sw');
@@ -3395,16 +3454,17 @@ function checkPw(){
     sessionStorage.setItem('cpa_auth','1');
     document.getElementById('pw-gate').style.display='none';
     var lastHotel=localStorage.getItem('cpa_last_hotel')||'';
-    var hotelList=getHotelList();
-    if(lastHotel&&hotelList.indexOf(lastHotel)>=0){
-      currentHotel=lastHotel;
-      sessionStorage.setItem('cpa_hotel',lastHotel);
-      loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();
-      updateHotelBtn();updPrg();selDash();
-    }else{
-      showSvcStep();
-      document.getElementById('hotel-gate').style.display='flex';
-    }
+    var lastSvcType=localStorage.getItem('cpa_last_svc_type')||'full';
+    if(lastHotel){
+      setServiceType(lastSvcType);
+      var hotelList=getHotelList();
+      if(hotelList.indexOf(lastHotel)>=0){
+        currentHotel=lastHotel;
+        sessionStorage.setItem('cpa_hotel',lastHotel);
+        loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();
+        updateHotelBtn();updPrg();selDash();
+      }else{showHotelGate();}
+    }else{showHotelGate();}
   }else{
     document.getElementById('pw-err').textContent='Incorrect password.';
     document.getElementById('pw-input').value='';
@@ -3464,9 +3524,8 @@ if(sessionStorage.getItem('cpa_auth')==='1'){
     loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();updPrg();_restoreNav();
     updateHotelBtn();
   }else{
-    showSvcStep();
-    document.getElementById('hotel-gate').style.display='flex';
     updPrg();selDash();
+    showHotelGate();
   }
 }else{
   updPrg();selDash();
