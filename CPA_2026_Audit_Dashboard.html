@@ -3519,7 +3519,7 @@ window.addEventListener('beforeunload',function(e){if(currentHotel)save();e.prev
       <button onclick="document.getElementById('close-modal').style.display='none'" style="padding:10px;font-size:13px;font-weight:600;background:#f0f2f5;color:#1a2456;border:1px solid #dee2e6;border-radius:8px;cursor:pointer">
         &#10003; 이미 백업함 / 계속 작업
       </button>
-      <button onclick="document.getElementById('close-modal').style.display='none';window.close()" style="padding:9px;font-size:12px;font-weight:600;background:#fff;color:#c0392b;border:1px solid #f5c6cb;border-radius:8px;cursor:pointer">
+      <button onclick="closeWindow()" style="padding:9px;font-size:12px;font-weight:600;background:#fff;color:#c0392b;border:1px solid #f5c6cb;border-radius:8px;cursor:pointer">
         &#10005; 백업 없이 닫기
       </button>
     </div>
@@ -3547,6 +3547,15 @@ function showCloseModal(){
   }
 }
 document.getElementById('close-modal').addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+function closeWindow(){
+  document.getElementById('close-modal').style.display='none';
+  window.close();
+  setTimeout(function(){
+    var isKo=lang==='ko', isJa=lang==='ja';
+    var msg=isJa?'このタブを手動で閉じてください。\n(Ctrl+W / Cmd+W)':isKo?'이 탭을 직접 닫아주세요.\n(Ctrl+W / Cmd+W)':'Please close this tab manually.\n(Ctrl+W / Cmd+W)';
+    alert(msg);
+  },300);
+}
 </script>
 </body>
 </html>
