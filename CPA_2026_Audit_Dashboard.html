@@ -309,6 +309,16 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .prep-inline .prep-type-btn{font-size:12px;padding:4px 10px;border-radius:10px;cursor:default;pointer-events:none}
 .prep-inline-name{font-size:12.5px;color:var(--tx);flex:1;min-width:80px;line-height:1.4}
 .prep-inline-rmk{font-size:12px;color:#6c757d;padding-left:10px;border-left:2px solid #d0d5e0;font-style:italic}
+.ts-wrap{margin-top:12px}
+.ts-hdr{font-size:10px;font-weight:800;color:#6c757d;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.ts-badge{background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:3px;font-size:9px;font-weight:700;padding:1px 6px}
+.ts-tbl-wrap{overflow-x:auto;border-radius:6px;border:1px solid #e0e4ef}
+.ts-tbl{border-collapse:collapse;width:100%;font-size:12px;min-width:480px}
+.ts-tbl th{background:#e8edf8;color:#1a2456;font-weight:700;padding:6px 9px;border:1px solid #c8d0e8;white-space:nowrap;font-size:11px}
+.ts-tbl td{border:1px solid #d8ddef;padding:0;vertical-align:middle}
+.ts-tbl td.ts-rn{background:#f7f8fc;color:#6c757d;font-weight:700;text-align:center;padding:4px 7px;width:28px;white-space:nowrap;font-size:11px}
+.ts-inp{width:100%;box-sizing:border-box;border:none;background:transparent;padding:5px 8px;font-size:12px;font-family:inherit;color:var(--tx);outline:none;resize:none;min-height:28px}
+.ts-inp:focus{background:#fffbe6;outline:none}
 @media print{
   #hdr,#prg,#nav,.prep-top,.bsnotes-top{display:none!important}
   #print-hdr{display:block!important;padding-bottom:12px;margin-bottom:16px;border-bottom:2px solid #1a2456}
@@ -483,6 +493,75 @@ const auditData = [
 
 const SECS=['AP','AR','Balance Sheet','Cash','Financial Close','ITGC','MA Compliance','Management','Payroll','Procurement','Revenue'];
 const VAL_IDS=new Set([8,9,10,11,12,13,22,23,24,25,28,29,34,35,36,41,42,50,55,56,57,58,60,61,65,67,68,70,71,72,78]);
+
+const TEST_SHEETS={
+  8:{name:'AP 6',cols:['Month','Vendor Selected','Details Accurate? (Y/N)','Approved By'],rows:2},
+  9:{name:'AP 2',cols:['Month','Batch Ref','Payment Run Amount','Approver','Approval Date'],rows:2},
+  10:{name:'AP 7',cols:['Month','Open PO Review Performed? (Y/N)','Aged Items >6m Investigated? (Y/N)','Reviewed By'],rows:2},
+  11:{name:'AP 5',cols:['Vendor','Type of Service','Contract / PO Amount','No. of Competitive Bids','Remarks'],rows:3},
+  12:{name:'AP 3',cols:['Month','Batch Ref','Payment Run Amount','Vendor Name','Invoice No.'],rows:2},
+  13:{name:'AP 4',cols:['Month','Journal No.','Accrual Amount','Approver'],rows:2},
+  22:{name:'AR 1',cols:['Debtor Code','Debtor Name','Credit App Form Filled? (Y/N)','Credit Granted Based On','Repeat Customer? (Y/N)'],rows:3},
+  23:{name:'AR 3',cols:['Annual Credit Review Performed? (Y/N)','Credit / Volume / Payment History Included? (Y/N)','Approved By','Approval Date'],rows:1},
+  24:{name:'AR 4',cols:['S/N','Credit Card Auth Form No.','Full CC Details Mentioned? (Y/N)'],rows:3},
+  25:{name:'AR 2',cols:['Month','Approver (Name & Position)','Approval Date','Amount','Calculation Correct? (Y/N)'],rows:2},
+  28:{name:'BS 2',cols:['Account No.','Description','Issue Identified? (Y/N)','Remarks'],rows:3},
+  29:{name:'BS 1',cols:['Month','All Reconciliations Independently Reviewed/Approved? (Y/N)','Approved by Business Day 20? (Y/N)'],rows:1},
+  34:{name:'BS 1',cols:['Month','All Reconciliations Independently Reviewed/Approved? (Y/N)','Approved by Business Day 20? (Y/N)'],rows:1},
+  35:{name:'BS 3',cols:['Account No.','Description','Balance Appropriate? (Y/N)','Collection Protocol in Place? (Y/N)'],rows:3},
+  36:{name:'BS 5',cols:['Account No.','Description','Amount','Issue Identified?'],rows:3},
+  41:{name:'Cash 2',cols:['Account No.','Bank','EFT Enabled? (Y/N)','Payment Initiator (Name & Position)','Payment Approver (Name & Position)'],rows:4},
+  42:{name:'Cash 1',cols:['Refund Date','Guest Name / DocMX DID','Refund Amount','Original Payment Method','Refund Method Same as Original? (Y/N)'],rows:3},
+  50:{name:'Financial Close 1',cols:['Month','Finance Leader Reviewed, Signed & Dated? (Y/N)','Operation Leader Reviewed, Signed & Dated? (Y/N)','Significant Variances Supported w/ Quality Comments? (Y/N)'],rows:2},
+  55:{name:'IT 2',cols:['System','Reviewer','System-Generated Report Used? (Y/N)','Access / User Profile Correct? (Y/N)'],rows:9},
+  56:{name:'IT 3',cols:['System','Reviewer (Name & Position)','System Administrator(s)','Reviewer ≠ Admin? (Y/N)'],rows:9},
+  57:{name:'IT 1',cols:['System','Quarter','Review Date','Completed Within 15 Days? (Y/N)'],rows:9},
+  58:{name:'MA 2',cols:['Dedicated Bank Account in Place per MA? (Y/N)','Reconciliation to FF&E Reserve Performed? (Y/N)','FF&E Reserve Balance Aligned to MA? (Y/N)'],rows:1},
+  60:{name:'MA 1',cols:['Account No.','Bank','Signatories (Name & Position)','Owner Signatories? Verify Against MA'],rows:4},
+  61:{name:'MA 2',cols:['Month','FF&E Provision per Hotel','FF&E Provision per Reviewer','Variance'],rows:2},
+  65:{name:'Payroll 3',cols:['Month','Approver (Name & Position)','Approval Date','Payroll Records in Secured Location? (Y/N)'],rows:2},
+  67:{name:'Payroll 1',cols:['Month','Total Hours per T&A','Total Hours per Payroll Register','Variances? (Y/N)','Variances Documented & Resolved? (Y/N)'],rows:2},
+  68:{name:'Procurement 2',cols:['Vendor','Contract Period','Contract Amount','Requires Legal Approval? (Y/N)','Evidence of Legal Approval? (Y/N)'],rows:3},
+  70:{name:'Procurement 1',cols:['Type of Service','Vendor','Executed in Name of Hotel Owner? (Y/N)','Contract Amount','Contract Period'],rows:3},
+  71:{name:'Procurement 3',cols:['Type of Service','Vendor','Contract Amount','Insurance Coverage (COI $)','GPIP Risk Category'],rows:3},
+  72:{name:'Revenue 4',cols:['Business Date','Reviewed By','Review Date','Within Two Weeks? (Y/N)'],rows:3},
+  78:{name:'Revenue 3',cols:['BEO No.','BEO Revenue ($)','Revenue Posted ($)','Reconciliation Performed? (Y/N)','Discrepancies Resolved? (Y/N)'],rows:3}
+};
+
+var testSheetData={};
+function loadTestSheetData(){
+  try{var s=localStorage.getItem(hotelKey('cpa_ts'));if(s)testSheetData=JSON.parse(s);}catch(e){}
+}
+function saveTestCell(id,r,c,val){
+  var k=String(id);
+  if(!testSheetData[k])testSheetData[k]={};
+  if(!testSheetData[k][r])testSheetData[k][r]={};
+  testSheetData[k][r][c]=val;
+  try{localStorage.setItem(hotelKey('cpa_ts'),JSON.stringify(testSheetData));}catch(e){}
+}
+function mkTestSheetHtml(id){
+  var ts=TEST_SHEETS[id];
+  if(!ts)return '';
+  var k=String(id);
+  var data=testSheetData[k]||{};
+  var thCells=ts.cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('');
+  var bodyRows='';
+  for(var r=0;r<ts.rows;r++){
+    var rData=data[r]||{};
+    var tds=ts.cols.map(function(c,ci){
+      var v=rData[ci]||'';
+      return '<td><input class="ts-inp" type="text" value="'+esc(v)+'" oninput="saveTestCell('+id+','+r+','+ci+',this.value)" placeholder=""></td>';
+    }).join('');
+    bodyRows+='<tr><td class="ts-rn">'+(r+1)+'</td>'+tds+'</tr>';
+  }
+  return '<div class="ts-wrap">'
+    +'<div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+    +'<div class="ts-tbl-wrap"><table class="ts-tbl">'
+    +'<thead><tr><th>#</th>'+thCells+'</tr></thead>'
+    +'<tbody>'+bodyRows+'</tbody>'
+    +'</table></div>'
+    +'</div>';
+}
 
 var prepData={
   1:{en:'Rent journal entries — 2 most recent months',ko:'임차료 Journal Entry — 최근 2개월분',ja:'賃料Journal Entry — 直近2ヶ月分'},
@@ -864,6 +943,7 @@ function buildRP(){
     +'<div class="fl">'+polL+'</div>'
     +'<div class="polrow"><span class="poltag">&#128206; '+esc(item.pol)+'</span>'+pdfBtn+'</div>'
     +'<div id="prep-inline-wrap">'+mkPrepInlineHtml(item.id)+'</div>'
+    +(isVal?mkTestSheetHtml(item.id):'')
     +'<div class="rssec">'
     +'<div class="rsrow"><span class="rslbl">'+resL+':</span>'
     +'<button class="rsb rby'+(res==='yes'?' act':'')+'" onclick="setRes('+item.id+',\'yes\')">Yes</button>'
@@ -1132,6 +1212,7 @@ function save(){
     try{localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(prepChecks));}catch(e){}
     try{localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(prepTypes));}catch(e){}
     try{localStorage.setItem(hotelKey('cpa_prep_remarks'),JSON.stringify(prepRemarks));}catch(e){}
+    try{localStorage.setItem(hotelKey('cpa_ts'),JSON.stringify(testSheetData));}catch(e){}
     if(currentHotel){
       localStorage.setItem('cpa2026_autobackup',JSON.stringify({
         hotelName:currentHotel,
@@ -1139,7 +1220,8 @@ function save(){
         data:d,
         prep:JSON.parse(localStorage.getItem(hotelKey('cpa_prep'))||'{}'),
         prepTypes:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_types'))||'{}'),
-        prepRemarks:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_remarks'))||'{}')
+        prepRemarks:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_remarks'))||'{}'),
+        testSheets:JSON.parse(localStorage.getItem(hotelKey('cpa_ts'))||'{}')
       }));
     }
     var si=document.getElementById('si');
@@ -1194,9 +1276,10 @@ function checkAutoBackup(){
     if(bk.prep)localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(bk.prep));
     if(bk.prepTypes)localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(bk.prepTypes));
     if(bk.prepRemarks)localStorage.setItem(hotelKey('cpa_prep_remarks'),JSON.stringify(bk.prepRemarks));
+    if(bk.testSheets)localStorage.setItem(hotelKey('cpa_ts'),JSON.stringify(bk.testSheets));
     results=bk.data.results||{};notes=bk.data.notes||{};samples=bk.data.samples||{};tstamps=bk.data.tstamps||{};
     bsResults=bk.data.bsResults||{};bsChecks=bk.data.bsChecks||{};bsNotes=bk.data.bsNotes||{};
-    loadPrepChecks();loadPrepTypes();loadPrepRemarks();
+    loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();
     updPrg();buildNav();buildLP();buildRP();
   }catch(e){}
 }
@@ -1231,7 +1314,8 @@ function exportJSON(){
     data:JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}'),
     prep:JSON.parse(localStorage.getItem(hotelKey('cpa_prep'))||'{}'),
     prepTypes:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_types'))||'{}'),
-    prepRemarks:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_remarks'))||'{}')
+    prepRemarks:JSON.parse(localStorage.getItem(hotelKey('cpa_prep_remarks'))||'{}'),
+    testSheets:JSON.parse(localStorage.getItem(hotelKey('cpa_ts'))||'{}')
   };
   var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
   var url=URL.createObjectURL(blob);
@@ -1259,9 +1343,10 @@ function handleImport(e){
       if(d.prep)localStorage.setItem(hotelKey('cpa_prep'),JSON.stringify(d.prep));
       if(d.prepTypes)localStorage.setItem(hotelKey('cpa_prep_types'),JSON.stringify(d.prepTypes));
       if(d.prepRemarks)localStorage.setItem(hotelKey('cpa_prep_remarks'),JSON.stringify(d.prepRemarks));
+      if(d.testSheets)localStorage.setItem(hotelKey('cpa_ts'),JSON.stringify(d.testSheets));
       curId=null;results={};notes={};samples={};tstamps={};bsResults={};bsChecks={};bsNotes={};
-      prepChecks={};prepTypes={};
-      loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();
+      prepChecks={};prepTypes={};testSheetData={};
+      loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();
       updPrg();selDash();
       alert('가져오기 완료! / Import successful!');
     }catch(err){
@@ -2481,7 +2566,7 @@ function selectHotel(name){
   document.getElementById('hotel-gate').style.display='none';
   curId=null;results={};notes={};samples={};tstamps={};bsResults={};bsChecks={};bsNotes={};
   prepChecks={};prepTypes={};
-  loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();
+  loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();
   // Pre-fill hotel name if empty
   var hi=document.getElementById('hi-hotel');if(hi&&!hi.value){hi.value=name;saveDbc();}
   updPrg();selDash();
@@ -2523,7 +2608,7 @@ function checkPw(){
     if(lastHotel&&hotelList.indexOf(lastHotel)>=0){
       currentHotel=lastHotel;
       sessionStorage.setItem('cpa_hotel',lastHotel);
-      loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();
+      loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();
       updateHotelBtn();updPrg();selDash();
     }else{
       buildHotelGate();
@@ -2583,7 +2668,7 @@ if(sessionStorage.getItem('cpa_auth')==='1'){
   var _sh=sessionStorage.getItem('cpa_hotel');
   if(_sh){
     currentHotel=_sh;
-    loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();updPrg();selDash();
+    loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();updPrg();selDash();
     updateHotelBtn();
   }else{
     buildHotelGate();
