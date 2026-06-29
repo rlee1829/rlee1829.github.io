@@ -572,9 +572,9 @@ function saveTestCell(id,r,c,val){
   testSheetData[k][r][c]=val;
   try{localStorage.setItem(hotelKey('cpa_ts'),JSON.stringify(testSheetData));}catch(e){}
 }
-function _tsHdr(id,ts){
+function _tsHdr(id,ts,showCopy){
   return '<div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span>'
-    +'<button id="ts-copy-btn-'+id+'" class="ts-copy-btn" onclick="copyTestSheet('+id+')">&#128203; Copy All</button></div>';
+    +(showCopy===false?'':'<button id="ts-copy-btn-'+id+'" class="ts-copy-btn" onclick="copyTestSheet('+id+')">&#128203; Copy</button>')+'</div>';
 }
 function _tsSubHdr(label,id,tblIdx){
   return '<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between">'
@@ -680,7 +680,7 @@ function mkAP7Html(id,ts){
   for(var r2=0;r2<2;r2++){var d2=data[r2+2]||{};
     s2+='<tr><td class="ts-rn">'+(r2+1)+'</td>'+_tsInp(id,r2+2,0,d2[0]||'','Month')+_tsInp(id,r2+2,1,d2[1]||'','Y/N',60)+_tsInp(id,r2+2,2,d2[2]||'','Jnl No.')+_tsInp(id,r2+2,3,d2[3]||'','Accrual Amt')+_tsInp(id,r2+2,4,d2[4]||'','Reviewed By')+'</tr>';
   }
-  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
+  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts,false)
     +_tsSubHdr('Open PO Review',id,0)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>Open PO Review Performed? (Y/N)</th><th>Aged Items &gt;6m Investigated? (Y/N)</th><th>Reviewed By</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
     +_tsSubHdr('Accrual Verification',id,1)
@@ -694,7 +694,7 @@ function mkAR4Html(id,ts){
   for(var r=0;r<3;r++){var d=data[r+1]||{};
     s2+='<tr><td class="ts-rn">'+(r+1)+'</td>'+_tsInp(id,r+1,0,d[0]||'','Form No.')+_tsInp(id,r+1,1,d[1]||'','Y / N',80)+'</tr>';
   }
-  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
+  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts,false)
     +_tsSubHdr('CC Details Check',id,0)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th colspan="2">Full CC Details NOT Maintained Outside PMS? (Y/N)</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
     +_tsSubHdr('If Applicable — CC Auth Form Check',id,1)
@@ -734,7 +734,7 @@ function mkMA3Html(id,ts){
       +_tsInp(id,r+1,4,d[4]||'','Y / N',60)
       +'</tr>';
   }
-  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
+  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts,false)
     +_tsSubHdr('MA/BAMA FF&amp;E Terms',id,0)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>MA/BAMA FF&amp;E Terms</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
     +_tsSubHdr('FF&amp;E Provision Verification (2 Months)',id,1)
