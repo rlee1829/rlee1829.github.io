@@ -596,16 +596,14 @@ function copyTestSheet(id){
       if(row.length)dataRows.push(row);
     });
     if(!headers.length)return;
-    /* TSV */
-    tsvParts.push(headers.join('\t'));
+    /* TSV — data rows only, no header */
     dataRows.forEach(function(r){tsvParts.push(r.join('\t'));});
     tsvParts.push('');
-    /* HTML table */
-    var hth=headers.map(function(h){return '<th style="'+thStyle+'">'+h+'</th>';}).join('');
+    /* HTML table — data rows only, no header */
     var htrs=dataRows.map(function(r){
       return '<tr>'+r.map(function(v){return '<td style="'+tdStyle+'">'+(v||'')+'</td>';}).join('')+'</tr>';
     }).join('');
-    htmlParts.push('<table style="'+htmlStyle+'"><thead><tr>'+hth+'</tr></thead><tbody>'+htrs+'</tbody></table>');
+    htmlParts.push('<table style="'+htmlStyle+'"><tbody>'+htrs+'</tbody></table>');
   });
   var tsv=tsvParts.join('\n');
   var html='<html><body>'+htmlParts.join('<br>')+'</body></html>';
