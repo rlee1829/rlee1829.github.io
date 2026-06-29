@@ -317,6 +317,9 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .ts-wrap{margin-top:12px}
 .ts-hdr{font-size:10px;font-weight:800;color:#6c757d;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
 .ts-badge{background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:3px;font-size:9px;font-weight:700;padding:1px 6px}
+.ts-copy-btn{margin-left:auto;padding:2px 10px;border:1px solid #dee2e6;border-radius:4px;background:#fff;color:#495057;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s}
+.ts-copy-btn:hover{background:#e8eaf6;border-color:#1a2456;color:#1a2456}
+.ts-copy-btn.copied{background:#d4edda;border-color:#198754;color:#198754}
 .ts-tbl-wrap{overflow-x:auto;border-radius:6px;border:1px solid #e0e4ef}
 .ts-tbl{border-collapse:collapse;width:100%;font-size:12px;min-width:480px}
 .ts-tbl th{background:#e8edf8;color:#1a2456;font-weight:700;padding:6px 9px;border:1px solid #c8d0e8;white-space:nowrap;font-size:11px}
@@ -569,6 +572,57 @@ function saveTestCell(id,r,c,val){
   testSheetData[k][r][c]=val;
   try{localStorage.setItem(hotelKey('cpa_ts'),JSON.stringify(testSheetData));}catch(e){}
 }
+function _tsHdr(id,ts){
+  return '<div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span>'
+    +'<button id="ts-copy-btn-'+id+'" class="ts-copy-btn" onclick="copyTestSheet('+id+')">&#128203; Copy</button></div>';
+}
+function copyTestSheet(id){
+  var wrap=document.getElementById('ts-wrap-'+id);if(!wrap)return;
+  var ts=TEST_SHEETS[id];
+  var lines=['[Test Sheet: '+(ts?ts.name:id)+']',''];
+  wrap.querySelectorAll('table.ts-tbl').forEach(function(table,ti){
+    if(ti>0)lines.push('');
+    var subHdr=table.closest('.ts-tbl-wrap');
+    if(subHdr&&subHdr.previousElementSibling&&subHdr.previousElementSibling.style&&subHdr.previousElementSibling.textContent){
+      var lbl=subHdr.previousElementSibling.textContent.trim();
+      if(lbl)lines.push('--- '+lbl+' ---');
+    }
+    var headers=[];
+    table.querySelectorAll('thead th').forEach(function(th){headers.push(th.textContent.trim());});
+    var dataRows=[];
+    table.querySelectorAll('tbody tr').forEach(function(tr){
+      var row=[];
+      tr.querySelectorAll('td').forEach(function(td){
+        var inp=td.querySelector('input[type=text],textarea');
+        if(inp){row.push(inp.value.trim());}
+        else if(td.classList.contains('ts-rn')){row.push(td.textContent.trim());}
+      });
+      if(row.some(function(v){return v;}))dataRows.push(row);
+    });
+    if(!headers.length&&!dataRows.length)return;
+    var widths=headers.map(function(h,i){
+      var mx=h.length;
+      dataRows.forEach(function(r){if(r[i]&&r[i].length>mx)mx=r[i].length;});
+      return Math.max(mx,3);
+    });
+    function pad(s,w){s=String(s||'');return s+' '.repeat(Math.max(0,w-s.length));}
+    lines.push(headers.map(function(h,i){return pad(h,widths[i]);}).join(' | '));
+    lines.push(widths.map(function(w){return '-'.repeat(w);}).join('-+-'));
+    dataRows.forEach(function(r){
+      lines.push(headers.map(function(h,i){return pad(r[i]||'',widths[i]);}).join(' | '));
+    });
+  });
+  var text=lines.join('\n');
+  var btn=document.getElementById('ts-copy-btn-'+id);
+  function flash(){if(btn){btn.textContent='✓ Copied!';btn.classList.add('copied');setTimeout(function(){btn.textContent='📋 Copy';btn.classList.remove('copied');},2000);}}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(flash).catch(function(){
+      var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flash();
+    });
+  }else{
+    var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flash();
+  }
+}
 function _tsInp(id,r,c,val,ph,w){
   return '<td'+(w?' style="padding:0"':'')+'><input class="ts-inp" type="text" value="'+esc(val)+'" oninput="saveTestCell('+id+','+r+','+c+',this.value)" placeholder="'+esc(ph||'')+'"'+(w?' style="width:'+w+'px"':'')+' autocomplete="off"></td>';
 }
@@ -585,7 +639,7 @@ function mkAP6Html(id,ts){
       rows+='</tr>';
     }
   }
-  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>Vendor Selected</th><th>Accurate? (Y/N)</th><th>Approved By</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table></div></div>';
 }
@@ -607,7 +661,7 @@ function mkAP4Html(id,ts){
       rows+='</tr>';
     }
   }
-  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>Payment Date</th><th>Vendor Name</th><th>Payment Run Amount</th><th>Invoice No.</th><th>Invoice Amount</th><th>Reconciled? (Y/N)</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table></div></div>';
 }
@@ -621,7 +675,7 @@ function mkAP7Html(id,ts){
   for(var r2=0;r2<2;r2++){var d2=data[r2+2]||{};
     s2+='<tr><td class="ts-rn">'+(r2+1)+'</td>'+_tsInp(id,r2+2,0,d2[0]||'','Month')+_tsInp(id,r2+2,1,d2[1]||'','Y/N',60)+_tsInp(id,r2+2,2,d2[2]||'','Jnl No.')+_tsInp(id,r2+2,3,d2[3]||'','Accrual Amt')+_tsInp(id,r2+2,4,d2[4]||'','Reviewed By')+'</tr>';
   }
-  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>Open PO Review Performed? (Y/N)</th><th>Aged Items &gt;6m Investigated? (Y/N)</th><th>Reviewed By</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
     +'<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">Accrual Verification</div>'
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>Accrual Recognized Only If Goods Received / Not Yet Invoiced? (Y/N)</th><th>Journal No.</th><th>Accrual Amount</th><th>Reviewed By</th></tr></thead><tbody>'+s2+'</tbody></table></div></div>';
@@ -634,7 +688,7 @@ function mkAR4Html(id,ts){
   for(var r=0;r<3;r++){var d=data[r+1]||{};
     s2+='<tr><td class="ts-rn">'+(r+1)+'</td>'+_tsInp(id,r+1,0,d[0]||'','Form No.')+_tsInp(id,r+1,1,d[1]||'','Y / N',80)+'</tr>';
   }
-  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th colspan="2">Full CC Details NOT Maintained Outside PMS? (Y/N)</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
     +'<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">If Applicable — CC Auth Form Check</div>'
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>CC Auth Form No.</th><th>Full CC Details Mentioned? (Y/N)</th></tr></thead><tbody>'+s2+'</tbody></table></div></div>';
@@ -655,7 +709,7 @@ function mkITHtml(id,ts){
       +'<td style="background:#eef2fb;color:#1a2456;font-size:11px;font-weight:600;padding:4px 8px;white-space:nowrap;border:1px solid #c8d0e8">'+esc(IT_SYSTEMS[r])+'</td>'
       +tds+'</tr>';
   }
-  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>System</th>'+thCells+'</tr></thead>'
     +'<tbody>'+rows+'</tbody></table></div></div>';
 }
@@ -673,7 +727,7 @@ function mkMA3Html(id,ts){
       +_tsInp(id,r+1,4,d[4]||'','Y / N',60)
       +'</tr>';
   }
-  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>MA/BAMA FF&amp;E Terms</th></tr></thead><tbody>'+s1+'</tbody></table></div>'
     +'<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">FF&amp;E Provision Verification (2 Months)</div>'
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>Month</th><th>FF&amp;E Provision per Hotel</th><th>Calculation Correct? (Y/N)</th><th>FF&amp;E JV No.</th><th>Accounting Treatment per Guide? (Y/N)</th></tr></thead><tbody>'+s2+'</tbody></table></div></div>';
@@ -694,7 +748,7 @@ function mkTestSheetHtml(id){
     var tds=ts.cols.map(function(c,ci){return _tsInp(id,r,ci,rData[ci]||'','');}).join('');
     bodyRows+='<tr><td class="ts-rn">'+(r+1)+'</td>'+tds+'</tr>';
   }
-  return '<div class="ts-wrap"><div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span></div>'
+  return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th>'+thCells+'</tr></thead>'
     +'<tbody>'+bodyRows+'</tbody></table></div></div>';
 }
