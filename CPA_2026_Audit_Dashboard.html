@@ -1558,24 +1558,28 @@ function exportCSV(){
   if(typeof XLSX==='undefined'){alert('Excel library not loaded. Please check your internet connection and try again.');return;}
   var hotel=document.getElementById('hi-hotel').value||'Hotel';
   var date=document.getElementById('hi-date').value||new Date().toISOString().slice(0,10);
-  var data=[['No','Section','Risk','Work Step (EN)','Test Step (EN)','Work Step (KR)','Test Step (KR)','Policy Reference','Result','Sample Tested','Notes']];
+  var isKO=lang==='ko', isJA=lang==='ja';
+  var hdrs=isKO
+    ?['No','Section','Risk','Work Step (EN)','Test Step (EN)','Work Step (KR)','Test Step (KR)','Policy Reference','Result','Sample Tested','Notes']
+    :isJA
+      ?['No','Section','Risk','Work Step (EN)','Test Step (EN)','Work Step (JA)','Test Step (JA)','Policy Reference','Result','Sample Tested','Notes']
+      :['No','Section','Risk','Work Step','Test Step','Policy Reference','Result','Sample Tested','Notes'];
+  var data=[hdrs];
   auditData.forEach(function(item,idx){
-    data.push([
-      idx+1,
-      item.section,
-      item.risk,
-      item.wsEN,
-      item.tsEN,
-      item.wsKR||'',
-      item.tsKR||'',
-      item.pol,
-      results[item.id]||'',
-      samples[item.id]||'',
-      notes[item.id]||''
-    ]);
+    var row;
+    if(isKO){
+      row=[idx+1,item.section,item.risk,item.wsEN,item.tsEN,item.wsKR||'',item.tsKR||'',item.pol,results[item.id]||'',samples[item.id]||'',notes[item.id]||''];
+    }else if(isJA){
+      row=[idx+1,item.section,item.risk,item.wsEN,item.tsEN,JP_WS[item.id]||'',JP_TS[item.id]||'',item.pol,results[item.id]||'',samples[item.id]||'',notes[item.id]||''];
+    }else{
+      row=[idx+1,item.section,item.risk,item.wsEN,item.tsEN,item.pol,results[item.id]||'',samples[item.id]||'',notes[item.id]||''];
+    }
+    data.push(row);
   });
   var ws=XLSX.utils.aoa_to_sheet(data);
-  var colWidths=[{wch:4},{wch:10},{wch:6},{wch:60},{wch:60},{wch:60},{wch:60},{wch:30},{wch:8},{wch:20},{wch:40}];
+  var colWidths=(isKO||isJA)
+    ?[{wch:4},{wch:10},{wch:6},{wch:60},{wch:60},{wch:60},{wch:60},{wch:30},{wch:8},{wch:20},{wch:40}]
+    :[{wch:4},{wch:10},{wch:6},{wch:60},{wch:60},{wch:30},{wch:8},{wch:20},{wch:40}];
   ws['!cols']=colWidths;
   var wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'CPA2026');
