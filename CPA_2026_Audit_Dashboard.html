@@ -75,7 +75,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 #tab-next{border-left:1px solid #a8b4cc}
 .tab-scroll-btn:hover{background:#a0aec0;color:#fff}
 .tsb-hidden{opacity:0;pointer-events:none}
-.tab{padding:6px 8px;cursor:pointer;font-size:11.5px;font-weight:700;color:#6b7a9e;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:3px;flex-shrink:0;font-family:'Aptos Narrow','Arial Narrow',Arial,sans-serif;letter-spacing:-.1px;border-right:1px solid rgba(170,185,210,.45)}
+.tab{padding:6px 8px;cursor:pointer;font-size:14px;font-weight:700;color:#6b7a9e;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:3px;flex-shrink:0;font-family:'Aptos Narrow','Arial Narrow',Arial,sans-serif;letter-spacing:-.1px;border-right:1px solid rgba(170,185,210,.45)}
 .tab:hover{color:var(--p)}.tab.active{color:var(--p);border-bottom-color:var(--g);background:rgba(26,36,86,.08)}
 .tab.ftab{border-left:1px solid var(--bd)}
 .tn{background:#e9ecef;color:var(--mu);font-size:9px;padding:1px 4px;border-radius:8px;font-weight:700}
@@ -251,7 +251,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 .sb-lbl{font-size:11.5px;color:#333;min-width:104px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;font-weight:600}
 .sb-bar-wrap{flex:1;height:26px;border-radius:4px;overflow:hidden;display:flex;background:#e9ecef;min-width:60px}
 .sb-bar-y{background:#00b5a5;height:100%;min-width:0;transition:flex .4s}
-.sb-bar-n{background:#b0b8c1;height:100%;flex-shrink:0}
+.sb-bar-n{background:#f87171;height:100%;flex-shrink:0}
 .sb-bar-na{background:#cfd3d8;height:100%;flex-shrink:0}
 .sb-score{font-size:12px;font-weight:700;color:#1a2456;min-width:58px;text-align:right;flex-shrink:0}
 .sb-bar-prog{background:var(--p);height:100%;transition:width .4s}
@@ -2486,7 +2486,7 @@ function buildDash(){
 
   // ── Risk breakdown ──
   var legend='<div class="sb-legend">'
-    +'<span><span class="sb-ldot" style="background:#b0b8c1"></span>No</span>'
+    +'<span><span class="sb-ldot" style="background:#f87171"></span>No</span>'
     +'<span><span class="sb-ldot" style="background:#cfd3d8"></span>N/A</span>'
     +'<span><span class="sb-ldot" style="background:#00b5a5"></span>Yes</span>'
     +'</div>';
@@ -2549,7 +2549,7 @@ function buildDash(){
       +'</div>'
       +'<div class="sb-score">'+sy+'/'+sappl+'</div>'
       +'</div>';
-    var bw=maxCnt>0?(secCounts[idx]/maxCnt*100).toFixed(1):0;
+    var bw=st>0?(secCounts[idx]/st*100).toFixed(1):0;
     progRowsHtml+='<div class="sb-row">'
       +'<div class="sb-lbl">'+slink+'</div>'
       +'<div style="flex:1;height:24px;background:#e9ecef;border-radius:4px;overflow:hidden">'
@@ -2619,10 +2619,18 @@ function buildDash(){
     // Overall Completion header
     +'<div class="sb-comp-hdr">'
     +'<div class="sb-comp-title">'+compL+'</div>'
-    +'<div class="sb-comp-pct">'+compPct+'%</div>'
     +'<div class="sb-comp-sub">'+done+' / '+total+' '+answL
     +' &nbsp;·&nbsp; Yes '+yc+' &nbsp;·&nbsp; No '+nc+' &nbsp;·&nbsp; N/A '+ac+' &nbsp;·&nbsp; <span style="color:#7c3aed;font-weight:700">Hold '+hc+'</span> &nbsp;·&nbsp; '+pendL+' '+pend
     +'</div>'
+    +'<div class="sb-big-bar-wrap" style="position:relative;margin-top:10px">'
+    +(nc>0?'<div class="sb-bar-n" style="flex:'+nc+'"></div>':'')
+    +(ac>0?'<div class="sb-bar-na" style="flex:'+ac+'"></div>':'')
+    +(hc>0?'<div style="flex:'+hc+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
+    +(yc>0?'<div class="sb-bar-y" style="flex:'+yc+'"></div>':'')
+    +(pend>0?'<div style="flex:'+pend+'"></div>':'')
+    +(total>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:18px;font-weight:800;color:#1a2456;pointer-events:none;white-space:nowrap">'+compPct+'%</span>':'')
+    +'</div>'
+    +'<div style="text-align:right;font-size:12px;font-weight:700;color:#1a2456;margin-top:6px">'+done+' / '+total+' <span style="color:var(--mu);font-weight:400;font-size:11px">'+answL+'</span></div>'
     +'</div>'
     // 2×2 grid
     +'<div class="sb-grid">'
