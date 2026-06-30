@@ -203,13 +203,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
   .sb-grid{grid-template-columns:1fr}
   .sb-lbl{min-width:80px}
   .sb-comp-pct{font-size:28px}
-  .val-wrap{padding:8px 4px}
-  .val-item{padding:12px 10px}
-  .val-item-hdr{padding:8px 10px;gap:6px}
-  .val-item-desc{min-width:0;width:100%}
-  .val-item-btns{width:100%;justify-content:flex-end;margin-top:4px}
-  .val-note-row{flex-direction:column}
-  .val-note-row .ig-samp,.val-note-row .ig-note{min-width:100%;flex:none}
 }
 /* ── OVERVIEW DASHBOARD ── */
 #db{display:none;flex:1;min-height:0;overflow-y:auto;padding:18px 22px;background:var(--bg);flex-direction:column;gap:14px}
@@ -347,6 +340,16 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
   .prep-type-btn{font-size:8px;padding:1px 3px;border-radius:6px}
   .prep-txt{font-size:11px}
   .prep-num{min-width:14px;font-size:10px}
+  .val-wrap{padding:8px 4px}
+  .val-sec-card{margin-bottom:10px}
+  .val-item{padding:12px 10px}
+  .val-item-hdr{padding:8px 10px;gap:6px}
+  .val-item-num{min-width:28px}
+  .val-item-desc{min-width:0;width:100%;-webkit-line-clamp:2}
+  .val-item-btns{width:100%;justify-content:flex-end;margin-top:4px}
+  .val-note-row{flex-direction:column}
+  .val-note-row .ig-samp,.val-note-row .ig-note{min-width:100%!important;flex:none}
+  .val-rb{padding:5px 12px;font-size:11px}
 }
 .cat-tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;vertical-align:middle;margin-left:4px}
 .cat-cpa{background:#e8edf8;color:#1a2456}
@@ -2460,8 +2463,9 @@ function buildDash(){
   var ac=getAuditData().filter(function(i){return results[i.id]==='na';}).length;
   var done=yc+nc+ac;
   var pend=total-done;
+  var applicable=yc+nc;
   var compPct=total?Math.round(done/total*100):0;
-  var yesPct=done>0?(yc/done*100).toFixed(2):'—';
+  var yesPct=applicable>0?(yc/applicable*100).toFixed(2):'—';
 
   // ── Risk breakdown ──
   var legend='<div class="sb-legend">'
@@ -2478,16 +2482,17 @@ function buildDash(){
     var ra=ri.filter(function(i){return results[i.id]==='na';}).length;
     var rt=ri.length;
     var rd=ry+rn+ra;
-    var ryp=rd>0?(ry/rd*100).toFixed(2):'—';
+    var rappl=ry+rn;
+    var ryp=rappl>0?(ry/rappl*100).toFixed(2):'—';
     riskRowsHtml+='<div class="sb-row">'
-      +'<div class="sb-lbl">'+esc(r)+'</div>'
+      +'<div class="sb-lbl">'+esc(r)+'<span style="font-size:10px;color:var(--mu);font-weight:400;margin-left:3px">('+rt+')</span></div>'
       +'<div class="sb-bar-wrap">'
       +(rn>0?'<div class="sb-bar-n" style="flex:'+rn+'"></div>':'')
       +(ra>0?'<div class="sb-bar-na" style="flex:'+ra+'"></div>':'')
       +(ry>0?'<div class="sb-bar-y" style="flex:'+ry+'"></div>':'')
       +((rt-rd)>0?'<div style="flex:'+(rt-rd)+'"></div>':'')
       +'</div>'
-      +'<div class="sb-score">'+(rd>0?ryp+'%':'—')+'</div>'
+      +'<div class="sb-score"><span style="font-size:10px;font-weight:500;color:var(--mu);display:block">'+ry+'/'+rappl+'</span>'+(rappl>0?ryp+'%':'—')+'</div>'
       +'</div>';
   });
 
@@ -2507,7 +2512,8 @@ function buildDash(){
     var sa=si.filter(function(i){return results[i.id]==='na';}).length;
     var st=si.length;
     var sd=sy+sn+sa;
-    var syp=sd>0?(sy/sd*100).toFixed(2):'—';
+    var sappl=sy+sn;
+    var syp=sappl>0?(sy/sappl*100).toFixed(2):'—';
     var slink='<span style="cursor:pointer;color:var(--p);text-decoration:underline;font-size:11.5px;font-weight:600" onclick="selSec(\''+s.replace(/'/g,"\\'")+'\')">'
       +esc(s)+'</span>';
     procRowsHtml+='<div class="sb-row">'
@@ -2518,7 +2524,7 @@ function buildDash(){
       +(sy>0?'<div class="sb-bar-y" style="flex:'+sy+'"></div>':'')
       +((st-sd)>0?'<div style="flex:'+(st-sd)+'"></div>':'')
       +'</div>'
-      +'<div class="sb-score">'+(sd>0?syp+'%':'—')+'</div>'
+      +'<div class="sb-score"><span style="font-size:10px;font-weight:500;color:var(--mu);display:block">'+sy+'/'+sappl+'</span>'+(sappl>0?syp+'%':'—')+'</div>'
       +'</div>';
     var bw=maxCnt>0?(secCounts[idx]/maxCnt*100).toFixed(1):0;
     progRowsHtml+='<div class="sb-row">'
@@ -2526,7 +2532,7 @@ function buildDash(){
       +'<div style="flex:1;height:24px;background:#e9ecef;border-radius:4px;overflow:hidden">'
       +'<div class="sb-bar-prog" style="width:'+bw+'%"></div>'
       +'</div>'
-      +'<div class="sb-cnt">'+secCounts[idx]+'</div>'
+      +'<div class="sb-cnt">'+secCounts[idx]+'/'+st+'</div>'
       +'</div>';
   });
 
@@ -2537,8 +2543,11 @@ function buildDash(){
     +(yc>0?'<div class="sb-bar-y" style="flex:'+yc+'"></div>':'')
     +(pend>0?'<div style="flex:'+pend+'"></div>':'')
     +'</div>'
-    +'<div style="text-align:right;font-size:22px;font-weight:800;color:#00b5a5;margin-top:6px">'+yesPct+(yesPct!=='—'?'%':'')+'</div>'
-    +'<div style="font-size:10px;color:var(--mu);text-align:right;margin-top:2px">Yes rate of answered items</div>';
+    +'<div style="display:flex;align-items:baseline;justify-content:flex-end;gap:8px;margin-top:6px">'
+    +'<span style="font-size:13px;font-weight:600;color:#1a2456">'+yc+' / '+applicable+'</span>'
+    +'<span style="font-size:22px;font-weight:800;color:#00b5a5">'+yesPct+(yesPct!=='—'?'%':'')+'</span>'
+    +'</div>'
+    +'<div style="font-size:10px;color:var(--mu);text-align:right;margin-top:2px">Yes / Applicable (excl. N/A)</div>';
 
   // ── BS Guide ──
   var bsTotal=typeof bsData!=='undefined'?bsData.length:0;
