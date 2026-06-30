@@ -680,6 +680,33 @@ function saveTestCell(id,r,c,val){
   testSheetData[k][r][c]=val;
   try{localStorage.setItem(hotelKey('cpa_ts'),JSON.stringify(testSheetData));}catch(e){}
 }
+document.addEventListener('paste',function(e){
+  var inp=e.target;
+  if(!inp.classList||!inp.classList.contains('ts-inp'))return;
+  var text=(e.clipboardData||window.clipboardData).getData('text');
+  var rows=text.split(/\r?\n/);
+  if(rows[rows.length-1]==='')rows.pop();
+  if(rows.length===1&&rows[0].indexOf('\t')===-1)return;
+  e.preventDefault();
+  var grid=rows.map(function(r){return r.split('\t');});
+  var m=inp.getAttribute('oninput').match(/saveTestCell\((\d+),(\d+),(\d+),/);
+  if(!m)return;
+  var itemId=parseInt(m[1]),startR=parseInt(m[2]),startC=parseInt(m[3]);
+  var wrap=document.getElementById('ts-wrap-'+itemId);
+  if(!wrap)return;
+  var cellMap={};
+  wrap.querySelectorAll('input.ts-inp').forEach(function(el){
+    var cm=el.getAttribute('oninput').match(/saveTestCell\((\d+),(\d+),(\d+),/);
+    if(cm)cellMap[cm[2]+','+cm[3]]=el;
+  });
+  grid.forEach(function(pr,ri){
+    pr.forEach(function(val,ci){
+      var key=(startR+ri)+','+(startC+ci);
+      var t=cellMap[key];
+      if(t){t.value=val;saveTestCell(itemId,startR+ri,startC+ci,val);}
+    });
+  });
+});
 function _tsHdr(id,ts,showCopy){
   return '<div class="ts-hdr">Test Sheet <span class="ts-badge">'+esc(ts.name)+'</span>'
     +(showCopy===false?'':'<button id="ts-copy-btn-'+id+'" class="ts-copy-btn" onclick="copyTestSheet('+id+')">&#128203; Copy</button>')+'</div>';
