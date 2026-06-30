@@ -1727,38 +1727,39 @@ function _mkSecChips(containerId, secsAvail, allLabel){
 }
 var _getExportSecs=null;
 function exportJSON(){
-  _getExportSecs=_mkSecChips('export-sec-list',getAuditSecs());
+  _getExportSecs=_mkSecChips('export-sec-list',['PREP'].concat(getAuditSecs()));
   document.getElementById('export-modal').style.display='flex';
 }
 function doExport(){
   var hotel=document.getElementById('hi-hotel').value||currentHotel||'Hotel';
   var auditor=document.getElementById('hi-auditor').value||'';
   var date=new Date().toISOString().slice(0,10);
-  var selSecs=_getExportSecs?_getExportSecs():getAuditSecs();
-  var inclAudit=document.getElementById('exp-chk-audit').checked;
-  var inclPrep=document.getElementById('exp-chk-prep').checked;
-  var inclTS=document.getElementById('exp-chk-ts').checked;
-  var ids=_secItemIds(selSecs);
-  var allData=JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}');
+  var selPages=_getExportSecs?_getExportSecs():['PREP'].concat(getAuditSecs());
+  var inclPrep=selPages.indexOf('PREP')>-1;
+  var selSecs=selPages.filter(function(p){return p!=='PREP';});
   var d={hotelName:hotel,auditorName:auditor,exportedAt:date,sections:selSecs};
-  if(inclAudit){
+  if(selSecs.length>0){
+    var ids=_secItemIds(selSecs);
+    var allData=JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}');
     var ad={};
     ['results','notes','samples','tstamps'].forEach(function(k){ad[k]=_filterByIds(allData[k]||{},ids);});
     var bsInSel=selSecs.indexOf('Balance Sheet')>-1;
     if(bsInSel){ad.bsResults=allData.bsResults||{};ad.bsChecks=allData.bsChecks||{};ad.bsNotes=allData.bsNotes||{};}
     d.data=ad;
+    d.testSheets=_filterByIds(JSON.parse(localStorage.getItem(hotelKey('cpa_ts'))||'{}'),ids);
   }
   if(inclPrep){
-    d.prep=_filterByIds(JSON.parse(localStorage.getItem(hotelKey('cpa_prep'))||'{}'),ids);
-    d.prepTypes=_filterByIds(JSON.parse(localStorage.getItem(hotelKey('cpa_prep_types'))||'{}'),ids);
-    d.prepRemarks=_filterByIds(JSON.parse(localStorage.getItem(hotelKey('cpa_prep_remarks'))||'{}'),ids);
+    var allIds=_secItemIds(getAuditSecs());
+    d.prep=_filterByIds(JSON.parse(localStorage.getItem(hotelKey('cpa_prep'))||'{}'),allIds);
+    d.prepTypes=_filterByIds(JSON.parse(localStorage.getItem(hotelKey('cpa_prep_types'))||'{}'),allIds);
+    d.prepRemarks=_filterByIds(JSON.parse(localStorage.getItem(hotelKey('cpa_prep_remarks'))||'{}'),allIds);
     d.genPrep=JSON.parse(localStorage.getItem(hotelKey('cpa_gen_prep'))||'{}');
   }
-  if(inclTS) d.testSheets=_filterByIds(JSON.parse(localStorage.getItem(hotelKey('cpa_ts'))||'{}'),ids);
   var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');a.href=url;
-  var secTag=selSecs.length===getAuditSecs().length?'ALL':selSecs.join('-').replace(/\s+/g,'');
+  var allSelected=inclPrep&&selSecs.length===getAuditSecs().length;
+  var secTag=allSelected?'ALL':selPages.join('-').replace(/\s+/g,'');
   var fn='CPA_2026_'+hotel.replace(/\s+/g,'_')+'_'+secTag+'_'+date+'.json';
   a.download=fn;a.click();URL.revokeObjectURL(url);
   document.getElementById('export-modal').style.display='none';
@@ -3543,15 +3544,9 @@ window.addEventListener('beforeunload',function(e){
 <div id="export-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:14px;padding:28px;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.25)">
     <div style="font-size:16px;font-weight:800;color:#1a2456;margin-bottom:4px">&#8679; Export Data</div>
-    <div style="font-size:12px;color:#6c757d;margin-bottom:16px">Select sections and data types to include in the export file.</div>
-    <div style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Sections</div>
-    <div id="export-sec-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px"></div>
-    <div style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Data Types</div>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px">
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="exp-chk-audit" checked> Audit Results &amp; Notes</label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="exp-chk-prep" checked> Prep Checklist</label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="exp-chk-ts" checked> Test Sheets</label>
-    </div>
+    <div style="font-size:12px;color:#6c757d;margin-bottom:16px">Select pages to include in the export file. Each page exports all its data.</div>
+    <div style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pages</div>
+    <div id="export-sec-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button onclick="document.getElementById('export-modal').style.display='none'" style="padding:8px 18px;border:1px solid #dee2e6;border-radius:7px;background:#f8f9fa;color:#495057;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
       <button onclick="doExport()" style="padding:8px 20px;border:none;border-radius:7px;background:#1a2456;color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#8679; Export JSON</button>
