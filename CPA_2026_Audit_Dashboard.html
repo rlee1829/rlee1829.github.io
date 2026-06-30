@@ -867,14 +867,20 @@ function mkITHtml(id,ts){
   };
   var cfg=cfgs[ts.itType];var k=String(id);var data=testSheetData[k]||{};
   var systems=currentServiceType==='focused'?FOCUSED_IT_SYSTEMS:IT_SYSTEMS;
-  var thCells=cfg.cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('');
+  var N=systems.length;
+  var otherCols=cfg.cols.slice(1);
+  var thCells='<th>Quarter</th>'+otherCols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('');
   var rows='';
-  for(var r=0;r<systems.length;r++){
+  for(var r=0;r<N;r++){
     var rData=data[r]||{};
-    var tds=cfg.cols.map(function(c,ci){return _tsInp(id,r,ci,rData[ci]||'','');}).join('');
-    rows+='<tr><td class="ts-rn">'+(r+1)+'</td>'
-      +'<td style="background:#eef2fb;color:#1a2456;font-size:11px;font-weight:600;padding:4px 8px;white-space:nowrap;border:1px solid #c8d0e8">'+esc(systems[r])+'</td>'
-      +tds+'</tr>';
+    var sysCell='<td style="background:#eef2fb;color:#1a2456;font-size:11px;font-weight:600;padding:4px 8px;white-space:nowrap;border:1px solid #c8d0e8">'+esc(systems[r])+'</td>';
+    var otherTds=otherCols.map(function(c,ci){return _tsInp(id,r,ci+1,rData[ci+1]||'','');}).join('');
+    if(r===0){
+      var qCell='<td rowspan="'+N+'" style="padding:0;vertical-align:middle"><input class="ts-inp" type="text" value="'+esc((data[0]||{})[0]||'')+'" oninput="saveTestCell('+id+',0,0,this.value)" placeholder="e.g. Q1" autocomplete="off" style="text-align:center;font-weight:700"></td>';
+      rows+='<tr><td class="ts-rn">1</td>'+sysCell+qCell+otherTds+'</tr>';
+    }else{
+      rows+='<tr><td class="ts-rn">'+(r+1)+'</td>'+sysCell+otherTds+'</tr>';
+    }
   }
   return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th><th>System</th>'+thCells+'</tr></thead>'
@@ -1777,26 +1783,34 @@ function _mkSecChips(containerId, secsAvail, allLabel){
 }
 var _getExportSecs=null;
 function exportJSON(){
-  _getExportSecs=_mkSecChips('export-sec-list',['PREP'].concat(getAuditSecs()));
+  _getExportSecs=_mkSecChips('export-sec-list',['PREP','BS Guide'].concat(getAuditSecs()));
   document.getElementById('export-modal').style.display='flex';
 }
 function doExport(){
   var hotel=document.getElementById('hi-hotel').value||currentHotel||'Hotel';
   var auditor=document.getElementById('hi-auditor').value||'';
   var date=new Date().toISOString().slice(0,10);
-  var selPages=_getExportSecs?_getExportSecs():['PREP'].concat(getAuditSecs());
+  var selPages=_getExportSecs?_getExportSecs():['PREP','BS Guide'].concat(getAuditSecs());
   var inclPrep=selPages.indexOf('PREP')>-1;
-  var selSecs=selPages.filter(function(p){return p!=='PREP';});
+  var inclBSGuide=selPages.indexOf('BS Guide')>-1;
+  var selSecs=selPages.filter(function(p){return p!=='PREP'&&p!=='BS Guide';});
   var d={hotelName:hotel,auditorName:auditor,exportedAt:date,sections:selSecs};
-  if(selSecs.length>0){
-    var ids=_secItemIds(selSecs);
+  if(selSecs.length>0||inclBSGuide){
     var allData=JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}');
-    var ad={};
-    ['results','notes','samples','tstamps'].forEach(function(k){ad[k]=_filterByIds(allData[k]||{},ids);});
-    var bsInSel=selSecs.indexOf('Balance Sheet')>-1;
-    if(bsInSel){ad.bsResults=allData.bsResults||{};ad.bsChecks=allData.bsChecks||{};ad.bsNotes=allData.bsNotes||{};}
-    d.data=ad;
-    d.testSheets=_filterByIds(JSON.parse(localStorage.getItem(hotelKey('cpa_ts'))||'{}'),ids);
+    if(selSecs.length>0){
+      var ids=_secItemIds(selSecs);
+      var ad={};
+      ['results','notes','samples','tstamps'].forEach(function(k){ad[k]=_filterByIds(allData[k]||{},ids);});
+      var bsInSel=selSecs.indexOf('Balance Sheet')>-1;
+      if(bsInSel){ad.bsResults=allData.bsResults||{};ad.bsChecks=allData.bsChecks||{};ad.bsNotes=allData.bsNotes||{};}
+      d.data=ad;
+      d.testSheets=_filterByIds(JSON.parse(localStorage.getItem(hotelKey('cpa_ts'))||'{}'),ids);
+    }
+    if(inclBSGuide){
+      d.bsResults=allData.bsResults||{};
+      d.bsChecks=allData.bsChecks||{};
+      d.bsNotes=allData.bsNotes||{};
+    }
   }
   if(inclPrep){
     var allIds=_secItemIds(getAuditSecs());
@@ -1808,7 +1822,7 @@ function doExport(){
   var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');a.href=url;
-  var allSelected=inclPrep&&selSecs.length===getAuditSecs().length;
+  var allSelected=inclPrep&&inclBSGuide&&selSecs.length===getAuditSecs().length;
   var secTag=allSelected?'ALL':selPages.join('-').replace(/\s+/g,'');
   var fn='CPA_2026_'+hotel.replace(/\s+/g,'_')+'_'+secTag+'_'+date+'.json';
   a.download=fn;a.click();URL.revokeObjectURL(url);
@@ -1838,10 +1852,12 @@ function handleImport(e){
           ||(sec==='Balance Sheet'&&(fileData.bsResults||fileData.bsChecks));
       });
       if(!detectedSecs.length) detectedSecs=fileSecs;
+      var extraImpPages=[];
+      if(d.bsResults||d.bsChecks||d.bsNotes)extraImpPages.push('BS Guide');
       _importData=d;
       var info=document.getElementById('imp-file-info');
       info.textContent=(d.hotelName||'—')+(d.auditorName?' · '+d.auditorName:'')+(d.exportedAt?' · '+d.exportedAt:'');
-      _getImportSecs=_mkSecChips('import-sec-list',detectedSecs);
+      _getImportSecs=_mkSecChips('import-sec-list',extraImpPages.concat(detectedSecs));
       document.getElementById('import-modal').style.display='flex';
     }catch(err){
       alert('파일을 읽을 수 없습니다. 올바른 JSON 파일인지 확인해 주세요.');
@@ -1852,7 +1868,9 @@ function handleImport(e){
 }
 function doImport(){
   var d=_importData;if(!d)return;
-  var selSecs=_getImportSecs?_getImportSecs():getAuditSecs();
+  var selPages=_getImportSecs?_getImportSecs():getAuditSecs();
+  var inclBSGuide=selPages.indexOf('BS Guide')>-1;
+  var selSecs=selPages.filter(function(p){return p!=='BS Guide';});
   var ids=_secItemIds(selSecs);
   var mode=document.querySelector('input[name="imp-mode"]:checked').value;
   var merge=mode==='merge';
@@ -1862,15 +1880,22 @@ function doImport(){
     _mergeObjs(existing,_filterByIds(srcObj,ids));
     localStorage.setItem(hotelKey(lsKey),JSON.stringify(existing));
   }
-  if(d.data){
+  if(d.data||inclBSGuide){
     var existing=merge?JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}'):{};
-    ['results','notes','samples','tstamps'].forEach(function(k){
-      _mergeObjs(existing[k]||(existing[k]={}),_filterByIds(d.data[k]||{},ids));
-    });
-    if(selSecs.indexOf('Balance Sheet')>-1){
-      if(d.data.bsResults)Object.assign(existing.bsResults||(existing.bsResults={}),d.data.bsResults);
-      if(d.data.bsChecks)Object.assign(existing.bsChecks||(existing.bsChecks={}),d.data.bsChecks);
-      if(d.data.bsNotes)Object.assign(existing.bsNotes||(existing.bsNotes={}),d.data.bsNotes);
+    if(d.data){
+      ['results','notes','samples','tstamps'].forEach(function(k){
+        _mergeObjs(existing[k]||(existing[k]={}),_filterByIds(d.data[k]||{},ids));
+      });
+      if(selSecs.indexOf('Balance Sheet')>-1){
+        if(d.data.bsResults)Object.assign(existing.bsResults||(existing.bsResults={}),d.data.bsResults);
+        if(d.data.bsChecks)Object.assign(existing.bsChecks||(existing.bsChecks={}),d.data.bsChecks);
+        if(d.data.bsNotes)Object.assign(existing.bsNotes||(existing.bsNotes={}),d.data.bsNotes);
+      }
+    }
+    if(inclBSGuide){
+      if(d.bsResults)Object.assign(existing.bsResults||(existing.bsResults={}),d.bsResults);
+      if(d.bsChecks)Object.assign(existing.bsChecks||(existing.bsChecks={}),d.bsChecks);
+      if(d.bsNotes)Object.assign(existing.bsNotes||(existing.bsNotes={}),d.bsNotes);
     }
     localStorage.setItem(hotelKey('cpa2026v2'),JSON.stringify(existing));
   }
@@ -1887,7 +1912,7 @@ function doImport(){
   loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();
   updPrg();selDash();
   document.getElementById('import-modal').style.display='none';
-  alert('완료! / Done! ('+mode+': '+selSecs.join(', ')+')');
+  alert('완료! / Done! ('+mode+': '+selPages.join(', ')+')');
 }
 function exportCSV(){
   if(typeof XLSX==='undefined'){alert('Excel library not loaded. Please check your internet connection and try again.');return;}
