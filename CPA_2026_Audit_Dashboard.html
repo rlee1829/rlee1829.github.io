@@ -203,6 +203,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
   .sb-grid{grid-template-columns:1fr}
   .sb-lbl{min-width:80px}
   .sb-comp-pct{font-size:28px}
+  .val-wrap{padding:8px 4px}
+  .val-item{padding:12px 10px}
+  .val-item-hdr{padding:8px 10px;gap:6px}
+  .val-item-desc{min-width:0;width:100%}
+  .val-item-btns{width:100%;justify-content:flex-end;margin-top:4px}
+  .val-note-row{flex-direction:column}
+  .val-note-row .ig-samp,.val-note-row .ig-note{min-width:100%;flex:none}
 }
 /* ── OVERVIEW DASHBOARD ── */
 #db{display:none;flex:1;min-height:0;overflow-y:auto;padding:18px 22px;background:var(--bg);flex-direction:column;gap:14px}
@@ -313,7 +320,7 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .val-item:first-child{border-top:none}
 .val-item-hdr{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#eef1f9;border-radius:7px;margin-bottom:12px;flex-wrap:wrap;border-left:4px solid var(--p)}
 .val-item-num{font-size:13px;font-weight:800;color:var(--p);min-width:34px;flex-shrink:0;padding-top:1px}
-.val-item-desc{font-size:13px;font-weight:700;color:var(--tx);flex:1;line-height:1.55;min-width:120px}
+.val-item-desc{font-size:13px;font-weight:700;color:var(--tx);flex:1;line-height:1.55;min-width:120px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .val-item-btns{display:flex;gap:5px;flex-shrink:0;padding-top:1px}
 .val-rb{padding:5px 15px;border-radius:5px;font-size:12px;font-weight:800;cursor:pointer;border:1px solid #ced4da;background:#f0f1f3;color:#6c757d;transition:all .15s}
 .val-rb:hover{filter:brightness(.94)}
@@ -2760,7 +2767,7 @@ function buildValidation(){
       var samp=samples[item.id]||'';
       var wsT=lang==='ko'?item.wsKR:(lang==='ja'?(getJPWS()[item.id]||item.wsEN):item.wsEN);
       var brief=wsT.split('\n')[0];
-      if(brief.length>120)brief=brief.substring(0,120)+'…';
+      if(brief.length>200)brief=brief.substring(0,200)+'…';
       var qid=typeof item.id==='string'?"'"+item.id+"'":item.id;
       var tsHtml=mkTestSheetHtml(item.id);
       html+='<div class="val-item">'
