@@ -278,27 +278,26 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .bsnotes-sub{font-size:10px;color:var(--mu);margin-bottom:5px}
 .bsnotes-note{font-size:12px;color:var(--tx);line-height:1.6;white-space:pre-wrap;background:#f8f9fa;border-radius:4px;padding:7px 10px;border:1px solid #eee}
 .bsnotes-empty{text-align:center;color:var(--mu);padding:40px 20px;font-size:13px}
-.abh-wrap{padding:16px 20px;max-width:980px;margin:0 auto}
-.abh-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.abh-title{font-size:15px;font-weight:700;color:var(--tx);flex:1}
-.abh-sec-card{border:1px solid var(--bd);border-radius:7px;margin-bottom:10px;overflow:hidden}
-.abh-sec-hdr{background:var(--p);color:#fff;padding:7px 14px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px}
-.abh-item{display:flex;align-items:center;padding:7px 14px;border-bottom:1px solid #f0f2f5;gap:10px}
-.abh-item:last-child{border-bottom:none}
-.abh-item-empty{opacity:.45}
-.abh-num{font-size:11px;font-weight:700;color:var(--mu);min-width:28px;flex-shrink:0}
-.abh-txt{font-size:12px;color:var(--tx);flex:1;line-height:1.4;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.abh-val{font-size:9px;padding:1px 5px;background:#fff3cd;color:#856404;border-radius:2px;font-weight:700;flex-shrink:0}
-.abh-res{padding:4px 13px;border-radius:4px;font-size:12px;font-weight:800;flex-shrink:0;min-width:48px;text-align:center}
-.abh-y{background:#d4edda;color:#155724}
-.abh-n{background:#f8d7da;color:#721c24}
-.abh-na{background:#e2e3e5;color:#383d41}
-.abh-p{background:#f0f2f5;color:#adb5bd}
-.abh-notes-box{display:flex;align-items:center;gap:6px;flex-shrink:0;min-width:200px;max-width:300px}
-.abh-notes-preview{font-size:10px;color:var(--mu);flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.abh-copy-btn{padding:3px 10px;border:1px solid #6f42c1;border-radius:4px;background:#fff;color:#6f42c1;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
-.abh-copy-btn:hover{background:#6f42c1;color:#fff}
-.abh-copy-btn.abh-copied{background:#198754;color:#fff;border-color:#198754}
+.val-wrap{padding:16px 20px;max-width:980px;margin:0 auto}
+.val-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.val-title{font-size:15px;font-weight:700;color:var(--tx);flex:1}
+.val-sec-card{border:1px solid var(--bd);border-radius:7px;margin-bottom:10px;overflow:hidden}
+.val-sec-hdr{background:var(--p);color:#fff;padding:7px 14px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px}
+.val-item{padding:12px 14px;border-bottom:1px solid #f0f2f5}
+.val-item:last-child{border-bottom:none}
+.val-item-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.val-item-num{font-size:11px;font-weight:700;color:var(--mu);min-width:28px;flex-shrink:0}
+.val-item-desc{font-size:12px;color:var(--tx);flex:1;line-height:1.4;min-width:120px}
+.val-item-btns{display:flex;gap:4px;flex-shrink:0}
+.val-rb{padding:3px 12px;border-radius:4px;font-size:11px;font-weight:800;cursor:pointer;border:1px solid #dee2e6;background:#f8f9fa;color:#495057;transition:all .15s}
+.val-rb.vy{background:#d4edda;color:#155724;border-color:#c3e6cb}
+.val-rb.vn{background:#f8d7da;color:#721c24;border-color:#f5c6cb}
+.val-rb.vna{background:#e2e3e5;color:#383d41;border-color:#d3d3d3}
+.val-note-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.val-note-row label{font-size:10px;font-weight:700;color:#6c757d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;display:block}
+.val-note-row .ig-samp{flex:1;min-width:160px}
+.val-note-row .ig-note{flex:2;min-width:200px}
+.val-note-row input,.val-note-row textarea{width:100%;box-sizing:border-box;border:1px solid #dee2e6;border-radius:4px;padding:5px 8px;font-size:12px;resize:vertical;font-family:inherit}
 .prep-item.ck .prep-txt{text-decoration:line-through;color:#aaa}
 .prep-print-hdr{display:none}
 #print-hdr{display:none}
@@ -1138,10 +1137,11 @@ function buildNav(){
   html+='<div class="tab'+bsnc+'" onclick="selBSNotes()" style="color:#0369a1;background:#e0f2fe;border-top:2px solid #7dd3fc">BS Notes'
     +(bsNotesCnt?'<span class="tn" style="background:#bae6fd;color:#0369a1">'+bsNotesCnt+'</span>':'')
     +'</div>';
-  var abhc=(viewMode==='abhelper')?' active ftab':' ftab';
-  var abhResp=getAuditData().filter(function(i){return results[i.id];}).length;
-  html+='<div class="tab'+abhc+'" onclick="selABHelper()" style="color:#6f42c1">&#9195; AB Upload'
-    +'<span class="tn" style="background:#ede7f6;color:#6f42c1">'+abhResp+'/'+getAuditData().length+'</span>'
+  var valc=(viewMode==='validation')?' active ftab':' ftab';
+  var valItems=getAuditData().filter(function(i){return getValIds().has(i.id);});
+  var valDone=valItems.filter(function(i){return results[i.id];}).length;
+  html+='<div class="tab'+valc+'" onclick="selValidation()" style="color:#856404;background:#fff8e1;border-top:2px solid #ffc107">&#10003; Validation'
+    +'<span class="tn" style="background:#fff3cd;color:#856404">'+valDone+'/'+valItems.length+'</span>'
     +'</div>';
   document.getElementById('tabs').innerHTML=html;
   updTabBtns();
@@ -1186,7 +1186,7 @@ function updPrg(){
 
 function buildLP(){
   if(viewMode==='bsguide'){buildBSLP();return;}
-  if(viewMode==='abhelper'||viewMode==='bsnotes'){return;}
+  if(viewMode==='validation'||viewMode==='bsnotes'){return;}
   var items=getItems();
   var html='';
   if(viewMode==='findings'){
@@ -1250,7 +1250,7 @@ function selItem(id){
 
 function buildRP(){
   if(viewMode==='bsguide'){buildBSRP();return;}
-  if(viewMode==='bsnotes'||viewMode==='abhelper'){return;}
+  if(viewMode==='bsnotes'||viewMode==='validation'){return;}
   var rp=document.getElementById('rp');
   if(!curId){
     rp.innerHTML='<div class="empty"><div class="empty-icon">&#128203;</div><div class="empty-tx">Select an item</div></div>';
@@ -1602,7 +1602,9 @@ function setRes(id,val){
       tstamps[id]=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
     }
   }
-  save(); updPrg(); buildNav(); buildLP(); buildRP();
+  save(); updPrg(); buildNav();
+  if(viewMode==='validation'){buildValidation();return;}
+  buildLP(); buildRP();
   if(viewMode==='bsguide'){buildBSLP();buildBSRP();}
 }
 
@@ -2675,12 +2677,12 @@ function buildBSNotes(){
   db.innerHTML=html;
 }
 
-function selABHelper(){
-  viewMode='abhelper';
+function selValidation(){
+  viewMode='validation';
   document.getElementById('app').classList.add('dash-mode');
   document.body.classList.add('dash-scroll');
   buildNav();
-  buildABHelper();
+  buildValidation();
   setTimeout(function(){
     var hdrH=document.getElementById('hdr').offsetHeight;
     var prgH=document.getElementById('prg').offsetHeight;
@@ -2689,72 +2691,55 @@ function selABHelper(){
   },0);
 }
 
-function copyABNote(btn,txt){
-  var doFallback=function(){
-    var ta=document.createElement('textarea');
-    ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
-    document.body.appendChild(ta);ta.select();
-    try{document.execCommand('copy');}catch(e){}
-    document.body.removeChild(ta);
-  };
-  var ok=function(){
-    btn.textContent='✓ Copied!';btn.classList.add('abh-copied');
-    setTimeout(function(){btn.textContent='📋 Copy Notes';btn.classList.remove('abh-copied');},1500);
-  };
-  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(ok).catch(function(){doFallback();ok();});}
-  else{doFallback();ok();}
-}
-
-function buildABHelper(){
+function buildValidation(){
   var db=document.getElementById('db');
   if(!db)return;
   var hotelVal=document.getElementById('hi-hotel').value||'';
   var periodVal=document.getElementById('hi-period').value||'';
-  var resp=getAuditData().filter(function(i){return results[i.id];}).length;
-  var total=getAuditData().length;
-  var lk=lang==='ko'?'ko':lang==='ja'?'ja':'en';
-  var html='<div class="abh-wrap">'
-    +'<div class="abh-top">'
-    +'<div class="abh-title">&#9195; AuditBoard Upload Helper'+(hotelVal?' — '+esc(hotelVal):'')+(periodVal?' ('+esc(periodVal)+')':'')+'</div>'
-    +'<span style="font-size:12px;color:var(--mu)">'+resp+' / '+total+' responded</span>'
-    +'<div style="font-size:11px;color:var(--mu);background:#ede7f6;border-radius:5px;padding:4px 10px">'
-    +'<b style="color:#6f42c1">VAL</b> items → copy Testing Notes &nbsp;|&nbsp; Others → check Result only'
-    +'</div>'
+  var valItems=getAuditData().filter(function(i){return getValIds().has(i.id);});
+  var valDone=valItems.filter(function(i){return results[i.id];}).length;
+  var sampL=lang==='ko'?'샘플 크기':(lang==='ja'?'サンプル数':'Sample Size');
+  var noteL=lang==='ko'?'메모 / 발견 사항':(lang==='ja'?'メモ / 所見':'Notes / Findings');
+  var sampPH=lang==='ko'?'예: 12건':(lang==='ja'?'例: 12件':'e.g. 12 items');
+  var notePH=lang==='ko'?'테스트 절차, 샘플 선택 방법, 발견 사항 등...':(lang==='ja'?'テスト手順、サンプル選択方法、所見など...':'Test procedure, sampling method, findings...');
+  var html='<div class="val-wrap">'
+    +'<div class="val-top">'
+    +'<div class="val-title">&#10003; Validation'+(hotelVal?' — '+esc(hotelVal):'')+(periodVal?' ('+esc(periodVal)+')':'')+'</div>'
+    +'<span style="font-size:12px;color:var(--mu)">'+valDone+' / '+valItems.length+' responded</span>'
     +'</div>';
   getAuditSecs().forEach(function(sec){
-    var si=getAuditData().filter(function(i){return i.section===sec;});
-    var done=si.filter(function(i){return results[i.id];}).length;
-    html+='<div class="abh-sec-card">'
-      +'<div class="abh-sec-hdr">'+esc(sec)
-      +'<span style="font-size:10px;font-weight:400;opacity:.75;margin-left:auto">'+done+' / '+si.length+' responded</span>'
+    var si=valItems.filter(function(i){return i.section===sec;});
+    if(si.length===0)return;
+    var secDone=si.filter(function(i){return results[i.id];}).length;
+    html+='<div class="val-sec-card">'
+      +'<div class="val-sec-hdr">'+esc(sec)
+      +'<span style="font-size:10px;font-weight:400;opacity:.75;margin-left:auto">'+secDone+' / '+si.length+' responded</span>'
       +'</div>';
-    si.forEach(function(item,idx){
+    si.forEach(function(item){
       var res=results[item.id]||'';
       var note=notes[item.id]||'';
       var samp=samples[item.id]||'';
-      var isVal=getValIds().has(item.id);
       var wsT=lang==='ko'?item.wsKR:(lang==='ja'?(getJPWS()[item.id]||item.wsEN):item.wsEN);
       var brief=wsT.split('\n')[0];
-      if(brief.length>90)brief=brief.substring(0,90)+'…';
-      var resCls=res==='yes'?'abh-y':res==='no'?'abh-n':res==='na'?'abh-na':'abh-p';
-      var resTxt=res==='yes'?'YES':res==='no'?'NO':res==='na'?'N/A':'—';
-      var copyTxt=[samp,note].filter(Boolean).join('\n').trim();
-      html+='<div class="abh-item'+(res?'':' abh-item-empty')+'">'
-        +'<div class="abh-num">#'+dispId(item.id)+'</div>'
-        +(isVal?'<div class="abh-val">VAL</div>':'')
-        +'<div class="abh-txt">'+esc(brief)+'</div>'
-        +'<div class="abh-res '+resCls+'">'+resTxt+'</div>';
-      if(isVal){
-        html+='<div class="abh-notes-box">';
-        if(copyTxt){
-          html+='<span class="abh-notes-preview">'+esc(copyTxt.replace(/\n/g,' '))+'</span>'
-            +'<button class="abh-copy-btn" onclick="copyABNote(this,'+JSON.stringify(copyTxt)+')">📋 Copy Notes</button>';
-        } else {
-          html+='<span style="font-size:10px;color:#adb5bd;font-style:italic">No notes yet</span>';
-        }
-        html+='</div>';
-      }
-      html+='</div>';
+      if(brief.length>120)brief=brief.substring(0,120)+'…';
+      var qid=typeof item.id==='string'?"'"+item.id+"'":item.id;
+      var tsHtml=mkTestSheetHtml(item.id);
+      html+='<div class="val-item">'
+        +'<div class="val-item-hdr">'
+        +'<div class="val-item-num">#'+dispId(item.id)+'</div>'
+        +'<div class="val-item-desc">'+esc(brief)+'</div>'
+        +'<div class="val-item-btns">'
+        +'<button class="val-rb'+(res==='yes'?' vy':'')+'" onclick="setRes('+qid+',\'yes\')">YES</button>'
+        +'<button class="val-rb'+(res==='no'?' vn':'')+'" onclick="setRes('+qid+',\'no\')">NO</button>'
+        +'<button class="val-rb'+(res==='na'?' vna':'')+'" onclick="setRes('+qid+',\'na\')">N/A</button>'
+        +'</div>'
+        +'</div>'
+        +(tsHtml||'')
+        +'<div class="val-note-row">'
+        +'<div class="ig-samp"><label>'+esc(sampL)+'</label><input type="text" value="'+esc(samp)+'" placeholder="'+esc(sampPH)+'" oninput="setSamp('+qid+',this.value)"></div>'
+        +'<div class="ig-note"><label>'+esc(noteL)+'</label><textarea rows="2" placeholder="'+esc(notePH)+'" oninput="setNote('+qid+',this.value)">'+esc(note)+'</textarea></div>'
+        +'</div>'
+        +'</div>';
     });
     html+='</div>';
   });
@@ -3371,7 +3356,7 @@ function _restoreNav(){
   if(vm==='findings'){selFindings();return;}
   if(vm==='bsguide'){selBSGuide();return;}
   if(vm==='bsnotes'){selBSNotes();return;}
-  if(vm==='abhelper'){selABHelper();return;}
+  if(vm==='validation'){selValidation();return;}
   if(vm==='prep'){selPrep();return;}
   selDash();
 }
