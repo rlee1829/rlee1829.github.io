@@ -679,6 +679,7 @@ const TEST_SHEETS={
   34:{name:'BS 2',cols:['Account No.','Description','Amount','Detail Schedule Complete & Sufficient?','Identified Issue'],rows:5},
   35:{name:'BS 1',cols:['Account No.','Description','Amount','Identified Issue'],rows:5},
   36:{name:'BS 5',cols:['Account No.','Description','Amount','Appropriately Supported? (Y/N)','Identified Issue'],rows:5},
+  41:{name:'Cash EFT',note:'Full population from Trial Balance — all bank accounts',cols:['Account No.','Bank','EFT enabled? (Y/N)','Payment Initiator (Name & Position)','Payment Approver (Name & Position)'],rows:4},
   42:{name:'Cash 1',cols:['Refund Date','Guest Name / DocMX DID','Refund Amount','Original Payment Method','Refund Method as Original? (Y/N)','CC Refund to Original Card No.? (Y/N)'],rows:3},
   50:{name:'Financial Close 1',cols:['Month','Finance Leader Reviewed, Signed & Dated? (Y/N)','Significant Variances Supported w/ Quality Comments? (Y/N)'],rows:2},
   55:{name:'IT 2',custom:'it',itType:'it2'},
@@ -950,7 +951,9 @@ function mkTestSheetHtml(id){
     var tds=ts.cols.map(function(c,ci){return _tsInp(id,r,ci,rData[ci]||'','');}).join('');
     bodyRows+='<tr><td class="ts-rn">'+(r+1)+'</td>'+tds+'</tr>';
   }
+  var noteHtml=ts.note?'<div style="font-size:11px;color:#5a6884;background:#f5f7fb;padding:5px 12px;border-left:3px solid #aab4cc;font-style:italic">'+esc(ts.note)+'</div>':'';
   return '<div class="ts-wrap" id="ts-wrap-'+id+'">'+_tsHdr(id,ts)
+    +noteHtml
     +'<div class="ts-tbl-wrap"><table class="ts-tbl"><thead><tr><th>#</th>'+thCells+'</tr></thead>'
     +'<tbody>'+bodyRows+'</tbody></table></div></div>';
 }
@@ -1751,6 +1754,7 @@ function setLang(l){
     var b=document.getElementById('lang-'+x);
     if(b)b.classList.toggle('lang-act',x===l);
   });
+  if(viewMode==='validation'){buildValidation();return;}
   buildLP(); buildRP();
   if(viewMode==='bsguide'){buildBSLP();buildBSRP();}
   if(viewMode==='prep'){buildPrepView();}
