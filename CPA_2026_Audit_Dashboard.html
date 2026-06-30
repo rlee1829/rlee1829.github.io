@@ -200,6 +200,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
   #db .db-pct{font-size:10px}
   #db .db-cnt{font-size:10px;min-width:18px}
   .db-tbody{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .sb-grid{grid-template-columns:1fr}
+  .sb-lbl{min-width:80px}
+  .sb-comp-pct{font-size:28px}
 }
 /* ── OVERVIEW DASHBOARD ── */
 #db{display:none;flex:1;min-height:0;overflow-y:auto;padding:18px 22px;background:var(--bg);flex-direction:column;gap:14px}
@@ -229,6 +232,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 .db-pct{font-weight:700;font-size:12px;white-space:nowrap}
 .db-cnt{font-size:12px;font-weight:700;text-align:center;min-width:24px}
 .db-cnt-y{color:var(--yc)}.db-cnt-n{color:var(--nc)}.db-cnt-na{color:var(--ac)}.db-cnt-p{color:#adb5bd}
+/* ── SCOREBOARD ── */
+.sb-wrap{padding:16px 20px;max-width:980px;margin:0 auto}
+.sb-comp-hdr{text-align:center;padding:16px 20px 14px;background:#fff;border-radius:10px;box-shadow:var(--sh);margin-bottom:14px}
+.sb-comp-title{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px}
+.sb-comp-pct{font-size:40px;font-weight:800;color:var(--p);line-height:1.1;margin-top:4px}
+.sb-comp-sub{font-size:11px;color:var(--mu);margin-top:5px}
+.sb-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.sb-card{background:#fff;border-radius:10px;box-shadow:var(--sh);overflow:hidden}
+.sb-card-hdr{background:var(--p);color:#fff;padding:10px 16px;font-size:12px;font-weight:700;letter-spacing:.2px}
+.sb-card-body{padding:14px 16px}
+.sb-legend{display:flex;gap:14px;font-size:11px;color:#555;margin-bottom:12px;flex-wrap:wrap}
+.sb-ldot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.sb-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sb-row:last-child{margin-bottom:0}
+.sb-lbl{font-size:11.5px;color:#333;min-width:104px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;font-weight:600}
+.sb-bar-wrap{flex:1;height:26px;border-radius:4px;overflow:hidden;display:flex;background:#e9ecef;min-width:60px}
+.sb-bar-y{background:#00b5a5;height:100%;min-width:0;transition:flex .4s}
+.sb-bar-n{background:#b0b8c1;height:100%;flex-shrink:0}
+.sb-bar-na{background:#cfd3d8;height:100%;flex-shrink:0}
+.sb-score{font-size:12px;font-weight:700;color:#1a2456;min-width:58px;text-align:right;flex-shrink:0}
+.sb-bar-prog{background:var(--p);height:100%;transition:width .4s}
+.sb-cnt{font-size:12px;font-weight:700;color:var(--p);min-width:28px;text-align:right;flex-shrink:0}
+.sb-big-bar-wrap{height:40px;border-radius:6px;overflow:hidden;display:flex;background:#e9ecef;margin-bottom:8px}
 .tab.tab-ov{background:#e8edf8;border-right:2px solid var(--bd);font-size:13px;font-weight:800;color:var(--p);letter-spacing:.2px}
 .tab.tab-ov.active{background:var(--p);color:#fff}
 /* ── DASH SCROLL MODE ── */
@@ -281,23 +307,25 @@ body.dash-scroll #db{overflow-y:visible!important;min-height:0}
 .val-wrap{padding:16px 20px;max-width:980px;margin:0 auto}
 .val-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
 .val-title{font-size:15px;font-weight:700;color:var(--tx);flex:1}
-.val-sec-card{border:1px solid var(--bd);border-radius:7px;margin-bottom:10px;overflow:hidden}
-.val-sec-hdr{background:var(--p);color:#fff;padding:7px 14px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px}
-.val-item{padding:12px 14px;border-bottom:1px solid #f0f2f5}
-.val-item:last-child{border-bottom:none}
-.val-item-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-.val-item-num{font-size:11px;font-weight:700;color:var(--mu);min-width:28px;flex-shrink:0}
-.val-item-desc{font-size:12px;color:var(--tx);flex:1;line-height:1.4;min-width:120px}
-.val-item-btns{display:flex;gap:4px;flex-shrink:0}
-.val-rb{padding:3px 12px;border-radius:4px;font-size:11px;font-weight:800;cursor:pointer;border:1px solid #dee2e6;background:#f8f9fa;color:#495057;transition:all .15s}
-.val-rb.vy{background:#d4edda;color:#155724;border-color:#c3e6cb}
-.val-rb.vn{background:#f8d7da;color:#721c24;border-color:#f5c6cb}
-.val-rb.vna{background:#e2e3e5;color:#383d41;border-color:#d3d3d3}
-.val-note-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.val-note-row label{font-size:10px;font-weight:700;color:#6c757d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;display:block}
+.val-sec-card{background:#fff;border:1px solid #cdd3e0;border-radius:9px;margin-bottom:16px;overflow:hidden;box-shadow:0 2px 10px rgba(26,36,86,.1)}
+.val-sec-hdr{background:var(--p);color:#fff;padding:10px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.val-item{background:#fff;padding:16px 18px;border-top:2px solid #eaecf3}
+.val-item:first-child{border-top:none}
+.val-item-hdr{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#eef1f9;border-radius:7px;margin-bottom:12px;flex-wrap:wrap;border-left:4px solid var(--p)}
+.val-item-num{font-size:13px;font-weight:800;color:var(--p);min-width:34px;flex-shrink:0;padding-top:1px}
+.val-item-desc{font-size:13px;font-weight:700;color:var(--tx);flex:1;line-height:1.55;min-width:120px}
+.val-item-btns{display:flex;gap:5px;flex-shrink:0;padding-top:1px}
+.val-rb{padding:5px 15px;border-radius:5px;font-size:12px;font-weight:800;cursor:pointer;border:1px solid #ced4da;background:#f0f1f3;color:#6c757d;transition:all .15s}
+.val-rb:hover{filter:brightness(.94)}
+.val-rb.vy{background:#d1f2e2;color:#145c38;border-color:#a8dfc0}
+.val-rb.vn{background:#fdd9dc;color:#7c1c24;border-color:#f5b8be}
+.val-rb.vna{background:#e2e4e7;color:#3d4349;border-color:#c8cdd3}
+.val-note-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.val-note-row label{font-size:10px;font-weight:700;color:#6c757d;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;display:block}
 .val-note-row .ig-samp{flex:1;min-width:160px}
-.val-note-row .ig-note{flex:2;min-width:200px}
-.val-note-row input,.val-note-row textarea{width:100%;box-sizing:border-box;border:1px solid #dee2e6;border-radius:4px;padding:5px 8px;font-size:12px;resize:vertical;font-family:inherit}
+.val-note-row .ig-note{flex:2.5;min-width:210px}
+.val-note-row input,.val-note-row textarea{width:100%;box-sizing:border-box;border:1px solid #ced4da;border-radius:5px;padding:7px 10px;font-size:12.5px;resize:vertical;font-family:inherit;background:#fff;line-height:1.5}
+.val-note-row input:focus,.val-note-row textarea:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 2px rgba(26,36,86,.1)}
 .prep-item.ck .prep-txt{text-decoration:line-through;color:#aaa}
 .prep-print-hdr{display:none}
 #print-hdr{display:none}
@@ -2414,56 +2442,92 @@ function buildDash(){
   var db=document.getElementById('db');
   if(!db)return;
 
-  // ── Main 80 items ──
+  // ── Main items ──
   var total=getAuditData().length;
   var yc=getAuditData().filter(function(i){return results[i.id]==='yes';}).length;
   var nc=getAuditData().filter(function(i){return results[i.id]==='no';}).length;
   var ac=getAuditData().filter(function(i){return results[i.id]==='na';}).length;
   var done=yc+nc+ac;
   var pend=total-done;
-  var compPct=Math.round(done/total*100);
-  var yesPct=done>0?Math.round(yc/done*100):0;
+  var compPct=total?Math.round(done/total*100):0;
+  var yesPct=done>0?(yc/done*100).toFixed(2):'—';
 
-  // ── Per-section rows ──
-  var legend='<div class="db-legend">'
-    +'<span><span class="db-ldot" style="background:var(--yc)"></span>Yes</span>'
-    +'<span><span class="db-ldot" style="background:var(--nc)"></span>No</span>'
-    +'<span><span class="db-ldot" style="background:var(--ac)"></span>N/A</span>'
-    +'<span><span class="db-ldot" style="background:#dee2e6"></span>Pending</span>'
+  // ── Risk breakdown ──
+  var legend='<div class="sb-legend">'
+    +'<span><span class="sb-ldot" style="background:#b0b8c1"></span>No</span>'
+    +'<span><span class="sb-ldot" style="background:#cfd3d8"></span>N/A</span>'
+    +'<span><span class="sb-ldot" style="background:#00b5a5"></span>Yes</span>'
     +'</div>';
+  var riskRowsHtml='';
+  ['Key','HR'].forEach(function(r){
+    var ri=getAuditData().filter(function(i){return i.risk===r;});
+    if(!ri.length)return;
+    var ry=ri.filter(function(i){return results[i.id]==='yes';}).length;
+    var rn=ri.filter(function(i){return results[i.id]==='no';}).length;
+    var ra=ri.filter(function(i){return results[i.id]==='na';}).length;
+    var rt=ri.length;
+    var rd=ry+rn+ra;
+    var ryp=rd>0?(ry/rd*100).toFixed(2):'—';
+    riskRowsHtml+='<div class="sb-row">'
+      +'<div class="sb-lbl">'+esc(r)+'</div>'
+      +'<div class="sb-bar-wrap">'
+      +(rn>0?'<div class="sb-bar-n" style="flex:'+rn+'"></div>':'')
+      +(ra>0?'<div class="sb-bar-na" style="flex:'+ra+'"></div>':'')
+      +(ry>0?'<div class="sb-bar-y" style="flex:'+ry+'"></div>':'')
+      +((rt-rd)>0?'<div style="flex:'+(rt-rd)+'"></div>':'')
+      +'</div>'
+      +'<div class="sb-score">'+(rd>0?ryp+'%':'—')+'</div>'
+      +'</div>';
+  });
 
-  var secRows='';
+  // ── Per-section ──
+  var secCounts=[];
   getAuditSecs().forEach(function(s){
+    var si=getAuditData().filter(function(i){return i.section===s;});
+    secCounts.push(si.filter(function(i){return results[i.id];}).length);
+  });
+  var maxCnt=Math.max.apply(null,secCounts.concat([1]));
+  var procRowsHtml='';
+  var progRowsHtml='';
+  getAuditSecs().forEach(function(s,idx){
     var si=getAuditData().filter(function(i){return i.section===s;});
     var sy=si.filter(function(i){return results[i.id]==='yes';}).length;
     var sn=si.filter(function(i){return results[i.id]==='no';}).length;
     var sa=si.filter(function(i){return results[i.id]==='na';}).length;
     var st=si.length;
     var sd=sy+sn+sa;
-    var sp=st>0?Math.round(sd/st*100):0;
-    var syp=sd>0?Math.round(sy/sd*100):0;
-    var spColor=sp===100?'var(--yc)':sp>=50?'var(--hc)':'var(--mu)';
-    var sypColor=syp>=80?'var(--yc)':syp>=50?'var(--hc)':'var(--nc)';
-    secRows+='<tr>'
-      +'<td style="font-weight:600;white-space:nowrap"><span style="cursor:pointer;color:var(--p);text-decoration:underline" onclick="selSec(\''+s.replace(/'/g,"\\'")+'\')">'
-      +esc(s)+'</span></td>'
-      +'<td style="width:99%"><div style="display:flex;align-items:center;gap:8px">'
-      +'<div class="db-sbar">'
-      +(sy>0?'<div class="db-sbar-y" style="flex:'+sy+'"></div>':'')
-      +(sn>0?'<div class="db-sbar-n" style="flex:'+sn+'"></div>':'')
-      +(sa>0?'<div class="db-sbar-na" style="flex:'+sa+'"></div>':'')
-      +(sd<st?'<div class="db-sbar-p" style="flex:'+(st-sd)+'"></div>':'')
+    var syp=sd>0?(sy/sd*100).toFixed(2):'—';
+    var slink='<span style="cursor:pointer;color:var(--p);text-decoration:underline;font-size:11.5px;font-weight:600" onclick="selSec(\''+s.replace(/'/g,"\\'")+'\')">'
+      +esc(s)+'</span>';
+    procRowsHtml+='<div class="sb-row">'
+      +'<div class="sb-lbl">'+slink+'</div>'
+      +'<div class="sb-bar-wrap">'
+      +(sn>0?'<div class="sb-bar-n" style="flex:'+sn+'"></div>':'')
+      +(sa>0?'<div class="sb-bar-na" style="flex:'+sa+'"></div>':'')
+      +(sy>0?'<div class="sb-bar-y" style="flex:'+sy+'"></div>':'')
+      +((st-sd)>0?'<div style="flex:'+(st-sd)+'"></div>':'')
       +'</div>'
-      +'<span style="font-size:10px;color:'+spColor+';font-weight:700;white-space:nowrap">'+sp+'%</span>'
-      +'</div></td>'
-      +'<td class="db-pct" style="color:'+sypColor+'">'+syp+'%</td>'
-      +'<td class="db-cnt db-cnt-y">'+sy+'</td>'
-      +'<td class="db-cnt db-cnt-n">'+sn+'</td>'
-      +'<td class="db-cnt db-cnt-na">'+sa+'</td>'
-      +'<td class="db-cnt db-cnt-p">'+(st-sd)+'</td>'
-      +'<td style="font-size:11px;color:var(--mu);text-align:center">'+st+'</td>'
-      +'</tr>';
+      +'<div class="sb-score">'+(sd>0?syp+'%':'—')+'</div>'
+      +'</div>';
+    var bw=maxCnt>0?(secCounts[idx]/maxCnt*100).toFixed(1):0;
+    progRowsHtml+='<div class="sb-row">'
+      +'<div class="sb-lbl">'+slink+'</div>'
+      +'<div style="flex:1;height:24px;background:#e9ecef;border-radius:4px;overflow:hidden">'
+      +'<div class="sb-bar-prog" style="width:'+bw+'%"></div>'
+      +'</div>'
+      +'<div class="sb-cnt">'+secCounts[idx]+'</div>'
+      +'</div>';
   });
+
+  // ── Main score bar ──
+  var mainBar='<div class="sb-big-bar-wrap">'
+    +(nc>0?'<div class="sb-bar-n" style="flex:'+nc+'"></div>':'')
+    +(ac>0?'<div class="sb-bar-na" style="flex:'+ac+'"></div>':'')
+    +(yc>0?'<div class="sb-bar-y" style="flex:'+yc+'"></div>':'')
+    +(pend>0?'<div style="flex:'+pend+'"></div>':'')
+    +'</div>'
+    +'<div style="text-align:right;font-size:22px;font-weight:800;color:#00b5a5;margin-top:6px">'+yesPct+(yesPct!=='—'?'%':'')+'</div>'
+    +'<div style="font-size:10px;color:var(--mu);text-align:right;margin-top:2px">Yes rate of answered items</div>';
 
   // ── BS Guide ──
   var bsTotal=typeof bsData!=='undefined'?bsData.length:0;
@@ -2476,9 +2540,8 @@ function buildDash(){
   var bsDone=bsYc+bsNc+bsAc;
   var bsPend=bsTotal-bsDone;
   var bsComp=bsTotal>0?Math.round(bsDone/bsTotal*100):0;
-  var bsYesPct=bsDone>0?Math.round(bsYc/bsDone*100):0;
-
-  var bsRows='';
+  var bsYesPct=bsDone>0?(bsYc/bsDone*100).toFixed(2):'—';
+  var bsRowsHtml='';
   if(typeof bsData!=='undefined'){
     [['ASSETS',1,21],['LIABILITIES',22,99]].forEach(function(g){
       var gitems=bsData.filter(function(i){return i.num>=g[1]&&i.num<=g[2];});
@@ -2487,96 +2550,67 @@ function buildDash(){
       var ga=gitems.filter(function(i){return bsResults[i.id]==='na';}).length;
       var gt=gitems.length;
       var gd=gy+gn+ga;
-      var gcp=gt>0?Math.round(gd/gt*100):0;
-      var gyp=gd>0?Math.round(gy/gd*100):0;
-      var gcpColor=gcp===100?'var(--yc)':gcp>=50?'var(--hc)':'var(--mu)';
-      var gypColor=gyp>=80?'var(--yc)':gyp>=50?'var(--hc)':'var(--nc)';
-      bsRows+='<tr>'
-        +'<td style="font-weight:600;white-space:nowrap"><span style="cursor:pointer;color:var(--p);text-decoration:underline" onclick="selBSGuide()">'
-        +esc(g[0])+'</span><span style="font-size:10px;color:var(--mu);margin-left:4px">('+gt+')</span></td>'
-        +'<td style="width:99%"><div style="display:flex;align-items:center;gap:8px">'
-        +'<div class="db-sbar">'
-        +(gy>0?'<div class="db-sbar-y" style="flex:'+gy+'"></div>':'')
-        +(gn>0?'<div class="db-sbar-n" style="flex:'+gn+'"></div>':'')
-        +(ga>0?'<div class="db-sbar-na" style="flex:'+ga+'"></div>':'')
-        +(gd<gt?'<div class="db-sbar-p" style="flex:'+(gt-gd)+'"></div>':'')
+      var gyp=gd>0?(gy/gd*100).toFixed(2):'—';
+      bsRowsHtml+='<div class="sb-row">'
+        +'<div class="sb-lbl"><span style="cursor:pointer;color:var(--p);text-decoration:underline;font-size:11.5px;font-weight:600" onclick="selBSGuide()">'+esc(g[0])+'</span>'
+        +'<span style="font-size:10px;color:var(--mu);margin-left:4px">('+gt+')</span></div>'
+        +'<div class="sb-bar-wrap">'
+        +(gn>0?'<div class="sb-bar-n" style="flex:'+gn+'"></div>':'')
+        +(ga>0?'<div class="sb-bar-na" style="flex:'+ga+'"></div>':'')
+        +(gy>0?'<div class="sb-bar-y" style="flex:'+gy+'"></div>':'')
+        +((gt-gd)>0?'<div style="flex:'+(gt-gd)+'"></div>':'')
         +'</div>'
-        +'<span style="font-size:10px;color:'+gcpColor+';font-weight:700;white-space:nowrap">'+gcp+'%</span>'
-        +'</div></td>'
-        +'<td class="db-pct" style="color:'+gypColor+'">'+gyp+'%</td>'
-        +'<td class="db-cnt db-cnt-y">'+gy+'</td>'
-        +'<td class="db-cnt db-cnt-n">'+gn+'</td>'
-        +'<td class="db-cnt db-cnt-na">'+ga+'</td>'
-        +'<td class="db-cnt db-cnt-p">'+(gt-gd)+'</td>'
-        +'<td style="font-size:11px;color:var(--mu);text-align:center">'+gt+'</td>'
-        +'</tr>';
+        +'<div class="sb-score">'+(gd>0?gyp+'%':'—')+'</div>'
+        +'</div>';
     });
   }
 
-  var tblHead='<thead><tr>'
-    +'<th>Section / Category</th>'
-    +'<th>Progress<span style="font-weight:400;margin-left:6px;font-size:9px">(Completion %)</span></th>'
-    +'<th style="white-space:nowrap">Yes %</th>'
-    +'<th style="color:var(--yc)">Y</th>'
-    +'<th style="color:var(--nc)">N</th>'
-    +'<th style="color:var(--ac)">NA</th>'
-    +'<th style="color:#adb5bd">Pend</th>'
-    +'<th style="color:var(--mu)">Total</th>'
-    +'</tr></thead>';
+  var compL=lang==='ko'?'전체 완료율':lang==='ja'?'全体完了率':'Overall Completion';
+  var answL=lang==='ko'?'답변 완료':lang==='ja'?'回答済み':'answered';
+  var pendL=lang==='ko'?'미응답':lang==='ja'?'未回答':'Pending';
+  var progL=lang==='ko'?'테스트 진행 현황':lang==='ja'?'テスト進捗':'CPA Testing Progress';
+  var totalScL=lang==='ko'?'CPA 총점':lang==='ja'?'CPA総合スコア':'CPA Total Score';
+  var riskScL=lang==='ko'?'리스크 유형별 점수':lang==='ja'?'リスク区分別スコア':'CPA Scores by Risk Category';
+  var procScL=lang==='ko'?'프로세스별 점수':lang==='ja'?'プロセス別スコア':'CPA Scores by Process';
+  var revL=lang==='ko'?'응답 완료':lang==='ja'?'回答済み':'Reviewed';
 
-  db.innerHTML=
-    // ── KPI row ──
-    '<div class="db-row">'
-    +'<div class="db-kcard" style="border-top:3px solid var(--p)">'
-    +'<div class="db-kval">'+compPct+'%</div>'
-    +'<div class="db-klbl">Completion</div>'
-    +'<div class="db-ksub">'+done+' / '+total+' answered</div>'
-    +'</div>'
-    +'<div class="db-kcard" style="border-top:3px solid var(--yc)">'
-    +'<div class="db-kval" style="color:var(--yc)">'+yesPct+'%</div>'
-    +'<div class="db-klbl">Yes Rate</div>'
-    +'<div class="db-ksub">of answered items</div>'
-    +'</div>'
-    +'<div class="db-kcard" style="border-top:3px solid var(--yc)">'
-    +'<div class="db-kval" style="color:var(--yc);font-size:24px">'+yc+'</div>'
-    +'<div class="db-klbl">Yes</div>'
-    +'</div>'
-    +'<div class="db-kcard" style="border-top:3px solid var(--nc)">'
-    +'<div class="db-kval" style="color:var(--nc);font-size:24px">'+nc+'</div>'
-    +'<div class="db-klbl">No (Findings)</div>'
-    +'</div>'
-    +'<div class="db-kcard" style="border-top:3px solid var(--ac)">'
-    +'<div class="db-kval" style="color:var(--ac);font-size:24px">'+ac+'</div>'
-    +'<div class="db-klbl">N/A</div>'
-    +'</div>'
-    +'<div class="db-kcard" style="border-top:3px solid #dee2e6">'
-    +'<div class="db-kval" style="color:#adb5bd;font-size:24px">'+pend+'</div>'
-    +'<div class="db-klbl">Pending</div>'
+  db.innerHTML='<div class="sb-wrap">'
+    // Overall Completion header
+    +'<div class="sb-comp-hdr">'
+    +'<div class="sb-comp-title">'+compL+'</div>'
+    +'<div class="sb-comp-pct">'+compPct+'%</div>'
+    +'<div class="sb-comp-sub">'+done+' / '+total+' '+answL
+    +' &nbsp;·&nbsp; Yes '+yc+' &nbsp;·&nbsp; No '+nc+' &nbsp;·&nbsp; N/A '+ac+' &nbsp;·&nbsp; '+pendL+' '+pend
     +'</div>'
     +'</div>'
-
-    // ── Section table ──
-    +'<div class="db-card">'
-    +'<div class="db-ctitle">CPA 2026 Audit — Section Progress <span>(80 items)</span>'
-    +legend+'</div>'
-    +'<div class="db-tbody">'
-    +'<table class="db-tbl">'+tblHead+'<tbody>'+secRows+'</tbody></table>'
+    // 2×2 grid
+    +'<div class="sb-grid">'
+    // CPA Total Score
+    +'<div class="sb-card"><div class="sb-card-hdr">'+totalScL+'</div><div class="sb-card-body">'+legend+mainBar+'</div></div>'
+    // CPA Scores by Risk
+    +'<div class="sb-card"><div class="sb-card-hdr">'+riskScL+'</div><div class="sb-card-body">'+legend+riskRowsHtml+'</div></div>'
+    // CPA Scores by Process
+    +'<div class="sb-card"><div class="sb-card-hdr">'+procScL+'</div><div class="sb-card-body">'+legend+procRowsHtml+'</div></div>'
+    // CPA Testing Progress
+    +'<div class="sb-card"><div class="sb-card-hdr">'+progL+'</div>'
+    +'<div class="sb-card-body">'
+    +'<div class="sb-legend"><span><span class="sb-ldot" style="background:var(--p)"></span>'+revL+'</span></div>'
+    +progRowsHtml
     +'</div></div>'
-
-    // ── BS Guide ──
+    +'</div>'
+    // BS Guide
     +(bsTotal>0?
-    '<div class="db-card">'
-    +'<div class="db-ctitle">BS Guide — Balance Sheet Review <span>('+bsTotal+' items)</span>'
-    +legend+'</div>'
-    +'<div class="db-tbody">'
-    +'<div class="db-row" style="margin-bottom:12px">'
+    '<div class="sb-card" style="margin-bottom:14px">'
+    +'<div class="sb-card-hdr">BS Guide — Balance Sheet Review <span style="font-weight:400;opacity:.75;font-size:11px">('+bsTotal+' items)</span></div>'
+    +'<div class="sb-card-body">'
+    +'<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">'
     +'<div class="db-kcard" style="border-top:3px solid var(--p);padding:10px 14px">'
     +'<div class="db-kval" style="font-size:22px">'+bsComp+'%</div>'
     +'<div class="db-klbl" style="font-size:9px">Completion</div>'
     +'<div class="db-ksub">'+bsDone+' / '+bsTotal+'</div>'
     +'</div>'
-    +'<div class="db-kcard" style="border-top:3px solid var(--yc);padding:10px 14px">'
-    +'<div class="db-kval" style="font-size:22px;color:var(--yc)">'+bsYesPct+'%</div>'
+    +'<div class="db-kcard" style="border-top:3px solid #00b5a5;padding:10px 14px">'
+    +'<div class="db-kval" style="font-size:22px;color:#00b5a5">'+bsYesPct+(bsYesPct!=='—'?'%':'')+'</div>'
     +'<div class="db-klbl" style="font-size:9px">Yes Rate</div>'
     +'</div>'
     +'<div class="db-kcard" style="border-top:3px solid var(--yc);padding:10px 14px">'
@@ -2596,9 +2630,10 @@ function buildDash(){
     +'<div class="db-klbl" style="font-size:9px">Pending</div>'
     +'</div>'
     +'</div>'
-    +'<table class="db-tbl">'+tblHead+'<tbody>'+bsRows+'</tbody></table>'
+    +legend+bsRowsHtml
     +'</div></div>'
-    :'');
+    :'')
+    +'</div>';
 }
 
 function selBSGuide(){
