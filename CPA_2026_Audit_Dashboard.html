@@ -93,7 +93,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 .li{padding:7px 10px;cursor:pointer;border-bottom:1px solid #f0f2f5;display:flex;align-items:flex-start;gap:6px;transition:background .1s}
 .li:hover{background:#f0f2f5}.li.act{background:#e8edf8;border-left:3px solid var(--p)}
 .ldot{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px}
-.dy{background:var(--yc)}.dn{background:var(--nc)}.dna{background:var(--ac)}.dnone{background:#dee2e6;color:var(--mu)}
+.dy{background:var(--yc)}.dn{background:var(--nc)}.dna{background:var(--ac)}.dnone{background:#dee2e6;color:var(--mu)}.dhold{background:#7c3aed}
+.rbhold{border-color:#7c3aed;color:#7c3aed}.rbhold.act{background:#7c3aed;color:#fff}
+.val-rb.vhd{background:#ede9fe;color:#5b21b6;border-color:#8b5cf6}
 .lbadge{padding:1px 4px;border-radius:2px;font-size:9px;font-weight:700;flex-shrink:0;margin-top:2px}
 .bk{background:#fde8ea;color:var(--kc)}.bh{background:#fff0e6;color:var(--hc)}
 .ltx{font-size:11px;line-height:1.4;color:var(--tx);flex:1;word-break:break-word}
@@ -1142,7 +1144,7 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function getItems(){
   var items;
   if(viewMode==='findings'){
-    items=getAuditData().filter(function(i){return results[i.id]==='no';});
+    items=getAuditData().filter(function(i){return results[i.id]==='no'||results[i.id]==='hold';});
   } else {
     items=getAuditData().filter(function(i){return i.section===curSec;});
   }
@@ -1166,10 +1168,11 @@ function buildNav(){
       +esc(s)+'<span class="tn">'+done+'/'+si.length+'</span></div>';
   });
   var nc=getAuditData().filter(function(i){return results[i.id]==='no';}).length;
+  var hc=getAuditData().filter(function(i){return results[i.id]==='hold';}).length;
   var fc=(viewMode==='findings')?' active ftab':' ftab';
   html+='<div class="tab'+fc+'" style="color:#dc3545" onclick="selFindings()">Findings'
-    +'<span class="tn" style="'+(nc>0?'background:#fde8ea;color:#dc3545':'')+'">'
-    +nc+'</span></div>';
+    +'<span class="tn" style="'+((nc+hc)>0?'background:#fde8ea;color:#dc3545':'')+'">'
+    +(nc+hc)+'</span></div>';
   var bsc=(viewMode==='bsguide')?' active ftab':' ftab';
   html+='<div class="tab'+bsc+'" onclick="selBSGuide()" style="color:#0369a1;background:#e0f2fe;border-top:2px solid #7dd3fc">BS Guide'
     +'<span class="tn" style="background:#bae6fd;color:#0369a1">39</span></div>';
@@ -1254,11 +1257,12 @@ function buildLP(){
 
 function mkLI(item){
   var res=results[item.id]||'';
-  var dc=res==='yes'?'dy':res==='no'?'dn':res==='na'?'dna':'dnone';
+  var dc=res==='yes'?'dy':res==='no'?'dn':res==='na'?'dna':res==='hold'?'dhold':'dnone';
   var resBadge='';
   if(res==='yes')resBadge='<div class="lbadge" style="background:#d4edda;color:#155724">YES</div>';
   else if(res==='no')resBadge='<div class="lbadge" style="background:#f8d7da;color:#721c24">NO</div>';
   else if(res==='na')resBadge='<div class="lbadge" style="background:#e2e3e5;color:#383d41">N/A</div>';
+  else if(res==='hold')resBadge='<div class="lbadge" style="background:#ede9fe;color:#5b21b6">HOLD</div>';
   var tx=lang==='ko'?item.wsKR:(lang==='ja'?(getJPWS()[item.id]||item.wsEN):item.wsEN);
   var lines=tx.split('\n').filter(function(l){return l.trim();});
   var title=lines[0]||'';
@@ -1368,7 +1372,9 @@ function buildRP(){
     +'<div class="irow">'
     +'<div class="ig igsamp"><label>'+sampL+'</label>'
     +'<input type="text" value="'+esc(samp)+'" placeholder="'+esc(sampPH)+'" oninput="setSamp('+qid+',this.value)"></div>'
-    +'<div class="ig ignotes"><label>'+noteL+'</label>'
+    +'<div class="ig ignotes"><label style="display:flex;align-items:center;gap:6px">'+noteL
+    +'<button class="rsb rbhold'+(res==='hold'?' act':'')+'" style="font-size:10px;padding:2px 9px;margin-left:auto;border-width:1px" onclick="setRes('+qid+',\'hold\')">&#9873; '+(lang==='ko'?'판정 보류':lang==='ja'?'保留':'Hold')+'</button>'
+    +'</label>'
     +'<textarea placeholder="'+esc(notePH)+'" oninput="setNote('+qid+',this.value)">'+esc(note)+'</textarea></div>'
     +'</div>'
     +'</div></div></div>';
@@ -2461,7 +2467,8 @@ function buildDash(){
   var yc=getAuditData().filter(function(i){return results[i.id]==='yes';}).length;
   var nc=getAuditData().filter(function(i){return results[i.id]==='no';}).length;
   var ac=getAuditData().filter(function(i){return results[i.id]==='na';}).length;
-  var done=yc+nc+ac;
+  var hc=getAuditData().filter(function(i){return results[i.id]==='hold';}).length;
+  var done=yc+nc+ac+hc;
   var pend=total-done;
   var applicable=yc+nc;
   var compPct=total?Math.round(done/total*100):0;
@@ -2481,18 +2488,21 @@ function buildDash(){
     var rn=ri.filter(function(i){return results[i.id]==='no';}).length;
     var ra=ri.filter(function(i){return results[i.id]==='na';}).length;
     var rt=ri.length;
-    var rd=ry+rn+ra;
+    var rh=ri.filter(function(i){return results[i.id]==='hold';}).length;
+    var rd=ry+rn+ra+rh;
     var rappl=ry+rn;
     var ryp=rappl>0?(ry/rappl*100).toFixed(2):'—';
     riskRowsHtml+='<div class="sb-row">'
       +'<div class="sb-lbl">'+esc(r)+'<span style="font-size:10px;color:var(--mu);font-weight:400;margin-left:3px">('+rt+')</span></div>'
-      +'<div class="sb-bar-wrap">'
+      +'<div class="sb-bar-wrap" style="position:relative">'
       +(rn>0?'<div class="sb-bar-n" style="flex:'+rn+'"></div>':'')
       +(ra>0?'<div class="sb-bar-na" style="flex:'+ra+'"></div>':'')
+      +(rh>0?'<div style="flex:'+rh+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
       +(ry>0?'<div class="sb-bar-y" style="flex:'+ry+'"></div>':'')
       +((rt-rd)>0?'<div style="flex:'+(rt-rd)+'"></div>':'')
+      +(rappl>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,0.88);padding:0 6px;border-radius:3px;font-size:11px;font-weight:800;color:#1a2456;pointer-events:none;white-space:nowrap">'+ryp+'%</span>':'')
       +'</div>'
-      +'<div class="sb-score"><span style="font-size:10px;font-weight:500;color:var(--mu);display:block">'+ry+'/'+rappl+'</span>'+(rappl>0?ryp+'%':'—')+'</div>'
+      +'<div class="sb-score">'+ry+'/'+rappl+'</div>'
       +'</div>';
   });
 
@@ -2511,20 +2521,23 @@ function buildDash(){
     var sn=si.filter(function(i){return results[i.id]==='no';}).length;
     var sa=si.filter(function(i){return results[i.id]==='na';}).length;
     var st=si.length;
-    var sd=sy+sn+sa;
+    var sh=si.filter(function(i){return results[i.id]==='hold';}).length;
+    var sd=sy+sn+sa+sh;
     var sappl=sy+sn;
     var syp=sappl>0?(sy/sappl*100).toFixed(2):'—';
     var slink='<span style="cursor:pointer;color:var(--p);text-decoration:underline;font-size:11.5px;font-weight:600" onclick="selSec(\''+s.replace(/'/g,"\\'")+'\')">'
       +esc(s)+'</span>';
     procRowsHtml+='<div class="sb-row">'
       +'<div class="sb-lbl">'+slink+'</div>'
-      +'<div class="sb-bar-wrap">'
+      +'<div class="sb-bar-wrap" style="position:relative">'
       +(sn>0?'<div class="sb-bar-n" style="flex:'+sn+'"></div>':'')
       +(sa>0?'<div class="sb-bar-na" style="flex:'+sa+'"></div>':'')
+      +(sh>0?'<div style="flex:'+sh+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
       +(sy>0?'<div class="sb-bar-y" style="flex:'+sy+'"></div>':'')
       +((st-sd)>0?'<div style="flex:'+(st-sd)+'"></div>':'')
+      +(sappl>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,0.88);padding:0 6px;border-radius:3px;font-size:11px;font-weight:800;color:#1a2456;pointer-events:none;white-space:nowrap">'+syp+'%</span>':'')
       +'</div>'
-      +'<div class="sb-score"><span style="font-size:10px;font-weight:500;color:var(--mu);display:block">'+sy+'/'+sappl+'</span>'+(sappl>0?syp+'%':'—')+'</div>'
+      +'<div class="sb-score">'+sy+'/'+sappl+'</div>'
       +'</div>';
     var bw=maxCnt>0?(secCounts[idx]/maxCnt*100).toFixed(1):0;
     progRowsHtml+='<div class="sb-row">'
@@ -2537,17 +2550,15 @@ function buildDash(){
   });
 
   // ── Main score bar ──
-  var mainBar='<div class="sb-big-bar-wrap">'
+  var mainBar='<div class="sb-big-bar-wrap" style="position:relative">'
     +(nc>0?'<div class="sb-bar-n" style="flex:'+nc+'"></div>':'')
     +(ac>0?'<div class="sb-bar-na" style="flex:'+ac+'"></div>':'')
+    +(hc>0?'<div style="flex:'+hc+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
     +(yc>0?'<div class="sb-bar-y" style="flex:'+yc+'"></div>':'')
     +(pend>0?'<div style="flex:'+pend+'"></div>':'')
+    +(applicable>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,0.88);padding:1px 10px;border-radius:4px;font-size:18px;font-weight:800;color:#1a2456;pointer-events:none;white-space:nowrap">'+yesPct+'%</span>':'')
     +'</div>'
-    +'<div style="display:flex;align-items:baseline;justify-content:flex-end;gap:8px;margin-top:6px">'
-    +'<span style="font-size:13px;font-weight:600;color:#1a2456">'+yc+' / '+applicable+'</span>'
-    +'<span style="font-size:22px;font-weight:800;color:#00b5a5">'+yesPct+(yesPct!=='—'?'%':'')+'</span>'
-    +'</div>'
-    +'<div style="font-size:10px;color:var(--mu);text-align:right;margin-top:2px">Yes / Applicable (excl. N/A)</div>';
+    +'<div style="text-align:right;font-size:12px;font-weight:700;color:#1a2456;margin-top:6px">'+yc+' / '+applicable+' <span style="color:var(--mu);font-weight:400;font-size:11px">YES / Applicable (excl. N/A)</span></div>';
 
   // ── BS Guide ──
   var bsTotal=typeof bsData!=='undefined'?bsData.length:0;
@@ -2600,7 +2611,7 @@ function buildDash(){
     +'<div class="sb-comp-title">'+compL+'</div>'
     +'<div class="sb-comp-pct">'+compPct+'%</div>'
     +'<div class="sb-comp-sub">'+done+' / '+total+' '+answL
-    +' &nbsp;·&nbsp; Yes '+yc+' &nbsp;·&nbsp; No '+nc+' &nbsp;·&nbsp; N/A '+ac+' &nbsp;·&nbsp; '+pendL+' '+pend
+    +' &nbsp;·&nbsp; Yes '+yc+' &nbsp;·&nbsp; No '+nc+' &nbsp;·&nbsp; N/A '+ac+' &nbsp;·&nbsp; <span style="color:#7c3aed;font-weight:700">Hold '+hc+'</span> &nbsp;·&nbsp; '+pendL+' '+pend
     +'</div>'
     +'</div>'
     // 2×2 grid
@@ -2787,6 +2798,7 @@ function buildValidation(){
         +'<button class="val-rb'+(res==='yes'?' vy':'')+'" onclick="setRes('+qid+',\'yes\')">YES</button>'
         +'<button class="val-rb'+(res==='no'?' vn':'')+'" onclick="setRes('+qid+',\'no\')">NO</button>'
         +'<button class="val-rb'+(res==='na'?' vna':'')+'" onclick="setRes('+qid+',\'na\')">N/A</button>'
+        +'<button class="val-rb'+(res==='hold'?' vhd':'')+'" onclick="setRes('+qid+',\'hold\')">'+(lang==='ko'?'보류':lang==='ja'?'保留':'HOLD')+'</button>'
         +'</div>'
         +'</div>'
         +(tsHtml||'')
@@ -2810,7 +2822,7 @@ function buildBSLP(){
     html+='<div class="lsl">'+cat+'</div>';
     items.forEach(function(item){
       var res=bsResults[item.id]||'';
-      var dc=res==='yes'?'dy':res==='no'?'dn':res==='na'?'dna':'dnone';
+      var dc=res==='yes'?'dy':res==='no'?'dn':res==='na'?'dna':res==='hold'?'dhold':'dnone';
       var bsResBadge='';
       if(res==='yes')bsResBadge='<div class="lbadge" style="background:#d4edda;color:#155724">YES</div>';
       else if(res==='no')bsResBadge='<div class="lbadge" style="background:#f8d7da;color:#721c24">NO</div>';
