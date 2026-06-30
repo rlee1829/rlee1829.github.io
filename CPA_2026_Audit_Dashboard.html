@@ -680,6 +680,25 @@ function saveTestCell(id,r,c,val){
   testSheetData[k][r][c]=val;
   try{localStorage.setItem(hotelKey('cpa_ts'),JSON.stringify(testSheetData));}catch(e){}
 }
+function _buildVisualGrid(table){
+  var grid=[],occ={};
+  table.querySelectorAll('tbody tr').forEach(function(tr,ri){
+    if(!grid[ri])grid[ri]=[];
+    var col=0;
+    Array.from(tr.children).forEach(function(td){
+      while(occ[ri+','+col])col++;
+      var rs=parseInt(td.getAttribute('rowspan')||'1');
+      var cs=parseInt(td.getAttribute('colspan')||'1');
+      var inp=td.querySelector('input.ts-inp');
+      for(var r=ri;r<ri+rs;r++){
+        if(!grid[r])grid[r]=[];
+        for(var c=col;c<col+cs;c++){grid[r][c]=inp||null;occ[r+','+c]=true;}
+      }
+      col+=cs;
+    });
+  });
+  return grid;
+}
 document.addEventListener('paste',function(e){
   var inp=e.target;
   if(!inp.classList||!inp.classList.contains('ts-inp'))return;
@@ -688,23 +707,27 @@ document.addEventListener('paste',function(e){
   if(rows[rows.length-1]==='')rows.pop();
   if(rows.length===1&&rows[0].indexOf('\t')===-1)return;
   e.preventDefault();
-  var grid=rows.map(function(r){return r.split('\t');});
-  var m=inp.getAttribute('oninput').match(/saveTestCell\((\d+),(\d+),(\d+),/);
-  if(!m)return;
-  var itemId=parseInt(m[1]),startR=parseInt(m[2]),startC=parseInt(m[3]);
-  var wrap=document.getElementById('ts-wrap-'+itemId);
-  if(!wrap)return;
-  var cellMap={};
-  wrap.querySelectorAll('input.ts-inp').forEach(function(el){
-    var cm=el.getAttribute('oninput').match(/saveTestCell\((\d+),(\d+),(\d+),/);
-    if(cm)cellMap[cm[2]+','+cm[3]]=el;
-  });
-  grid.forEach(function(pr,ri){
+  var pasteGrid=rows.map(function(r){return r.split('\t');});
+  var table=inp;while(table&&table.tagName!=='TABLE')table=table.parentElement;
+  if(!table)return;
+  var vg=_buildVisualGrid(table);
+  var sr=-1,sc=-1;
+  outer:for(var r=0;r<vg.length;r++)for(var c=0;c<(vg[r]||[]).length;c++)if(vg[r][c]===inp){sr=r;sc=c;break outer;}
+  if(sr===-1)return;
+  var seen=[],seenVals=[];
+  pasteGrid.forEach(function(pr,ri){
     pr.forEach(function(val,ci){
-      var key=(startR+ri)+','+(startC+ci);
-      var t=cellMap[key];
-      if(t){t.value=val;saveTestCell(itemId,startR+ri,startC+ci,val);}
+      var target=vg[sr+ri]&&vg[sr+ri][sc+ci];
+      if(!target)return;
+      var idx=seen.indexOf(target);
+      if(idx===-1){seen.push(target);seenVals.push(val);}
+      else if(seenVals[idx]===''&&val!==''){seenVals[idx]=val;}
     });
+  });
+  seen.forEach(function(el,i){
+    el.value=seenVals[i];
+    var m=el.getAttribute('oninput').match(/saveTestCell\((\d+),(\d+),(\d+),/);
+    if(m)saveTestCell(parseInt(m[1]),parseInt(m[2]),parseInt(m[3]),seenVals[i]);
   });
 });
 function _tsHdr(id,ts,showCopy){
