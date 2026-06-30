@@ -237,7 +237,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 /* ── SCOREBOARD ── */
 .sb-wrap{padding:16px 20px;max-width:980px;margin:0 auto}
 .sb-comp-hdr{text-align:center;padding:16px 20px 14px;background:#fff;border-radius:10px;box-shadow:var(--sh);margin-bottom:14px}
-.sb-comp-title{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px}
+.sb-comp-title{font-size:17px;font-weight:800;color:var(--p);letter-spacing:.1px}
 .sb-comp-pct{font-size:40px;font-weight:800;color:var(--p);line-height:1.1;margin-top:4px}
 .sb-comp-sub{font-size:11px;color:var(--mu);margin-top:5px}
 .sb-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
@@ -250,11 +250,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 .sb-row:last-child{margin-bottom:0}
 .sb-lbl{font-size:11.5px;color:#333;min-width:104px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;font-weight:600}
 .sb-bar-wrap{flex:1;height:26px;border-radius:4px;overflow:hidden;display:flex;background:#e9ecef;min-width:60px}
-.sb-bar-y{background:#00b5a5;height:100%;min-width:0;transition:flex .4s}
-.sb-bar-n{background:#e07857;height:100%;flex-shrink:0}
-.sb-bar-na{background:#cfd3d8;height:100%;flex-shrink:0}
+.sb-bar-y{background:#15803D;height:100%;min-width:0;transition:flex .4s}
+.sb-bar-n{background:#B91C1C;height:100%;flex-shrink:0}
+.sb-bar-na{background:#6B7280;height:100%;flex-shrink:0}
 .sb-score{font-size:12px;font-weight:700;color:#1a2456;min-width:58px;text-align:right;flex-shrink:0}
-.sb-bar-prog{background:var(--p);height:100%;transition:width .4s}
+.sb-bar-prog{background:#6B7280;height:100%;transition:width .4s}
 .sb-cnt{font-size:12px;font-weight:700;color:var(--p);min-width:28px;text-align:right;flex-shrink:0}
 .sb-big-bar-wrap{height:40px;border-radius:6px;overflow:hidden;display:flex;background:#e9ecef;margin-bottom:8px}
 .tab.tab-ov{background:#e8edf8;border-right:2px solid var(--bd);font-size:13px;font-weight:800;color:var(--p);letter-spacing:.2px}
@@ -2486,9 +2486,9 @@ function buildDash(){
 
   // ── Risk breakdown ──
   var legend='<div class="sb-legend">'
-    +'<span><span class="sb-ldot" style="background:#e07857"></span>No</span>'
-    +'<span><span class="sb-ldot" style="background:#cfd3d8"></span>N/A</span>'
-    +'<span><span class="sb-ldot" style="background:#00b5a5"></span>Yes</span>'
+    +'<span><span class="sb-ldot" style="background:#B91C1C"></span>No</span>'
+    +'<span><span class="sb-ldot" style="background:#6B7280"></span>N/A</span>'
+    +'<span><span class="sb-ldot" style="background:#15803D"></span>Yes</span>'
     +'</div>';
   var riskRowsHtml='';
   ['Key','HR'].forEach(function(r){
@@ -2510,7 +2510,7 @@ function buildDash(){
       +(rh>0?'<div style="flex:'+rh+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
       +(ry>0?'<div class="sb-bar-y" style="flex:'+ry+'"></div>':'')
       +((rt-rd)>0?'<div style="flex:'+(rt-rd)+'"></div>':'')
-      +(rappl>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:800;color:#1a2456;pointer-events:none;white-space:nowrap">'+ryp+'%</span>':'')
+      +(rappl>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:800;color:#FFFFFF;text-shadow:0 1px 3px rgba(0,0,0,.45);pointer-events:none;white-space:nowrap">'+ryp+'%</span>':'')
       +'</div>'
       +'<div class="sb-score">'+ry+'/'+rappl+'</div>'
       +'</div>';
@@ -2545,14 +2545,14 @@ function buildDash(){
       +(sh>0?'<div style="flex:'+sh+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
       +(sy>0?'<div class="sb-bar-y" style="flex:'+sy+'"></div>':'')
       +((st-sd)>0?'<div style="flex:'+(st-sd)+'"></div>':'')
-      +(sappl>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:800;color:#1a2456;pointer-events:none;white-space:nowrap">'+syp+'%</span>':'')
+      +(sappl>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:800;color:#FFFFFF;text-shadow:0 1px 3px rgba(0,0,0,.45);pointer-events:none;white-space:nowrap">'+syp+'%</span>':'')
       +'</div>'
       +'<div class="sb-score">'+sy+'/'+sappl+'</div>'
       +'</div>';
     var bw=st>0?(secCounts[idx]/st*100).toFixed(1):0;
     progRowsHtml+='<div class="sb-row">'
       +'<div class="sb-lbl">'+slink+'</div>'
-      +'<div style="flex:1;height:24px;background:#e9ecef;border-radius:4px;overflow:hidden">'
+      +'<div style="flex:1;height:24px;background:#E5E7EB;border-radius:4px;overflow:hidden">'
       +'<div class="sb-bar-prog" style="width:'+bw+'%"></div>'
       +'</div>'
       +'<div class="sb-cnt">'+secCounts[idx]+'/'+st+'</div>'
@@ -2566,7 +2566,7 @@ function buildDash(){
     +(hc>0?'<div style="flex:'+hc+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
     +(yc>0?'<div class="sb-bar-y" style="flex:'+yc+'"></div>':'')
     +(pend>0?'<div style="flex:'+pend+'"></div>':'')
-    +(applicable>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:18px;font-weight:800;color:#1a2456;pointer-events:none;white-space:nowrap">'+yesPct+'%</span>':'')
+    +(applicable>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:18px;font-weight:800;color:#FFFFFF;text-shadow:0 1px 3px rgba(0,0,0,.45);pointer-events:none;white-space:nowrap">'+yesPct+'%</span>':'')
     +'</div>'
     +'<div style="text-align:right;font-size:12px;font-weight:700;color:#1a2456;margin-top:6px">'+yc+' / '+applicable+' <span style="color:var(--mu);font-weight:400;font-size:11px">YES / Applicable (excl. N/A)</span></div>';
 
@@ -2628,7 +2628,7 @@ function buildDash(){
     +(hc>0?'<div style="flex:'+hc+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
     +(yc>0?'<div class="sb-bar-y" style="flex:'+yc+'"></div>':'')
     +(pend>0?'<div style="flex:'+pend+'"></div>':'')
-    +(total>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:18px;font-weight:800;color:#1a2456;pointer-events:none;white-space:nowrap">'+compPct+'%</span>':'')
+    +(total>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:18px;font-weight:800;color:#FFFFFF;text-shadow:0 1px 3px rgba(0,0,0,.45);pointer-events:none;white-space:nowrap">'+compPct+'%</span>':'')
     +'</div>'
     +'<div style="text-align:right;font-size:12px;font-weight:700;color:#1a2456;margin-top:6px">'+done+' / '+total+' <span style="color:var(--mu);font-weight:400;font-size:11px">'+answL+'</span></div>'
     +'</div>'
