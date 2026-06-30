@@ -1782,15 +1782,54 @@ function _mkSecChips(containerId, secsAvail, allLabel){
   return function(){return chips.filter(function(ch){return ch.inp.checked;}).map(function(ch){return ch.inp.value;});};
 }
 var _getExportSecs=null;
+var _modalT={
+  en:{
+    expTitle:'&#8679; Export Data',
+    expSub:'Select pages to include in the export file. Each page exports all its data.',
+    expPages:'Pages',expCancel:'Cancel',expBtn:'&#8679; Export JSON',
+    impTitle:'&#8681; Import Data',impSecs:'Pages in file',impMode:'Import Mode',
+    impMerge:'<b>Merge</b> — add to existing data, keep untouched sections intact <span style="color:#198754;font-size:11px">(recommended for consolidation)</span>',
+    impOver:'<b>Overwrite</b> — replace selected sections completely',
+    impCancel:'Cancel',impBtn:'&#8681; Import'
+  },
+  ko:{
+    expTitle:'&#8679; 내보내기',
+    expSub:'내보낼 페이지를 선택하세요. 각 페이지의 모든 데이터가 포함됩니다.',
+    expPages:'페이지',expCancel:'취소',expBtn:'&#8679; Export JSON',
+    impTitle:'&#8681; 가져오기',impSecs:'파일의 페이지',impMode:'가져오기 방식',
+    impMerge:'<b>병합</b> — 기존 데이터에 추가, 선택하지 않은 섹션 유지 <span style="color:#198754;font-size:11px">(통합 시 권장)</span>',
+    impOver:'<b>덮어쓰기</b> — 선택한 섹션을 완전히 교체',
+    impCancel:'취소',impBtn:'&#8681; 가져오기'
+  },
+  ja:{
+    expTitle:'&#8679; エクスポート',
+    expSub:'エクスポートするページを選択してください。各ページのすべてのデータが含まれます。',
+    expPages:'ページ',expCancel:'キャンセル',expBtn:'&#8679; Export JSON',
+    impTitle:'&#8681; インポート',impSecs:'ファイルのページ',impMode:'インポートモード',
+    impMerge:'<b>マージ</b> — 既存データに追加、未選択セクションはそのまま維持 <span style="color:#198754;font-size:11px">（統合に推奨）</span>',
+    impOver:'<b>上書き</b> — 選択したセクションを完全に置換',
+    impCancel:'キャンセル',impBtn:'&#8681; インポート'
+  }
+};
+function _applyModalLang(){
+  var t=_modalT[lang]||_modalT.en;
+  var s=function(id,html,txt){var el=document.getElementById(id);if(!el)return;if(html)el.innerHTML=txt;else el.textContent=txt;};
+  s('exp-title',true,t.expTitle);s('exp-subtitle',false,t.expSub);s('exp-pages-label',false,t.expPages);
+  s('exp-cancel-btn',false,t.expCancel);s('exp-do-btn',true,t.expBtn);
+  s('imp-title',true,t.impTitle);s('imp-secs-label',false,t.impSecs);s('imp-mode-label',false,t.impMode);
+  s('imp-merge-span',true,t.impMerge);s('imp-over-span',true,t.impOver);
+  s('imp-cancel-btn',false,t.impCancel);s('imp-do-btn',true,t.impBtn);
+}
 function exportJSON(){
-  _getExportSecs=_mkSecChips('export-sec-list',['PREP','BS Guide'].concat(getAuditSecs()));
+  _applyModalLang();
+  _getExportSecs=_mkSecChips('export-sec-list',['PREP'].concat(getAuditSecs(),['BS Guide']));
   document.getElementById('export-modal').style.display='flex';
 }
 function doExport(){
   var hotel=document.getElementById('hi-hotel').value||currentHotel||'Hotel';
   var auditor=document.getElementById('hi-auditor').value||'';
   var date=new Date().toISOString().slice(0,10);
-  var selPages=_getExportSecs?_getExportSecs():['PREP','BS Guide'].concat(getAuditSecs());
+  var selPages=_getExportSecs?_getExportSecs():['PREP'].concat(getAuditSecs(),['BS Guide']);
   var inclPrep=selPages.indexOf('PREP')>-1;
   var inclBSGuide=selPages.indexOf('BS Guide')>-1;
   var selSecs=selPages.filter(function(p){return p!=='PREP'&&p!=='BS Guide';});
@@ -1855,9 +1894,10 @@ function handleImport(e){
       var extraImpPages=[];
       if(d.bsResults||d.bsChecks||d.bsNotes)extraImpPages.push('BS Guide');
       _importData=d;
+      _applyModalLang();
       var info=document.getElementById('imp-file-info');
       info.textContent=(d.hotelName||'—')+(d.auditorName?' · '+d.auditorName:'')+(d.exportedAt?' · '+d.exportedAt:'');
-      _getImportSecs=_mkSecChips('import-sec-list',extraImpPages.concat(detectedSecs));
+      _getImportSecs=_mkSecChips('import-sec-list',detectedSecs.concat(extraImpPages));
       document.getElementById('import-modal').style.display='flex';
     }catch(err){
       alert('파일을 읽을 수 없습니다. 올바른 JSON 파일인지 확인해 주세요.');
@@ -3618,13 +3658,13 @@ window.addEventListener('beforeunload',function(e){
 <!-- Export Modal -->
 <div id="export-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:14px;padding:28px;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.25)">
-    <div style="font-size:16px;font-weight:800;color:#1a2456;margin-bottom:4px">&#8679; Export Data</div>
-    <div style="font-size:12px;color:#6c757d;margin-bottom:16px">Select pages to include in the export file. Each page exports all its data.</div>
-    <div style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pages</div>
+    <div id="exp-title" style="font-size:16px;font-weight:800;color:#1a2456;margin-bottom:4px">&#8679; Export Data</div>
+    <div id="exp-subtitle" style="font-size:12px;color:#6c757d;margin-bottom:16px">Select pages to include in the export file. Each page exports all its data.</div>
+    <div id="exp-pages-label" style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pages</div>
     <div id="export-sec-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="document.getElementById('export-modal').style.display='none'" style="padding:8px 18px;border:1px solid #dee2e6;border-radius:7px;background:#f8f9fa;color:#495057;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
-      <button onclick="doExport()" style="padding:8px 20px;border:none;border-radius:7px;background:#1a2456;color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#8679; Export JSON</button>
+      <button id="exp-cancel-btn" onclick="document.getElementById('export-modal').style.display='none'" style="padding:8px 18px;border:1px solid #dee2e6;border-radius:7px;background:#f8f9fa;color:#495057;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+      <button id="exp-do-btn" onclick="doExport()" style="padding:8px 20px;border:none;border-radius:7px;background:#1a2456;color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#8679; Export JSON</button>
     </div>
   </div>
 </div>
@@ -3632,18 +3672,18 @@ window.addEventListener('beforeunload',function(e){
 <!-- Import Modal -->
 <div id="import-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:14px;padding:28px;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.25)">
-    <div style="font-size:16px;font-weight:800;color:#1a2456;margin-bottom:2px">&#8681; Import Data</div>
+    <div id="imp-title" style="font-size:16px;font-weight:800;color:#1a2456;margin-bottom:2px">&#8681; Import Data</div>
     <div id="imp-file-info" style="font-size:12px;color:#6c757d;margin-bottom:16px"></div>
-    <div style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Sections in file</div>
+    <div id="imp-secs-label" style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Sections in file</div>
     <div id="import-sec-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px"></div>
-    <div style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Import Mode</div>
+    <div id="imp-mode-label" style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Import Mode</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px">
-      <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="imp-mode" value="merge" checked style="margin-top:2px"> <span><b>Merge</b> — add to existing data, keep untouched sections intact <span style="color:#198754;font-size:11px">(recommended for consolidation)</span></span></label>
-      <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="imp-mode" value="overwrite" style="margin-top:2px"> <span><b>Overwrite</b> — replace selected sections completely</span></label>
+      <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="imp-mode" value="merge" checked style="margin-top:2px"> <span id="imp-merge-span"><b>Merge</b> — add to existing data, keep untouched sections intact <span style="color:#198754;font-size:11px">(recommended for consolidation)</span></span></label>
+      <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="imp-mode" value="overwrite" style="margin-top:2px"> <span id="imp-over-span"><b>Overwrite</b> — replace selected sections completely</span></label>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="document.getElementById('import-modal').style.display='none';document.getElementById('import-file').value=''" style="padding:8px 18px;border:1px solid #dee2e6;border-radius:7px;background:#f8f9fa;color:#495057;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
-      <button onclick="doImport()" style="padding:8px 20px;border:none;border-radius:7px;background:#3a7bd5;color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#8681; Import</button>
+      <button id="imp-cancel-btn" onclick="document.getElementById('import-modal').style.display='none';document.getElementById('import-file').value=''" style="padding:8px 18px;border:1px solid #dee2e6;border-radius:7px;background:#f8f9fa;color:#495057;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+      <button id="imp-do-btn" onclick="doImport()" style="padding:8px 20px;border:none;border-radius:7px;background:#3a7bd5;color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#8681; Import</button>
     </div>
   </div>
 </div>
