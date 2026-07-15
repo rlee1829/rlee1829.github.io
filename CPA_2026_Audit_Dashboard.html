@@ -771,6 +771,33 @@ function _tsSubHdr(label,id,tblIdx){
     +'<button id="ts-copy-btn-'+id+'-'+tblIdx+'" class="ts-copy-btn" onclick="copyTestSheet('+id+','+tblIdx+')">&#128203; Copy</button>'
     +'</div>';
 }
+function _tsCopyGrid(table){
+  // Build a rectangular grid honoring rowspan/colspan so spanned cells keep
+  // their column alignment when pasted into Excel (empty string for continuations).
+  var grid=[],occ={},maxCols=0;
+  table.querySelectorAll('tbody tr').forEach(function(tr,ri){
+    if(!grid[ri])grid[ri]=[];
+    var col=0;
+    Array.from(tr.children).forEach(function(td){
+      while(occ[ri+','+col])col++;
+      var rs=parseInt(td.getAttribute('rowspan')||'1');
+      var cs=parseInt(td.getAttribute('colspan')||'1');
+      var inp=td.querySelector('input[type=text],textarea');
+      var val=inp?inp.value.trim():td.textContent.trim();
+      for(var r=ri;r<ri+rs;r++){
+        if(!grid[r])grid[r]=[];
+        for(var c=col;c<col+cs;c++){
+          grid[r][c]=(r===ri&&c===col)?val:'';
+          occ[r+','+c]=true;
+        }
+      }
+      col+=cs;if(col>maxCols)maxCols=col;
+    });
+  });
+  // Normalize row lengths so every row is rectangular.
+  grid.forEach(function(row){for(var c=0;c<maxCols;c++)if(row[c]===undefined)row[c]='';});
+  return grid;
+}
 function copyTestSheet(id,tblIdx){
   var wrap=document.getElementById('ts-wrap-'+id);if(!wrap)return;
   var allTables=wrap.querySelectorAll('table.ts-tbl');
@@ -780,20 +807,11 @@ function copyTestSheet(id,tblIdx){
   var tdStyle='border:1px solid #aaa;padding:4px 8px;vertical-align:top';
   tables.forEach(function(table){
     if(!table)return;
-    var dataRows=[];
-    table.querySelectorAll('tbody tr').forEach(function(tr){
-      var row=[];
-      tr.querySelectorAll('td').forEach(function(td){
-        var inp=td.querySelector('input[type=text],textarea');
-        if(inp)row.push(inp.value.trim());
-        else if(td.classList.contains('ts-rn'))row.push(td.textContent.trim());
-      });
-      if(row.length)dataRows.push(row);
-    });
-    dataRows.forEach(function(r){tsvParts.push(r.join('\t'));});
+    var grid=_tsCopyGrid(table);
+    grid.forEach(function(r){tsvParts.push(r.map(function(v){return v||'';}).join('\t'));});
     tsvParts.push('');
-    var htrs=dataRows.map(function(r){
-      return '<tr>'+r.map(function(v){return '<td style="'+tdStyle+'">'+(v||'')+'</td>';}).join('')+'</tr>';
+    var htrs=grid.map(function(r){
+      return '<tr>'+r.map(function(v){return '<td style="'+tdStyle+'">'+esc(v||'')+'</td>';}).join('')+'</tr>';
     }).join('');
     htmlParts.push('<table style="'+htmlStyle+'"><tbody>'+htrs+'</tbody></table>');
   });
