@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CPA 2026 Peer Audit Dashboard</title>
 <style>
-:root{--p:#1a2456;--g:#c8a96e;--gl:#e8d4a0;--bg:#f0f2f5;--tx:#1a1a2e;--mu:#6c757d;--bd:#dee2e6;--kc:#dc3545;--hc:#fd7e14;--yc:#198754;--nc:#dc3545;--ac:#6c757d;--sh:0 2px 8px rgba(0,0,0,.08)}
+:root{--color-yes:#3C6E58;--color-no:#9C4B3E;--color-hold:#B8862E;--color-navy:#1B2A41;--color-neutral:#8B93A0;--p:#1B2A41;--g:#c8a96e;--gl:#e8d4a0;--bg:#f0f2f5;--tx:#1a1a2e;--mu:#8B93A0;--bd:#dee2e6;--kc:#9C4B3E;--hc:#fd7e14;--yc:#3C6E58;--nc:#9C4B3E;--ac:#8B93A0;--sh:0 2px 8px rgba(0,0,0,.08)}
 #pw-gate{position:fixed;inset:0;background:var(--p);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
 .pw-box{background:#fff;border-radius:14px;padding:36px 32px;text-align:center;width:320px;max-width:100%}
 .pw-logo{font-size:18px;font-weight:800;color:var(--p);margin-bottom:3px}
@@ -14,7 +14,7 @@
 #pw-input:focus{border-color:var(--p)}
 .pw-btn{width:100%;padding:10px;font-size:13px;font-weight:700;background:var(--p);color:#fff;border:none;border-radius:8px;cursor:pointer}
 .pw-btn:hover{opacity:.88}
-#pw-err{color:#dc3545;font-size:12px;margin-top:8px;min-height:16px}
+#pw-err{color:#9C4B3E;font-size:12px;margin-top:8px;min-height:16px}
 #hotel-gate{position:fixed;inset:0;background:var(--p);display:none;align-items:center;justify-content:center;z-index:9998;padding:20px}
 .hotel-box{width:440px;max-width:100%}
 .hotel-list{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px;justify-content:center;min-height:32px}
@@ -24,7 +24,7 @@
 .hotel-chip-wrap:hover .hotel-del{color:rgba(255,255,255,.7)}
 .hotel-chip{padding:7px 14px 7px 18px;background:transparent;border:none;color:var(--p);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
 .hotel-del{padding:7px 10px 7px 2px;background:transparent;border:none;color:#bbb;font-size:16px;cursor:pointer;line-height:1;font-family:inherit}
-.hotel-del:hover{color:#dc3545!important}
+.hotel-del:hover{color:#9C4B3E!important}
 .hotel-new{display:flex;gap:8px;margin-top:12px}
 .hotel-new input{flex:1;padding:10px 14px;border:2px solid var(--bd);border-radius:8px;font-size:16px;font-family:inherit;outline:none;text-align:left}
 .hotel-new input:focus{border-color:var(--p)}
@@ -93,8 +93,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 .li{padding:7px 10px;cursor:pointer;border-bottom:1px solid #f0f2f5;display:flex;align-items:flex-start;gap:6px;transition:background .1s}
 .li:hover{background:#f0f2f5}.li.act{background:#e8edf8;border-left:3px solid var(--p)}
 .ldot{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px}
-.dy{background:var(--yc)}.dn{background:var(--nc)}.dna{background:var(--ac)}.dnone{background:#dee2e6;color:var(--mu)}.dhold{background:#7c3aed}
-.rbhold{border-color:#7c3aed;color:#7c3aed}.rbhold.act{background:#7c3aed;color:#fff}
+.dy{background:var(--yc)}.dn{background:var(--nc)}.dna{background:var(--ac)}.dnone{background:#dee2e6;color:var(--mu)}.dhold{background:#B8862E}
+.rbhold{border-color:#B8862E;color:#B8862E}.rbhold.act{background:#B8862E;color:#fff}
 .val-rb.vhd{background:#ede9fe;color:#5b21b6;border-color:#8b5cf6}
 .lbadge{padding:1px 4px;border-radius:2px;font-size:9px;font-weight:700;flex-shrink:0;margin-top:2px}
 .bk{background:#fde8ea;color:var(--kc)}.bh{background:#fff0e6;color:var(--hc)}
@@ -197,7 +197,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Yu
 .sb-bar-y{background:#15803D;height:100%;min-width:0;transition:flex .4s}
 .sb-bar-n{background:#B91C1C;height:100%;flex-shrink:0}
 .sb-bar-na{background:#6B7280;height:100%;flex-shrink:0}
-.sb-score{font-size:12px;font-weight:700;color:#1a2456;min-width:58px;text-align:right;flex-shrink:0}
+.sb-score{font-size:12px;font-weight:700;color:#1B2A41;min-width:58px;text-align:right;flex-shrink:0}
 .sb-bar-prog{background:#6B7280;height:100%;transition:width .4s}
 .sb-cnt{font-size:12px;font-weight:700;color:var(--p);min-width:28px;text-align:right;flex-shrink:0}
 .sb-big-bar-wrap{height:40px;border-radius:6px;overflow:hidden;display:flex;background:#e9ecef;margin-bottom:8px}
@@ -219,7 +219,7 @@ body.dash-scroll #db{overflow-y:visible!important;overflow-x:hidden;min-height:0
 .prep-sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--bg2);border-left:4px solid var(--p)}
 .prep-sec-name{font-size:13px;font-weight:700;color:var(--p)}
 .prep-sec-cnt{font-size:11px;color:var(--sub)}
-.prep-sec-cnt.done{color:#198754;font-weight:600}
+.prep-sec-cnt.done{color:#3C6E58;font-weight:600}
 .prep-item{display:flex;align-items:center;padding:7px 14px;border-bottom:1px solid var(--bd);gap:6px}
 .prep-item:last-child{border-bottom:none}
 .prep-item.ck{background:#f0faf4}
@@ -228,8 +228,8 @@ body.dash-scroll #db{overflow-y:visible!important;overflow-x:hidden;min-height:0
 .prep-num{font-size:11px;color:var(--sub);min-width:26px;flex-shrink:0}
 .prep-type{display:flex;gap:3px;flex-shrink:0}
 .prep-type-btn{font-size:10px;padding:2px 6px;border-radius:10px;border:1px solid var(--bd);background:#fff;color:var(--sub);cursor:pointer;white-space:nowrap;line-height:1.4}
-.prep-type-btn.t-dmx{background:#1a2456;color:#fff;border-color:#1a2456}
-.prep-type-btn.t-file{background:#198754;color:#fff;border-color:#198754}
+.prep-type-btn.t-dmx{background:#1B2A41;color:#fff;border-color:#1B2A41}
+.prep-type-btn.t-file{background:#3C6E58;color:#fff;border-color:#3C6E58}
 .prep-type-btn.t-paper{background:#c8a96e;color:#fff;border-color:#b8935a}
 .prep-txt{font-size:12.5px;color:var(--tx);line-height:1.5;flex:1}
 .prep-remark input{padding:3px 7px;border:1px solid var(--bd);border-radius:4px;font-size:11px;font-family:inherit;color:var(--tx);background:#fff;width:160px;flex-shrink:0}
@@ -261,13 +261,13 @@ body.dash-scroll #db{overflow-y:visible!important;overflow-x:hidden;min-height:0
 .val-item-num{font-size:13px;font-weight:800;color:var(--p);min-width:34px;flex-shrink:0;padding-top:1px}
 .val-item-desc{font-size:13px;font-weight:700;color:var(--tx);flex:1;line-height:1.55;min-width:120px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .val-item-btns{display:flex;gap:5px;flex-shrink:0;padding-top:1px;flex-wrap:wrap}
-.val-rb{padding:5px 15px;border-radius:5px;font-size:12px;font-weight:800;cursor:pointer;border:1px solid #ced4da;background:#f0f1f3;color:#6c757d;transition:all .15s}
+.val-rb{padding:5px 15px;border-radius:5px;font-size:12px;font-weight:800;cursor:pointer;border:1px solid #ced4da;background:#f0f1f3;color:#8B93A0;transition:all .15s}
 .val-rb:hover{filter:brightness(.94)}
 .val-rb.vy{background:#d1f2e2;color:#145c38;border-color:#a8dfc0}
 .val-rb.vn{background:#fdd9dc;color:#7c1c24;border-color:#f5b8be}
 .val-rb.vna{background:#e2e4e7;color:#3d4349;border-color:#c8cdd3}
 .val-note-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-.val-note-row label{font-size:10px;font-weight:700;color:#6c757d;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;display:block}
+.val-note-row label{font-size:10px;font-weight:700;color:#8B93A0;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;display:block}
 .val-note-row .ig-samp{flex:1;min-width:160px}
 .val-note-row .ig-note{flex:2.5;min-width:210px}
 .val-note-row input,.val-note-row textarea{width:100%;box-sizing:border-box;border:1px solid #ced4da;border-radius:5px;padding:7px 10px;font-size:12.5px;resize:vertical;font-family:inherit;background:#fff;line-height:1.5}
@@ -276,39 +276,39 @@ body.dash-scroll #db{overflow-y:visible!important;overflow-x:hidden;min-height:0
 .prep-print-hdr{display:none}
 #print-hdr{display:none}
 .cat-tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;vertical-align:middle;margin-left:4px}
-.cat-cpa{background:#e8edf8;color:#1a2456}
+.cat-cpa{background:#e8edf8;color:#1B2A41}
 .cat-val{background:#fff3cd;color:#856404}
 .li-val-tag{display:inline-block;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;background:#fff3cd;color:#856404;flex-shrink:0;margin-top:2px;white-space:nowrap}
 .val-warn{border-radius:6px;padding:8px 12px;font-size:12px;margin-top:10px;display:flex;align-items:flex-start;gap:8px;line-height:1.5;border:1px solid}
 .val-warn-idle{background:#fff3cd;border-color:#ffc107;color:#664d03}
-.val-warn-req{background:#fde8ea;border-color:#dc3545;color:#721c24;font-weight:600}
-.val-warn-ok{background:#e8f5e9;border-color:#198754;color:#1a6645}
-.prep-inline-hdr{font-size:10px;font-weight:800;color:#6c757d;text-transform:uppercase;letter-spacing:.7px;margin-top:10px;margin-bottom:4px}
+.val-warn-req{background:#fde8ea;border-color:#9C4B3E;color:#721c24;font-weight:600}
+.val-warn-ok{background:#e8f5e9;border-color:#3C6E58;color:#1a6645}
+.prep-inline-hdr{font-size:10px;font-weight:800;color:#8B93A0;text-transform:uppercase;letter-spacing:.7px;margin-top:10px;margin-bottom:4px}
 .prep-inline{padding:9px 13px;background:#f7f8fc;border:1px solid var(--bd);border-radius:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .prep-inline-types{display:flex;gap:5px;flex-shrink:0}
 .prep-inline .prep-type-btn{font-size:12px;padding:4px 10px;border-radius:10px;cursor:default;pointer-events:none}
 .prep-inline-name{font-size:12.5px;color:var(--tx);flex:1;min-width:80px;line-height:1.4}
-.prep-inline-rmk{font-size:12px;color:#6c757d;padding-left:10px;border-left:2px solid #d0d5e0;font-style:italic}
+.prep-inline-rmk{font-size:12px;color:#8B93A0;padding-left:10px;border-left:2px solid #d0d5e0;font-style:italic}
 .ts-wrap{margin-top:12px}
-.ts-hdr{font-size:10px;font-weight:800;color:#6c757d;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.ts-hdr{font-size:10px;font-weight:800;color:#8B93A0;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
 .ts-badge{background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:3px;font-size:9px;font-weight:700;padding:1px 6px}
 .ts-copy-btn{margin-left:auto;padding:2px 10px;border:1px solid #dee2e6;border-radius:4px;background:#fff;color:#495057;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s}
-.ts-copy-btn:hover{background:#e8eaf6;border-color:#1a2456;color:#1a2456}
-.ts-copy-btn.copied{background:#d4edda;border-color:#198754;color:#198754}
+.ts-copy-btn:hover{background:#e8eaf6;border-color:#1B2A41;color:#1B2A41}
+.ts-copy-btn.copied{background:#d4edda;border-color:#3C6E58;color:#3C6E58}
 .ts-tbl-wrap{overflow-x:auto;border-radius:6px;border:1px solid #e0e4ef}
 .ts-tbl{border-collapse:collapse;width:100%;font-size:12px;min-width:480px}
-.ts-tbl th{background:#e8edf8;color:#1a2456;font-weight:700;padding:6px 9px;border:1px solid #c8d0e8;white-space:nowrap;font-size:11px}
+.ts-tbl th{background:#e8edf8;color:#1B2A41;font-weight:700;padding:6px 9px;border:1px solid #c8d0e8;white-space:nowrap;font-size:11px}
 .ts-tbl td{border:1px solid #d8ddef;padding:0;vertical-align:middle}
-.ts-tbl td.ts-rn{background:#f7f8fc;color:#6c757d;font-weight:700;text-align:center;padding:4px 7px;width:28px;white-space:nowrap;font-size:11px}
+.ts-tbl td.ts-rn{background:#f7f8fc;color:#8B93A0;font-weight:700;text-align:center;padding:4px 7px;width:28px;white-space:nowrap;font-size:11px}
 .ts-inp{width:100%;box-sizing:border-box;border:none;background:transparent;padding:5px 8px;font-size:12px;font-family:inherit;color:var(--tx);outline:none;resize:none;min-height:28px}
 .ts-inp:focus{background:#fffbe6;outline:none}
 @media print{
   #hdr,#prg,#nav,.prep-top,.bsnotes-top{display:none!important}
-  #print-hdr{display:block!important;padding-bottom:12px;margin-bottom:16px;border-bottom:2px solid #1a2456}
+  #print-hdr{display:block!important;padding-bottom:12px;margin-bottom:16px;border-bottom:2px solid #1B2A41}
   .bsnotes-item{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
-  .print-hdr-title{font-size:16px;font-weight:700;color:#1a2456;margin-bottom:7px}
+  .print-hdr-title{font-size:16px;font-weight:700;color:#1B2A41;margin-bottom:7px}
   .print-hdr-meta{display:flex;gap:28px;font-size:11px;color:#333;flex-wrap:wrap}
-  .print-hdr-meta b{color:#1a2456;margin-right:3px}
+  .print-hdr-meta b{color:#1B2A41;margin-right:3px}
   .prep-item.ck .prep-txt{text-decoration:none;color:var(--tx)}
   .prep-item{break-inside:avoid}
   .prep-type-btn{border-color:#ccc!important}
@@ -482,7 +482,7 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
     <button class="btn btn-o" id="lang-ja" onclick="setLang('ja')">JA</button>
     <button class="btn btn-g" onclick="exportCSV()">&#8659; Excel</button>
     <button class="btn" onclick="exportJSON()" title="Export data as JSON" style="background:#3a7bd5;color:#fff">&#8679; Export</button>
-    <button class="btn" onclick="importJSON()" title="Import JSON data" style="background:#198754;color:#fff">&#8681; Import</button>
+    <button class="btn" onclick="importJSON()" title="Import JSON data" style="background:#3C6E58;color:#fff">&#8681; Import</button>
     <button class="btn btn-o" onclick="window.print()">&#128438; Print</button>
     <button class="btn btn-o" onclick="resetAll()" title="Reset all results" style="color:#c0392b;font-weight:800;font-size:11px;letter-spacing:.5px">RESET</button>
   </div>
@@ -766,7 +766,7 @@ function _tsHdr(id,ts,showCopy){
     +(showCopy===false?'':'<button id="ts-copy-btn-'+id+'" class="ts-copy-btn" onclick="copyTestSheet('+id+')">&#128203; Copy</button>')+'</div>';
 }
 function _tsSubHdr(label,id,tblIdx){
-  return '<div style="font-size:11px;font-weight:700;color:#6c757d;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between">'
+  return '<div style="font-size:11px;font-weight:700;color:#8B93A0;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between">'
     +'<span>'+label+'</span>'
     +'<button id="ts-copy-btn-'+id+'-'+tblIdx+'" class="ts-copy-btn" onclick="copyTestSheet('+id+','+tblIdx+')">&#128203; Copy</button>'
     +'</div>';
@@ -922,7 +922,7 @@ function mkITHtml(id,ts){
   var rows='';
   for(var r=0;r<N;r++){
     var rData=data[r]||{};
-    var sysCell='<td style="background:#eef2fb;color:#1a2456;font-size:11px;font-weight:600;padding:4px 8px;white-space:nowrap;border:1px solid #c8d0e8">'+esc(systems[r])+'</td>';
+    var sysCell='<td style="background:#eef2fb;color:#1B2A41;font-size:11px;font-weight:600;padding:4px 8px;white-space:nowrap;border:1px solid #c8d0e8">'+esc(systems[r])+'</td>';
     var otherTds=otherCols.map(function(c,ci){return _tsInp(id,r,ci+1,rData[ci+1]||'','');}).join('');
     if(r===0){
       var qCell='<td rowspan="'+N+'" style="padding:0;vertical-align:middle"><input class="ts-inp" type="text" value="'+esc((data[0]||{})[0]||'')+'" oninput="saveTestCell('+id+',0,0,this.value)" placeholder="e.g. Q1" autocomplete="off" style="text-align:center;font-weight:700"></td>';
@@ -1175,17 +1175,17 @@ function buildNav(){
     var si=getAuditData().filter(function(i){return i.section===s;});
     var done=si.filter(function(i){return results[i.id];}).length;
     var cls=(viewMode!=='findings'&&curSec===s)?' active':'';
-    html+='<div class="tab'+cls+'" style="color:#1a2456" onclick="selSec(\''+s.replace(/'/g,"\\'")+'\')">'
+    html+='<div class="tab'+cls+'" style="color:#1B2A41" onclick="selSec(\''+s.replace(/'/g,"\\'")+'\')">'
       +esc(s)+'<span class="tn">'+done+'/'+si.length+'</span></div>';
   });
   var nc=getAuditData().filter(function(i){return results[i.id]==='no';}).length;
   var hc=getAuditData().filter(function(i){return results[i.id]==='hold';}).length;
   var fc=(viewMode==='findings')?' active ftab':' ftab';
-  html+='<div class="tab'+fc+'" style="color:#dc3545" onclick="selFindings()">Findings'
-    +'<span class="tn" style="'+(nc>0?'background:#fde8ea;color:#dc3545':'')+'">'
+  html+='<div class="tab'+fc+'" style="color:#9C4B3E" onclick="selFindings()">Findings'
+    +'<span class="tn" style="'+(nc>0?'background:#fde8ea;color:#9C4B3E':'')+'">'
     +nc+'</span></div>';
   var holdc=(viewMode==='hold')?' active ftab':' ftab';
-  html+='<div class="tab'+holdc+'" style="color:#7c3aed;background:#f5f3ff;border-top:2px solid #7c3aed" onclick="selHold()">Hold'
+  html+='<div class="tab'+holdc+'" style="color:#B8862E;background:#f5f3ff;border-top:2px solid #B8862E" onclick="selHold()">Hold'
     +'<span class="tn" style="'+(hc>0?'background:#ede9fe;color:#5b21b6':'')+'">'
     +hc+'</span></div>';
   var valc=(viewMode==='validation')?' active ftab':' ftab';
@@ -1218,9 +1218,9 @@ function updPrg(){
   document.getElementById('pf').style.width=pct+'%';
   document.getElementById('ptx').textContent=done+' / '+total+' ('+pct+'%)';
   document.getElementById('ps').innerHTML=
-    '<div class="prg-s"><span class="pdot" style="background:#198754"></span>Yes: '+yc+'</div>'
-    +'<div class="prg-s"><span class="pdot" style="background:#dc3545"></span>No: '+nc+'</div>'
-    +'<div class="prg-s"><span class="pdot" style="background:#6c757d"></span>N/A: '+ac+'</div>'
+    '<div class="prg-s"><span class="pdot" style="background:#3C6E58"></span>Yes: '+yc+'</div>'
+    +'<div class="prg-s"><span class="pdot" style="background:#9C4B3E"></span>No: '+nc+'</div>'
+    +'<div class="prg-s"><span class="pdot" style="background:#8B93A0"></span>N/A: '+ac+'</div>'
     +'<div class="prg-s"><span class="pdot" style="background:#dee2e6"></span>Pending: '+(total-done)+'</div>';
   // BS Guide separate progress
   if(typeof bsData!=='undefined'){
@@ -1236,9 +1236,9 @@ function updPrg(){
     if(bsPfEl)bsPfEl.style.width=bsPct+'%';
     if(bsPtxEl)bsPtxEl.textContent=bsDone+' / '+bsTotal+' ('+bsPct+'%)';
     if(bsPsEl)bsPsEl.innerHTML=
-      '<div class="prg-s"><span class="pdot" style="background:#198754"></span>Yes: '+bsYc+'</div>'
-      +'<div class="prg-s"><span class="pdot" style="background:#dc3545"></span>No: '+bsNc+'</div>'
-      +'<div class="prg-s"><span class="pdot" style="background:#6c757d"></span>N/A: '+bsAc+'</div>'
+      '<div class="prg-s"><span class="pdot" style="background:#3C6E58"></span>Yes: '+bsYc+'</div>'
+      +'<div class="prg-s"><span class="pdot" style="background:#9C4B3E"></span>No: '+bsNc+'</div>'
+      +'<div class="prg-s"><span class="pdot" style="background:#8B93A0"></span>N/A: '+bsAc+'</div>'
       +'<div class="prg-s"><span class="pdot" style="background:#dee2e6"></span>Pending: '+(bsTotal-bsDone)+'</div>';
   }
 }
@@ -1250,7 +1250,7 @@ function buildLP(){
   var html='';
   if(viewMode==='findings'||viewMode==='hold'){
     if(items.length===0){
-      html='<div style="padding:20px;text-align:center;color:#6c757d;font-size:12px;">'+(viewMode==='hold'?'No items on hold yet':'No findings (No) yet')+'</div>';
+      html='<div style="padding:20px;text-align:center;color:#8B93A0;font-size:12px;">'+(viewMode==='hold'?'No items on hold yet':'No findings (No) yet')+'</div>';
     } else {
       var secs=[];
       items.forEach(function(i){if(secs.indexOf(i.section)===-1)secs.push(i.section);});
@@ -1261,7 +1261,7 @@ function buildLP(){
     }
   } else {
     if(items.length===0){
-      html='<div style="padding:20px;text-align:center;color:#6c757d;font-size:12px;">No items match filter</div>';
+      html='<div style="padding:20px;text-align:center;color:#8B93A0;font-size:12px;">No items match filter</div>';
     } else {
       items.forEach(function(item){html+=mkLI(item);});
     }
@@ -1444,7 +1444,7 @@ function mkPrepInlineHtml(id){
   if(hasFile)badges+='<span class="prep-type-btn t-file">File</span>';
   if(hasPaper)badges+='<span class="prep-type-btn t-paper">Paper</span>';
   var chkBadge=chk
-    ?'<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:#198754;flex-shrink:0">&#10003; Ready</span>'
+    ?'<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:#3C6E58;flex-shrink:0">&#10003; Ready</span>'
     :'<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:#adb5bd;flex-shrink:0">&#9744; Pending</span>';
   var period=pd&&pd.period?pd.period:'';
   var docmxRef=pd&&pd.docmxRef?pd.docmxRef:'';
@@ -1541,7 +1541,7 @@ function buildPrepView(){
     +'<div class="prep-title">'+titleTxt+(hotelVal?' — '+esc(hotelVal):'')+(periodVal?' ('+esc(periodVal)+')':'')+'</div>'
     +'<div class="prep-total">'+readyTxt+'</div>'
     +'<button class="btn btn-g" onclick="window.print()" style="padding:5px 12px;font-size:12px">&#128438; '+(lang==='ko'?'인쇄':'Print')+'</button>'
-    +'<button class="btn" onclick="resetPrepChecks()" style="padding:5px 12px;font-size:12px;background:#dc3545;color:#fff;border:none">&#8635; '+(lang==='ko'?'초기화':'Reset')+'</button>'
+    +'<button class="btn" onclick="resetPrepChecks()" style="padding:5px 12px;font-size:12px;background:#9C4B3E;color:#fff;border:none">&#8635; '+(lang==='ko'?'초기화':'Reset')+'</button>'
     +'</div>';
   /* General Prep section */
   var genAllDone=genReady===genTotal;
@@ -1828,7 +1828,7 @@ function _mkSecChips(containerId, secsAvail, allLabel){
   var c=document.getElementById(containerId);c.innerHTML='';
   var chips=[];
   var allChip=document.createElement('label');
-  allChip.style.cssText='display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1px solid #1a2456;background:#1a2456;color:#fff;font-size:12px;font-weight:600;cursor:pointer';
+  allChip.style.cssText='display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1px solid #1B2A41;background:#1B2A41;color:#fff;font-size:12px;font-weight:600;cursor:pointer';
   var allInp=document.createElement('input');allInp.type='checkbox';allInp.checked=true;allInp.style.accentColor='#fff';
   allChip.appendChild(allInp);allChip.appendChild(document.createTextNode(allLabel||'All'));
   c.appendChild(allChip);
@@ -1841,17 +1841,17 @@ function _mkSecChips(containerId, secsAvail, allLabel){
   });
   allInp.addEventListener('change',function(){
     var on=allInp.checked;
-    chips.forEach(function(ch){ch.inp.checked=on;ch.lbl.style.background=on?'#e8eaf6':'#f8f9fa';ch.lbl.style.color=on?'#1a2456':'#495057';ch.lbl.style.borderColor=on?'#1a2456':'#dee2e6';});
-    allChip.style.background=on?'#1a2456':'#f8f9fa';allChip.style.color=on?'#fff':'#495057';
+    chips.forEach(function(ch){ch.inp.checked=on;ch.lbl.style.background=on?'#e8eaf6':'#f8f9fa';ch.lbl.style.color=on?'#1B2A41':'#495057';ch.lbl.style.borderColor=on?'#1B2A41':'#dee2e6';});
+    allChip.style.background=on?'#1B2A41':'#f8f9fa';allChip.style.color=on?'#fff':'#495057';
   });
   chips.forEach(function(ch){
     ch.inp.addEventListener('change',function(){
       ch.lbl.style.background=ch.inp.checked?'#e8eaf6':'#f8f9fa';
-      ch.lbl.style.color=ch.inp.checked?'#1a2456':'#495057';
-      ch.lbl.style.borderColor=ch.inp.checked?'#1a2456':'#dee2e6';
+      ch.lbl.style.color=ch.inp.checked?'#1B2A41':'#495057';
+      ch.lbl.style.borderColor=ch.inp.checked?'#1B2A41':'#dee2e6';
       var allOn=chips.every(function(x){return x.inp.checked;});
       allInp.checked=allOn;
-      allChip.style.background=allOn?'#1a2456':'#f8f9fa';allChip.style.color=allOn?'#fff':'#495057';
+      allChip.style.background=allOn?'#1B2A41':'#f8f9fa';allChip.style.color=allOn?'#fff':'#495057';
     });
   });
   return function(){return chips.filter(function(ch){return ch.inp.checked;}).map(function(ch){return ch.inp.value;});};
@@ -1863,7 +1863,7 @@ var _modalT={
     expSub:'Select pages to include in the export file. Each page exports all its data.',
     expPages:'Pages',expCancel:'Cancel',expBtn:'&#8679; Export JSON',
     impTitle:'&#8681; Import Data',impSecs:'Pages in file',impMode:'Import Mode',
-    impMerge:'<b>Merge</b> — add to existing data, keep untouched sections intact <span style="color:#198754;font-size:11px">(recommended for consolidation)</span>',
+    impMerge:'<b>Merge</b> — add to existing data, keep untouched sections intact <span style="color:#3C6E58;font-size:11px">(recommended for consolidation)</span>',
     impOver:'<b>Overwrite</b> — replace selected sections completely',
     impCancel:'Cancel',impBtn:'&#8681; Import'
   },
@@ -1872,7 +1872,7 @@ var _modalT={
     expSub:'내보낼 페이지를 선택하세요. 각 페이지의 모든 데이터가 포함됩니다.',
     expPages:'페이지',expCancel:'취소',expBtn:'&#8679; Export JSON',
     impTitle:'&#8681; 가져오기',impSecs:'파일의 페이지',impMode:'가져오기 방식',
-    impMerge:'<b>병합</b> — 기존 데이터에 추가, 선택하지 않은 섹션 유지 <span style="color:#198754;font-size:11px">(통합 시 권장)</span>',
+    impMerge:'<b>병합</b> — 기존 데이터에 추가, 선택하지 않은 섹션 유지 <span style="color:#3C6E58;font-size:11px">(통합 시 권장)</span>',
     impOver:'<b>덮어쓰기</b> — 선택한 섹션을 완전히 교체',
     impCancel:'취소',impBtn:'&#8681; 가져오기'
   },
@@ -1881,7 +1881,7 @@ var _modalT={
     expSub:'エクスポートするページを選択してください。各ページのすべてのデータが含まれます。',
     expPages:'ページ',expCancel:'キャンセル',expBtn:'&#8679; Export JSON',
     impTitle:'&#8681; インポート',impSecs:'ファイルのページ',impMode:'インポートモード',
-    impMerge:'<b>マージ</b> — 既存データに追加、未選択セクションはそのまま維持 <span style="color:#198754;font-size:11px">（統合に推奨）</span>',
+    impMerge:'<b>マージ</b> — 既存データに追加、未選択セクションはそのまま維持 <span style="color:#3C6E58;font-size:11px">（統合に推奨）</span>',
     impOver:'<b>上書き</b> — 選択したセクションを完全に置換',
     impCancel:'キャンセル',impBtn:'&#8681; インポート'
   }
@@ -2522,7 +2522,7 @@ function buildDash(){
       +'<div class="sb-bar-wrap" style="position:relative">'
       +(rn>0?'<div class="sb-bar-n" style="flex:'+rn+'"></div>':'')
       +(ra>0?'<div class="sb-bar-na" style="flex:'+ra+'"></div>':'')
-      +(rh>0?'<div style="flex:'+rh+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
+      +(rh>0?'<div style="flex:'+rh+';background:#B8862E;height:100%;flex-shrink:0"></div>':'')
       +(ry>0?'<div class="sb-bar-y" style="flex:'+ry+'"></div>':'')
       +((rt-rd)>0?'<div style="flex:'+(rt-rd)+'"></div>':'')
       +(rappl>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:800;color:#FFFFFF;text-shadow:0 1px 3px rgba(0,0,0,.45);pointer-events:none;white-space:nowrap">'+ryp+'%</span>':'')
@@ -2557,7 +2557,7 @@ function buildDash(){
       +'<div class="sb-bar-wrap" style="position:relative">'
       +(sn>0?'<div class="sb-bar-n" style="flex:'+sn+'"></div>':'')
       +(sa>0?'<div class="sb-bar-na" style="flex:'+sa+'"></div>':'')
-      +(sh>0?'<div style="flex:'+sh+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
+      +(sh>0?'<div style="flex:'+sh+';background:#B8862E;height:100%;flex-shrink:0"></div>':'')
       +(sy>0?'<div class="sb-bar-y" style="flex:'+sy+'"></div>':'')
       +((st-sd)>0?'<div style="flex:'+(st-sd)+'"></div>':'')
       +(sappl>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:800;color:#FFFFFF;text-shadow:0 1px 3px rgba(0,0,0,.45);pointer-events:none;white-space:nowrap">'+syp+'%</span>':'')
@@ -2578,12 +2578,12 @@ function buildDash(){
   var mainBar='<div class="sb-big-bar-wrap" style="position:relative">'
     +(nc>0?'<div class="sb-bar-n" style="flex:'+nc+'"></div>':'')
     +(ac>0?'<div class="sb-bar-na" style="flex:'+ac+'"></div>':'')
-    +(hc>0?'<div style="flex:'+hc+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
+    +(hc>0?'<div style="flex:'+hc+';background:#B8862E;height:100%;flex-shrink:0"></div>':'')
     +(yc>0?'<div class="sb-bar-y" style="flex:'+yc+'"></div>':'')
     +(pend>0?'<div style="flex:'+pend+'"></div>':'')
     +(applicable>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:18px;font-weight:800;color:#FFFFFF;text-shadow:0 1px 3px rgba(0,0,0,.45);pointer-events:none;white-space:nowrap">'+yesPct+'%</span>':'')
     +'</div>'
-    +'<div style="text-align:right;font-size:12px;font-weight:700;color:#1a2456;margin-top:6px">'+yc+' / '+applicable+' <span style="color:var(--mu);font-weight:400;font-size:11px">YES / Applicable (excl. N/A)</span></div>';
+    +'<div style="text-align:right;font-size:12px;font-weight:700;color:#1B2A41;margin-top:6px">'+yc+' / '+applicable+' <span style="color:var(--mu);font-weight:400;font-size:11px">YES / Applicable (excl. N/A)</span></div>';
 
   // ── BS Guide ──
   var bsTotal=typeof bsData!=='undefined'?bsData.length:0;
@@ -2635,17 +2635,17 @@ function buildDash(){
     +'<div class="sb-comp-hdr">'
     +'<div class="sb-comp-title">'+compL+'</div>'
     +'<div class="sb-comp-sub">'+done+' / '+total+' '+answL
-    +' &nbsp;·&nbsp; Yes '+yc+' &nbsp;·&nbsp; No '+nc+' &nbsp;·&nbsp; N/A '+ac+' &nbsp;·&nbsp; <span style="color:#7c3aed;font-weight:700">Hold '+hc+'</span> &nbsp;·&nbsp; '+pendL+' '+pend
+    +' &nbsp;·&nbsp; Yes '+yc+' &nbsp;·&nbsp; No '+nc+' &nbsp;·&nbsp; N/A '+ac+' &nbsp;·&nbsp; <span style="color:#B8862E;font-weight:700">Hold '+hc+'</span> &nbsp;·&nbsp; '+pendL+' '+pend
     +'</div>'
     +'<div class="sb-big-bar-wrap" style="position:relative;margin-top:10px">'
     +(nc>0?'<div class="sb-bar-n" style="flex:'+nc+'"></div>':'')
     +(ac>0?'<div class="sb-bar-na" style="flex:'+ac+'"></div>':'')
-    +(hc>0?'<div style="flex:'+hc+';background:#7c3aed;height:100%;flex-shrink:0"></div>':'')
+    +(hc>0?'<div style="flex:'+hc+';background:#B8862E;height:100%;flex-shrink:0"></div>':'')
     +(yc>0?'<div class="sb-bar-y" style="flex:'+yc+'"></div>':'')
     +(pend>0?'<div style="flex:'+pend+'"></div>':'')
     +(total>0?'<span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:18px;font-weight:800;color:#FFFFFF;text-shadow:0 1px 3px rgba(0,0,0,.45);pointer-events:none;white-space:nowrap">'+compPct+'%</span>':'')
     +'</div>'
-    +'<div style="text-align:right;font-size:12px;font-weight:700;color:#1a2456;margin-top:6px">'+done+' / '+total+' <span style="color:var(--mu);font-weight:400;font-size:11px">'+answL+'</span></div>'
+    +'<div style="text-align:right;font-size:12px;font-weight:700;color:#1B2A41;margin-top:6px">'+done+' / '+total+' <span style="color:var(--mu);font-weight:400;font-size:11px">'+answL+'</span></div>'
     +'</div>'
     // 2×2 grid
     +'<div class="sb-grid">'
@@ -3512,7 +3512,7 @@ function buildRecentStep(fullList,focusedList){
     var btn=document.createElement('button');btn.className='hotel-chip';
     btn.appendChild(document.createTextNode(h));
     var badge=document.createElement('span');
-    badge.style.cssText='font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;'+(type==='focused'?'background:#e0f2fe;color:#0369a1':'background:#dbeafe;color:#1a2456');
+    badge.style.cssText='font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;'+(type==='focused'?'background:#e0f2fe;color:#0369a1':'background:#dbeafe;color:#1B2A41');
     badge.textContent=type==='focused'?'Focus':'Full';
     btn.appendChild(badge);
     btn.onclick=function(){selectRecentHotel(h,type);};
@@ -3744,13 +3744,13 @@ window.addEventListener('beforeunload',function(e){
 <!-- Export Modal -->
 <div id="export-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:14px;padding:28px;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.25)">
-    <div id="exp-title" style="font-size:16px;font-weight:800;color:#1a2456;margin-bottom:4px">&#8679; Export Data</div>
-    <div id="exp-subtitle" style="font-size:12px;color:#6c757d;margin-bottom:16px">Select pages to include in the export file. Each page exports all its data.</div>
+    <div id="exp-title" style="font-size:16px;font-weight:800;color:#1B2A41;margin-bottom:4px">&#8679; Export Data</div>
+    <div id="exp-subtitle" style="font-size:12px;color:#8B93A0;margin-bottom:16px">Select pages to include in the export file. Each page exports all its data.</div>
     <div id="exp-pages-label" style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pages</div>
     <div id="export-sec-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px"></div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button id="exp-cancel-btn" onclick="document.getElementById('export-modal').style.display='none'" style="padding:8px 18px;border:1px solid #dee2e6;border-radius:7px;background:#f8f9fa;color:#495057;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
-      <button id="exp-do-btn" onclick="doExport()" style="padding:8px 20px;border:none;border-radius:7px;background:#1a2456;color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#8679; Export JSON</button>
+      <button id="exp-do-btn" onclick="doExport()" style="padding:8px 20px;border:none;border-radius:7px;background:#1B2A41;color:#fff;font-size:13px;font-weight:700;cursor:pointer">&#8679; Export JSON</button>
     </div>
   </div>
 </div>
@@ -3758,13 +3758,13 @@ window.addEventListener('beforeunload',function(e){
 <!-- Import Modal -->
 <div id="import-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:14px;padding:28px;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.25)">
-    <div id="imp-title" style="font-size:16px;font-weight:800;color:#1a2456;margin-bottom:2px">&#8681; Import Data</div>
-    <div id="imp-file-info" style="font-size:12px;color:#6c757d;margin-bottom:16px"></div>
+    <div id="imp-title" style="font-size:16px;font-weight:800;color:#1B2A41;margin-bottom:2px">&#8681; Import Data</div>
+    <div id="imp-file-info" style="font-size:12px;color:#8B93A0;margin-bottom:16px"></div>
     <div id="imp-secs-label" style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Sections in file</div>
     <div id="import-sec-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px"></div>
     <div id="imp-mode-label" style="font-size:11px;font-weight:700;color:#495057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Import Mode</div>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px">
-      <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="imp-mode" value="merge" checked style="margin-top:2px"> <span id="imp-merge-span"><b>Merge</b> — add to existing data, keep untouched sections intact <span style="color:#198754;font-size:11px">(recommended for consolidation)</span></span></label>
+      <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="imp-mode" value="merge" checked style="margin-top:2px"> <span id="imp-merge-span"><b>Merge</b> — add to existing data, keep untouched sections intact <span style="color:#3C6E58;font-size:11px">(recommended for consolidation)</span></span></label>
       <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="imp-mode" value="overwrite" style="margin-top:2px"> <span id="imp-over-span"><b>Overwrite</b> — replace selected sections completely</span></label>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
