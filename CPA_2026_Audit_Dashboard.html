@@ -2635,7 +2635,11 @@ function buildDash(){
     +'<div class="sb-comp-hdr">'
     +'<div class="sb-comp-title">'+compL+'</div>'
     +'<div class="sb-comp-sub">'+done+' / '+total+' '+answL
-    +' &nbsp;·&nbsp; Yes '+yc+' &nbsp;·&nbsp; No '+nc+' &nbsp;·&nbsp; N/A '+ac+' &nbsp;·&nbsp; <span style="color:#B8862E;font-weight:700">Hold '+hc+'</span> &nbsp;·&nbsp; '+pendL+' '+pend
+    +' &nbsp;·&nbsp; <span class="sb-ldot" style="background:#3C6E58"></span>Yes '+yc
+    +' &nbsp;·&nbsp; <span class="sb-ldot" style="background:#9C4B3E"></span>No '+nc
+    +' &nbsp;·&nbsp; <span class="sb-ldot" style="background:#8B93A0"></span>N/A '+ac
+    +' &nbsp;·&nbsp; <span class="sb-ldot" style="background:#B8862E"></span><span style="color:#B8862E;font-weight:700">Hold '+hc+'</span>'
+    +' &nbsp;·&nbsp; <span class="sb-ldot" style="background:#e9ecef;border:1px solid #ced4da"></span>'+pendL+' '+pend
     +'</div>'
     +'<div class="sb-big-bar-wrap" style="position:relative;margin-top:10px">'
     +(nc>0?'<div class="sb-bar-n" style="flex:'+nc+'"></div>':'')
