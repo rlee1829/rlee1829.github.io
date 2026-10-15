@@ -512,10 +512,10 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 // ===== BS-ONLY VIEW (?view=bs) — same file, BS Guide + BS Notes only =====
 var BS_ONLY=/(?:^|[?&])view=bs(?:&|$)/i.test(location.search);
 if(BS_ONLY){
-  document.title='CPA 2026 BS Guide';
+  document.title='BSR Checklist';
   document.documentElement.classList.add('bs-only');
   (function(){
-    var t=document.querySelector('#hdr .hdr-title');if(t)t.textContent='CPA 2026 BS Guide';
+    var t=document.querySelector('#hdr .hdr-title');if(t)t.textContent='BSR Checklist';
     var u=document.querySelector('#hdr .hdr-sub');if(u)u.textContent='Balance Sheet Review';
     var l=document.querySelector('#prg .prg-lbl');if(l)l.textContent='BS Guide';
   })();
@@ -3516,11 +3516,11 @@ function updatePrintHdr(){
   if(auditor)meta+='<span><b>Auditor:</b> '+esc(auditor)+'</span>';
   if(date)meta+='<span><b>Date:</b> '+esc(date)+'</span>';
   if(period)meta+='<span><b>Period:</b> '+esc(period)+'</span>';
-  el.innerHTML='<div id="print-hdr-title" class="print-hdr-title">'+(BS_ONLY?'CPA 2026 BS Guide':'CPA 2026 Peer Audit')+'</div>'
+  el.innerHTML='<div id="print-hdr-title" class="print-hdr-title">'+(BS_ONLY?'BSR Checklist':'CPA 2026 Peer Audit')+'</div>'
     +(meta?'<div class="print-hdr-meta">'+meta+'</div>':'');
 }
 window.onbeforeprint=function(){
-  var t=viewMode==='prep'?(lang==='ko'?'사전 준비 서류 체크리스트':'Pre-Audit Document Checklist'):(BS_ONLY?'CPA 2026 BS Guide':'CPA 2026 Peer Audit');
+  var t=viewMode==='prep'?(lang==='ko'?'사전 준비 서류 체크리스트':'Pre-Audit Document Checklist'):(BS_ONLY?'BSR Checklist':'CPA 2026 Peer Audit');
   var el=document.getElementById('print-hdr-title');
   if(el)el.textContent=t;
 };
