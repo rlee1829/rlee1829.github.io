@@ -2098,7 +2098,7 @@ function exportBSExcel(){
   var ws=XLSX.utils.aoa_to_sheet(data);
   ws['!cols']=[{wch:5},{wch:14},{wch:34},{wch:14},{wch:22},{wch:8},{wch:12},{wch:60}];
   XLSX.utils.book_append_sheet(wb,ws,'BS Guide');
-  XLSX.writeFile(wb,'CPA2026_BSGuide_'+hotel.replace(/\s+/g,'_')+'_'+date+'.xlsx');
+  XLSX.writeFile(wb,'BSR_Checklist_'+hotel.replace(/\s+/g,'_')+'_'+date+'.xlsx');
 }
 function exportCSV(){
   if(typeof XLSX==='undefined'){alert('Excel library not loaded. Please check your internet connection and try again.');return;}
