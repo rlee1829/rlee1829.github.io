@@ -509,6 +509,17 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 <div id="db"></div>
 </div>
 <script>
+// ===== BS-ONLY VIEW (?view=bs) — same file, BS Guide + BS Notes only =====
+var BS_ONLY=/(?:^|[?&])view=bs(?:&|$)/i.test(location.search);
+if(BS_ONLY){
+  document.title='CPA 2026 BS Guide';
+  document.documentElement.classList.add('bs-only');
+  (function(){
+    var t=document.querySelector('#hdr .hdr-title');if(t)t.textContent='CPA 2026 BS Guide';
+    var u=document.querySelector('#hdr .hdr-sub');if(u)u.textContent='Balance Sheet Review';
+    var l=document.querySelector('#prg .prg-lbl');if(l)l.textContent='BS Guide';
+  })();
+}
 
 const auditData = [
   {"id":1,"section":"AP","risk":"HR","wsEN":"Fixed rents and percentage/performance rent are accounted for on an accruals basis each month.","wsKR":"고정 임차료 및 수수료/실적 연동 임차료는 매월 Accrual(발생주의) 기준으로 계상해야 한다.","tsEN":"Obtain the journal entries for rent of 2 most recent completed months and verify the control as defined in the Work Step column.","tsKR":"가장 최근 완료된 2개월분 임차료에 대한 Journal entry(대체분개 전표)를 확보하고, Work Step 열에 정의된 통제 절차가 이행되었는지 확인해야 한다.","pol":"FP-OPSFIN-144 Tenant Leases & Concessionaire Agreements"},
@@ -1196,6 +1207,7 @@ function buildNav(){
   html+='<div class="tab'+valc+'" onclick="selValidation()" style="color:#856404;background:#fff8e1;border-top:2px solid #ffc107">&#10003; Validation'
     +'<span class="tn" style="background:#fff3cd;color:#856404">'+valDone+'/'+valItems.length+'</span>'
     +'</div>';
+  if(BS_ONLY)html='';
   var bsc=(viewMode==='bsguide')?' active ftab':' ftab';
   html+='<div class="tab'+bsc+'" onclick="selBSGuide()" style="color:#0369a1;background:#e0f2fe;border-top:2px solid #7dd3fc">BS Guide'
     +'<span class="tn" style="background:#bae6fd;color:#0369a1">39</span></div>';
@@ -1242,6 +1254,15 @@ function updPrg(){
       +'<div class="prg-s"><span class="pdot" style="background:#9C4B3E"></span>No: '+bsNc+'</div>'
       +'<div class="prg-s"><span class="pdot" style="background:#8B93A0"></span>N/A: '+bsAc+'</div>'
       +'<div class="prg-s"><span class="pdot" style="background:#dee2e6"></span>Pending: '+(bsTotal-bsDone)+'</div>';
+    if(BS_ONLY){
+      document.getElementById('pf').style.width=bsPct+'%';
+      document.getElementById('ptx').textContent=bsDone+' / '+bsTotal+' ('+bsPct+'%)';
+      document.getElementById('ps').innerHTML=
+        '<div class="prg-s"><span class="pdot" style="background:#3C6E58"></span>Yes: '+bsYc+'</div>'
+        +'<div class="prg-s"><span class="pdot" style="background:#9C4B3E"></span>No: '+bsNc+'</div>'
+        +'<div class="prg-s"><span class="pdot" style="background:#8B93A0"></span>N/A: '+bsAc+'</div>'
+        +'<div class="prg-s"><span class="pdot" style="background:#dee2e6"></span>Pending: '+(bsTotal-bsDone)+'</div>';
+    }
   }
 }
 
@@ -1804,6 +1825,13 @@ function setLang(l){
 }
 
 function resetAll(){
+  if(BS_ONLY){
+    if(!confirm('Reset BS Guide results, checks and notes? (Main audit data is not affected.) This cannot be undone.'))return;
+    bsResults={};bsChecks={};bsNotes={};
+    save(); updPrg(); buildNav();
+    if(viewMode==='bsnotes')buildBSNotes();else selBSGuide();
+    return;
+  }
   if(!confirm('Reset all results? This cannot be undone.'))return;
   results={};notes={};samples={};tstamps={};
   bsResults={};bsChecks={};bsNotes={};
@@ -1899,7 +1927,7 @@ function _applyModalLang(){
 }
 function exportJSON(){
   _applyModalLang();
-  _getExportSecs=_mkSecChips('export-sec-list',['PREP'].concat(getAuditSecs(),['BS Guide']));
+  _getExportSecs=_mkSecChips('export-sec-list',BS_ONLY?['BS Guide']:['PREP'].concat(getAuditSecs(),['BS Guide']));
   document.getElementById('export-modal').style.display='flex';
 }
 function doExport(){
@@ -1907,6 +1935,7 @@ function doExport(){
   var auditor=document.getElementById('hi-auditor').value||'';
   var date=new Date().toISOString().slice(0,10);
   var selPages=_getExportSecs?_getExportSecs():['PREP'].concat(getAuditSecs(),['BS Guide']);
+  if(BS_ONLY)selPages=selPages.filter(function(p){return p==='BS Guide';});
   var inclPrep=selPages.indexOf('PREP')>-1;
   var inclBSGuide=selPages.indexOf('BS Guide')>-1;
   var selSecs=selPages.filter(function(p){return p!=='PREP'&&p!=='BS Guide';});
@@ -1970,6 +1999,14 @@ function handleImport(e){
       if(!detectedSecs.length) detectedSecs=fileSecs;
       var extraImpPages=[];
       if(d.bsResults||d.bsChecks||d.bsNotes)extraImpPages.push('BS Guide');
+      if(BS_ONLY){
+        var dd=d.data||{};
+        if(!(d.bsResults||d.bsChecks||d.bsNotes||dd.bsResults||dd.bsChecks||dd.bsNotes)){
+          alert(lang==='ko'?'이 파일에는 BS Guide 데이터가 없습니다.':'This file has no BS Guide data.');
+          e.target.value='';return;
+        }
+        detectedSecs=[];extraImpPages=['BS Guide'];
+      }
       _importData=d;
       _applyModalLang();
       var info=document.getElementById('imp-file-info');
@@ -1985,6 +2022,21 @@ function handleImport(e){
 }
 function doImport(){
   var d=_importData;if(!d)return;
+  if(BS_ONLY){
+    var bmode=document.querySelector('input[name="imp-mode"]:checked').value;
+    var dd=d.data||{};
+    var ex=JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}');
+    ['bsResults','bsChecks','bsNotes'].forEach(function(k){
+      var src=d[k]||dd[k]||{};
+      ex[k]=bmode==='merge'?Object.assign(ex[k]||{},src):Object.assign({},src);
+    });
+    bsResults=ex.bsResults;bsChecks=ex.bsChecks;bsNotes=ex.bsNotes;
+    save();updPrg();
+    if(viewMode==='bsnotes')selBSNotes();else selBSGuide();
+    document.getElementById('import-modal').style.display='none';
+    alert('완료! / Done! ('+bmode+': BS Guide)');
+    return;
+  }
   var selPages=_getImportSecs?_getImportSecs():getAuditSecs();
   var inclBSGuide=selPages.indexOf('BS Guide')>-1;
   var selSecs=selPages.filter(function(p){return p!=='BS Guide';});
@@ -2031,8 +2083,26 @@ function doImport(){
   document.getElementById('import-modal').style.display='none';
   alert('완료! / Done! ('+mode+': '+selPages.join(', ')+')');
 }
+function exportBSExcel(){
+  var hotel=document.getElementById('hi-hotel').value||'Hotel';
+  var date=document.getElementById('hi-date').value||new Date().toISOString().slice(0,10);
+  var rmap={yes:'Yes',no:'No',na:'N/A'};
+  var data=[['No','Category','Item','GL Account','Policy','Result','Checks Done','Notes']];
+  bsData.forEach(function(item){
+    var ch=bsChecks[item.id]||{};
+    var done=Object.keys(ch).filter(function(k){return ch[k];}).length;
+    data.push([item.num,item.cat,item.title,item.account||'',(item.policy||[]).join(', '),
+      rmap[bsResults[item.id]]||'',done+' / '+((item.checks||[]).length),bsNotes[item.id]||'']);
+  });
+  var wb=XLSX.utils.book_new();
+  var ws=XLSX.utils.aoa_to_sheet(data);
+  ws['!cols']=[{wch:5},{wch:14},{wch:34},{wch:14},{wch:22},{wch:8},{wch:12},{wch:60}];
+  XLSX.utils.book_append_sheet(wb,ws,'BS Guide');
+  XLSX.writeFile(wb,'CPA2026_BSGuide_'+hotel.replace(/\s+/g,'_')+'_'+date+'.xlsx');
+}
 function exportCSV(){
   if(typeof XLSX==='undefined'){alert('Excel library not loaded. Please check your internet connection and try again.');return;}
+  if(BS_ONLY){exportBSExcel();return;}
   var hotel=document.getElementById('hi-hotel').value||'Hotel';
   var date=document.getElementById('hi-date').value||new Date().toISOString().slice(0,10);
   var isKO=lang==='ko', isJA=lang==='ja';
@@ -2472,6 +2542,7 @@ var bsDataJA={
 };
 // ===== BS GUIDE FUNCTIONS =====
 function selDash(){
+  if(BS_ONLY){selBSGuide();return;}
   viewMode='dash';
   document.getElementById('app').classList.add('dash-mode');
   document.body.classList.add('dash-scroll');
@@ -3445,11 +3516,11 @@ function updatePrintHdr(){
   if(auditor)meta+='<span><b>Auditor:</b> '+esc(auditor)+'</span>';
   if(date)meta+='<span><b>Date:</b> '+esc(date)+'</span>';
   if(period)meta+='<span><b>Period:</b> '+esc(period)+'</span>';
-  el.innerHTML='<div id="print-hdr-title" class="print-hdr-title">CPA 2026 Peer Audit</div>'
+  el.innerHTML='<div id="print-hdr-title" class="print-hdr-title">'+(BS_ONLY?'CPA 2026 BS Guide':'CPA 2026 Peer Audit')+'</div>'
     +(meta?'<div class="print-hdr-meta">'+meta+'</div>':'');
 }
 window.onbeforeprint=function(){
-  var t=viewMode==='prep'?(lang==='ko'?'사전 준비 서류 체크리스트':'Pre-Audit Document Checklist'):'CPA 2026 Peer Audit';
+  var t=viewMode==='prep'?(lang==='ko'?'사전 준비 서류 체크리스트':'Pre-Audit Document Checklist'):(BS_ONLY?'CPA 2026 BS Guide':'CPA 2026 Peer Audit');
   var el=document.getElementById('print-hdr-title');
   if(el)el.textContent=t;
 };
@@ -3457,6 +3528,7 @@ window.onbeforeprint=function(){
 function _restoreNav(){
   var vm=sessionStorage.getItem('cpa_viewmode');
   var sc=sessionStorage.getItem('cpa_cursec');
+  if(BS_ONLY){if(vm==='bsnotes')selBSNotes();else selBSGuide();return;}
   if(!vm||vm==='dash'){selDash();return;}
   if(vm==='section'&&sc){selSec(sc);return;}
   if(vm==='findings'){selFindings();return;}
