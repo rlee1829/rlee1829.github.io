@@ -1969,7 +1969,8 @@ function doExport(){
   var a=document.createElement('a');a.href=url;
   var allSelected=inclPrep&&inclBSGuide&&selSecs.length===getAuditSecs().length;
   var secTag=allSelected?'ALL':selPages.join('-').replace(/\s+/g,'');
-  var fn='CPA_2026_'+hotel.replace(/\s+/g,'_')+'_'+secTag+'_'+date+'.json';
+  var fn=BS_ONLY?'BSR_Checklist_'+hotel.replace(/\s+/g,'_')+'_'+date+'.json'
+    :'CPA_2026_'+hotel.replace(/\s+/g,'_')+'_'+secTag+'_'+date+'.json';
   a.download=fn;a.click();URL.revokeObjectURL(url);
   document.getElementById('export-modal').style.display='none';
 }
