@@ -485,6 +485,7 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
     <button class="btn btn-g" onclick="exportCSV()">&#8659; Excel</button>
     <button class="btn" onclick="exportJSON()" title="Export data as JSON" style="background:#3a7bd5;color:#fff">&#8679; Export</button>
     <button class="btn" onclick="importJSON()" title="Import JSON data" style="background:#3C6E58;color:#fff">&#8681; Import</button>
+    <button class="btn btn-o" id="bk-btn" onclick="openBackupModal()" title="Auto backup / Restore">&#128735; Backup</button>
     <button class="btn btn-o" onclick="window.print()">&#128438; Print</button>
     <button class="btn btn-o" onclick="resetAll()" title="Reset all results" style="color:#c0392b;font-weight:800;font-size:11px;letter-spacing:.5px">RESET</button>
   </div>
@@ -1515,6 +1516,7 @@ function savePrepCheck(id,v){
 }
 function resetPrepChecks(){
   if(!confirm('Reset all prep checklist? This cannot be undone.'))return;
+  _snapshot('before-reset');
   prepChecks={};generalPrepChecks={};
   try{localStorage.removeItem(hotelKey('cpa_prep'));}catch(e){}
   try{localStorage.removeItem(hotelKey('cpa_gen_prep'));}catch(e){}
@@ -1827,12 +1829,14 @@ function setLang(l){
 function resetAll(){
   if(BS_ONLY){
     if(!confirm('Reset BS Guide results, checks and notes? (Main audit data is not affected.) This cannot be undone.'))return;
+    save();_snapshot('before-reset');
     bsResults={};bsChecks={};bsNotes={};
     save(); updPrg(); buildNav();
     if(viewMode==='bsnotes')buildBSNotes();else selBSGuide();
     return;
   }
   if(!confirm('Reset all results? This cannot be undone.'))return;
+  save();_snapshot('before-reset');
   results={};notes={};samples={};tstamps={};
   bsResults={};bsChecks={};bsNotes={};
   save(); updPrg(); buildNav(); buildLP();
@@ -1932,14 +1936,32 @@ function exportJSON(){
 }
 function doExport(){
   var hotel=document.getElementById('hi-hotel').value||currentHotel||'Hotel';
-  var auditor=document.getElementById('hi-auditor').value||'';
   var date=new Date().toISOString().slice(0,10);
   var selPages=_getExportSecs?_getExportSecs():['PREP'].concat(getAuditSecs(),['BS Guide']);
   if(BS_ONLY)selPages=selPages.filter(function(p){return p==='BS Guide';});
   var inclPrep=selPages.indexOf('PREP')>-1;
   var inclBSGuide=selPages.indexOf('BS Guide')>-1;
   var selSecs=selPages.filter(function(p){return p!=='PREP'&&p!=='BS Guide';});
-  var d={hotelName:hotel,auditorName:auditor,exportedAt:date,sections:selSecs};
+  var d=_buildExportObj(selPages);
+  var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;
+  var allSelected=inclPrep&&inclBSGuide&&selSecs.length===getAuditSecs().length;
+  var secTag=allSelected?'ALL':selPages.join('-').replace(/\s+/g,'');
+  var fn=BS_ONLY?'BSR_Checklist_'+hotel.replace(/\s+/g,'_')+'_'+date+'.json'
+    :'CPA_2026_'+hotel.replace(/\s+/g,'_')+'_'+secTag+'_'+date+'.json';
+  a.download=fn;a.click();URL.revokeObjectURL(url);
+  document.getElementById('export-modal').style.display='none';
+}
+/* Build the export/backup object for the current hotel (also used by auto file backup) */
+function _buildExportObj(selPages){
+  var hotel=document.getElementById('hi-hotel').value||currentHotel||'Hotel';
+  var auditor=document.getElementById('hi-auditor').value||'';
+  var date=new Date().toISOString().slice(0,10);
+  var inclPrep=selPages.indexOf('PREP')>-1;
+  var inclBSGuide=selPages.indexOf('BS Guide')>-1;
+  var selSecs=selPages.filter(function(p){return p!=='PREP'&&p!=='BS Guide';});
+  var d={hotelName:hotel,auditorName:auditor,exportedAt:date,serviceType:currentServiceType||'full',sections:selSecs};
   if(selSecs.length>0||inclBSGuide){
     var allData=JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}');
     if(selSecs.length>0){
@@ -1964,15 +1986,7 @@ function doExport(){
     d.prepRemarks=_filterByIds(JSON.parse(localStorage.getItem(hotelKey('cpa_prep_remarks'))||'{}'),allIds);
     d.genPrep=JSON.parse(localStorage.getItem(hotelKey('cpa_gen_prep'))||'{}');
   }
-  var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');a.href=url;
-  var allSelected=inclPrep&&inclBSGuide&&selSecs.length===getAuditSecs().length;
-  var secTag=allSelected?'ALL':selPages.join('-').replace(/\s+/g,'');
-  var fn=BS_ONLY?'BSR_Checklist_'+hotel.replace(/\s+/g,'_')+'_'+date+'.json'
-    :'CPA_2026_'+hotel.replace(/\s+/g,'_')+'_'+secTag+'_'+date+'.json';
-  a.download=fn;a.click();URL.revokeObjectURL(url);
-  document.getElementById('export-modal').style.display='none';
+  return d;
 }
 var _importData=null, _getImportSecs=null;
 function importJSON(){document.getElementById('import-file').click();}
@@ -2025,6 +2039,8 @@ function doImport(){
   var d=_importData;if(!d)return;
   if(BS_ONLY){
     var bmode=document.querySelector('input[name="imp-mode"]:checked').value;
+    if(currentHotel)save();
+    _snapshot('before-import');
     var dd=d.data||{};
     var ex=JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}');
     ['bsResults','bsChecks','bsNotes'].forEach(function(k){
@@ -2044,25 +2060,35 @@ function doImport(){
   var ids=_secItemIds(selSecs);
   var mode=document.querySelector('input[name="imp-mode"]:checked').value;
   var merge=mode==='merge';
+  /* flush pending edits, then keep a restorable snapshot of the pre-import state */
+  if(currentHotel)save();
+  _snapshot('before-import');
+  /* overwrite = replace only the selected items; data of unselected sections is always kept */
+  function _dropIds(obj){Object.keys(ids).forEach(function(k){delete obj[k];});return obj;}
   /* helper: apply filtered import to a localStorage key */
   function applyData(lsKey,srcObj){
-    var existing=merge?JSON.parse(localStorage.getItem(hotelKey(lsKey))||'{}'):{};
+    var existing=JSON.parse(localStorage.getItem(hotelKey(lsKey))||'{}');
+    if(!merge)_dropIds(existing);
     _mergeObjs(existing,_filterByIds(srcObj,ids));
     localStorage.setItem(hotelKey(lsKey),JSON.stringify(existing));
   }
   if(d.data||inclBSGuide){
-    var existing=merge?JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}'):{};
+    var existing=JSON.parse(localStorage.getItem(hotelKey('cpa2026v2'))||'{}');
     if(d.data){
       ['results','notes','samples','tstamps'].forEach(function(k){
-        _mergeObjs(existing[k]||(existing[k]={}),_filterByIds(d.data[k]||{},ids));
+        if(!existing[k])existing[k]={};
+        if(!merge)_dropIds(existing[k]);
+        _mergeObjs(existing[k],_filterByIds(d.data[k]||{},ids));
       });
       if(selSecs.indexOf('Balance Sheet')>-1){
+        if(!merge){existing.bsResults={};existing.bsChecks={};existing.bsNotes={};}
         if(d.data.bsResults)Object.assign(existing.bsResults||(existing.bsResults={}),d.data.bsResults);
         if(d.data.bsChecks)Object.assign(existing.bsChecks||(existing.bsChecks={}),d.data.bsChecks);
         if(d.data.bsNotes)Object.assign(existing.bsNotes||(existing.bsNotes={}),d.data.bsNotes);
       }
     }
     if(inclBSGuide){
+      if(!merge){existing.bsResults={};existing.bsChecks={};existing.bsNotes={};}
       if(d.bsResults)Object.assign(existing.bsResults||(existing.bsResults={}),d.bsResults);
       if(d.bsChecks)Object.assign(existing.bsChecks||(existing.bsChecks={}),d.bsChecks);
       if(d.bsNotes)Object.assign(existing.bsNotes||(existing.bsNotes={}),d.bsNotes);
@@ -2073,7 +2099,7 @@ function doImport(){
   if(d.prepTypes)applyData('cpa_prep_types',d.prepTypes);
   if(d.prepRemarks)applyData('cpa_prep_remarks',d.prepRemarks);
   if(d.genPrep){
-    var eg=merge?JSON.parse(localStorage.getItem(hotelKey('cpa_gen_prep'))||'{}'):{};
+    var eg=JSON.parse(localStorage.getItem(hotelKey('cpa_gen_prep'))||'{}');
     _mergeObjs(eg,d.genPrep);localStorage.setItem(hotelKey('cpa_gen_prep'),JSON.stringify(eg));
   }
   if(d.testSheets)applyData('cpa_ts',d.testSheets);
@@ -3571,6 +3597,7 @@ function _getAllHotels(){
   return {full:full,focused:focused};
 }
 function showHotelGate(){
+  _discoverHotels();
   var all=_getAllHotels();
   document.getElementById('hotel-gate').style.display='flex';
   if(all.full.length>0||all.focused.length>0){
@@ -3612,6 +3639,7 @@ function deleteRecentHotel(name,type){
   var list=[];try{var s=localStorage.getItem(key);if(s)list=JSON.parse(s);}catch(e){}
   list=list.filter(function(h){return h!==name;});
   try{localStorage.setItem(key,JSON.stringify(list));}catch(e){}
+  _hideHotel(name,type);
   var all=_getAllHotels();
   if(all.full.length>0||all.focused.length>0){buildRecentStep(all.full,all.focused);}
   else{document.getElementById('recent-step').style.display='none';showSvcStep();}
@@ -3635,6 +3663,7 @@ function deleteHotel(name){
   if(!confirm('"'+name+'" 호텔을 목록에서 삭제할까요?\nDelete "'+name+'" from the list?'))return;
   var list=getHotelList().filter(function(h){return h!==name;});
   saveHotelList(list);
+  _hideHotel(name,currentServiceType);
   buildHotelGate();
 }
 function buildHotelGate(){
@@ -3672,7 +3701,8 @@ function selectHotel(name){
   sessionStorage.setItem('cpa_hotel',name);
   try{localStorage.setItem('cpa_last_hotel',name);localStorage.setItem('cpa_last_svc_type',currentServiceType);}catch(e){}
   var list=getHotelList();
-  if(list.indexOf(name)<0){list.unshift(name);saveHotelList(list);}
+  if(!list.some(function(h){return _slug(h)===_slug(name);})){list.unshift(name);saveHotelList(list);}
+  _unhideHotel(name,currentServiceType);
   // Migration: old flat key → old cased key → new normalized key
   var nk=hotelKey('cpa2026v2');
   if(!localStorage.getItem(nk)){
@@ -3692,6 +3722,7 @@ function selectHotel(name){
       var p3=localStorage.getItem('cpa_prep_types');if(p3&&!localStorage.getItem(hotelKey('cpa_prep_types')))localStorage.setItem(hotelKey('cpa_prep_types'),p3);
     }catch(e){}
   }
+  _recoverLegacy();
   document.getElementById('hotel-gate').style.display='none';
   curId=null;results={};notes={};samples={};tstamps={};bsResults={};bsChecks={};bsNotes={};
   prepChecks={};prepTypes={};generalPrepChecks={};
@@ -3738,10 +3769,12 @@ function checkPw(){
     var lastSvcType=localStorage.getItem('cpa_last_svc_type')||'full';
     if(lastHotel){
       setServiceType(lastSvcType);
+      _discoverHotels();
       var hotelList=getHotelList();
       if(hotelList.indexOf(lastHotel)>=0){
         currentHotel=lastHotel;
         sessionStorage.setItem('cpa_hotel',lastHotel);
+        _recoverLegacy();
         loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();
         updateHotelBtn();updPrg();selDash();
       }else{showHotelGate();}
@@ -3794,6 +3827,358 @@ function updTabBtns(){
   tabs.addEventListener('scroll',updTabBtns);
   updTabBtns();
 })();
+/* ── DATA SAFETY ──
+   1) Legacy-key recovery: storage key formats changed over time (cased → lowercase → +__full/__focused).
+      Every time a hotel opens, any older-format key of the same hotel is merged into the current key
+      (fills missing values only; never overwrites, never deletes the old key).
+   2) Hotel discovery: any hotel that has saved data is always shown in the hotel list.
+   3) Restore points: snapshots in IndexedDB (before import/reset/restore/recovery + every 5 min of changes).
+   4) Auto file backup: the latest JSON (import-compatible) is written to a folder the user picks. */
+var _DATA_BASES=['cpa2026v2','cpa_prep','cpa_prep_types','cpa_prep_remarks','cpa_ts','cpa_gen_prep'];
+function _slug(h){return (h||'').trim().toLowerCase().replace(/\s+/g,'_');}
+function _hash(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0).toString(36)+'.'+s.length;}
+function _isObj(v){return !!v&&typeof v==='object'&&!Array.isArray(v);}
+function _esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function _parseDataKey(k){
+  for(var i=0;i<_DATA_BASES.length;i++){
+    var b=_DATA_BASES[i];
+    if(k.indexOf(b+'__')!==0)continue;
+    var rest=k.slice(b.length+2),m=rest.match(/^(.+)__(full|focused)$/);
+    return m?{base:b,slug:_slug(m[1]),svc:m[2]}:{base:b,slug:_slug(rest),svc:'full'};
+  }
+  return null;
+}
+function _hasContent(raw){
+  if(!raw)return false;
+  try{
+    var o=JSON.parse(raw);if(!_isObj(o))return false;
+    return Object.keys(o).some(function(k){if(k==='hotel')return false;var v=o[k];return _isObj(v)?Object.keys(v).length>0:!!v;});
+  }catch(e){return false;}
+}
+function _fillMissing(t,s){
+  var n=0;
+  Object.keys(s).forEach(function(k){
+    var sv=s[k];
+    if(t[k]===undefined||t[k]===null||t[k]===''){if(sv!==undefined&&sv!==null&&sv!==''){t[k]=sv;n++;}}
+    else if(_isObj(t[k])&&_isObj(sv))n+=_fillMissing(t[k],sv);
+  });
+  return n;
+}
+function _lsKeys(){var a=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k)a.push(k);}return a;}
+function _recoverLegacy(){
+  if(!currentHotel)return 0;
+  var slug=_slug(currentHotel),svc=currentServiceType||'full',total=0,snapped=false;
+  var led={};try{led=JSON.parse(localStorage.getItem('cpa_legacy_merged')||'{}')||{};}catch(e){}
+  _lsKeys().forEach(function(k){
+    var p=_parseDataKey(k);if(!p||p.slug!==slug||p.svc!==svc)return;
+    var cur=hotelKey(p.base);if(k===cur)return;
+    var raw=localStorage.getItem(k);if(!raw)return;
+    var sig=_hash(raw);if(led[k]===sig)return;
+    try{
+      var src=JSON.parse(raw),dst=JSON.parse(localStorage.getItem(cur)||'{}');
+      if(_isObj(src)&&_isObj(dst)){
+        if(!snapped){_snapshot('before-recovery');snapped=true;}
+        var n=_fillMissing(dst,src);
+        if(n>0){localStorage.setItem(cur,JSON.stringify(dst));total+=n;}
+      }
+      led[k]=sig;
+    }catch(e){}
+  });
+  try{localStorage.setItem('cpa_legacy_merged',JSON.stringify(led));}catch(e){}
+  if(total>0){
+    console.log('[CPA] recovered '+total+' value(s) from older storage keys');
+    var si=document.getElementById('si');if(si)si.textContent='♻ Recovered '+total;
+  }
+  setTimeout(function(){_bkTick(true);},1500);
+  return total;
+}
+function _hiddenHotels(){try{return JSON.parse(localStorage.getItem('cpa2026_hidden_hotels')||'{}')||{};}catch(e){return {};}}
+function _hideHotel(name,type){
+  var h=_hiddenHotels();h[(type||'full')+':'+_slug(name)]=1;
+  try{localStorage.setItem('cpa2026_hidden_hotels',JSON.stringify(h));}catch(e){}
+}
+function _unhideHotel(name,type){
+  var h=_hiddenHotels(),k=(type||'full')+':'+_slug(name);
+  if(h[k]){delete h[k];try{localStorage.setItem('cpa2026_hidden_hotels',JSON.stringify(h));}catch(e){}}
+}
+function _discoverHotels(){
+  try{
+    var lists={full:[],focused:[]},changed={},hid=_hiddenHotels();
+    ['full','focused'].forEach(function(t){try{lists[t]=JSON.parse(localStorage.getItem('cpa2026_hotels__'+t)||'[]')||[];}catch(e){}});
+    function add(name,t){
+      name=(name||'').trim();if(!name||hid[t+':'+_slug(name)])return;
+      if(lists[t].some(function(h){return _slug(h)===_slug(name);}))return;
+      lists[t].push(name);changed[t]=true;
+    }
+    try{(JSON.parse(localStorage.getItem('cpa2026_hotels')||'[]')||[]).forEach(function(h){add(h,'full');});}catch(e){}
+    var keys=_lsKeys().sort(function(a,b){return (a.indexOf('cpa2026v2__')===0?0:1)-(b.indexOf('cpa2026v2__')===0?0:1);});
+    keys.forEach(function(k){
+      var p=_parseDataKey(k);if(!p||!p.slug)return;
+      var raw=localStorage.getItem(k);if(!_hasContent(raw))return;
+      var name='';
+      if(p.base==='cpa2026v2'){try{var hn=(JSON.parse(raw).hotel||{}).hotel;if(hn&&_slug(hn)===p.slug)name=hn;}catch(e){}}
+      if(!name)name=p.slug.split('_').map(function(w){return w?w.charAt(0).toUpperCase()+w.slice(1):w;}).join(' ');
+      add(name,p.svc);
+    });
+    ['full','focused'].forEach(function(t){if(changed[t]){try{localStorage.setItem('cpa2026_hotels__'+t,JSON.stringify(lists[t]));}catch(e){}}});
+  }catch(e){}
+}
+/* IndexedDB: restore points + saved backup-folder handle */
+var _idbP=null;
+function _idb(){
+  if(_idbP)return _idbP;
+  _idbP=new Promise(function(res,rej){
+    if(!window.indexedDB){rej(new Error('no indexedDB'));return;}
+    var r=indexedDB.open('cpa2026_safety',1);
+    r.onupgradeneeded=function(){
+      var db=r.result;
+      if(!db.objectStoreNames.contains('snaps')){var s=db.createObjectStore('snaps',{keyPath:'id',autoIncrement:true});s.createIndex('hk','hk');}
+      if(!db.objectStoreNames.contains('kv'))db.createObjectStore('kv');
+    };
+    r.onsuccess=function(){res(r.result);};
+    r.onerror=function(){rej(r.error);};
+  });
+  _idbP.catch(function(){_idbP=null;});
+  return _idbP;
+}
+function _kvGet(k){
+  return _idb().then(function(db){return new Promise(function(res){
+    var q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=function(){res(q.result);};q.onerror=function(){res(undefined);};
+  });}).catch(function(){return undefined;});
+}
+function _kvSet(k,v){
+  return _idb().then(function(db){return new Promise(function(res){
+    var tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=function(){res(true);};tx.onerror=function(){res(false);};
+  });}).catch(function(){return false;});
+}
+function _hk(){return _slug(currentHotel)+'__'+(currentServiceType||'full');}
+function _collectHotel(){var o={};_DATA_BASES.forEach(function(b){var v=localStorage.getItem(hotelKey(b));if(v!=null)o[b]=v;});return o;}
+function _anyContent(data){return Object.keys(data).some(function(b){return _hasContent(data[b]);});}
+var _lastSnapSig={};
+function _snapshot(reason){
+  if(!currentHotel)return;
+  var hk=_hk(),data=_collectHotel(),sig=_hash(JSON.stringify(data));
+  if(reason==='auto'&&(_lastSnapSig[hk]===sig||!_anyContent(data)))return;
+  _lastSnapSig[hk]=sig;
+  var rec={hk:hk,hotel:currentHotel,svc:currentServiceType||'full',t:Date.now(),reason:reason,data:data};
+  _idb().then(function(db){
+    var tx=db.transaction('snaps','readwrite');tx.objectStore('snaps').add(rec);
+    tx.oncomplete=function(){_pruneSnaps(hk);};
+  }).catch(function(){});
+}
+/* keep the newest 50, plus the newest one per day for 90 days */
+function _pruneSnaps(hk){
+  _idb().then(function(db){
+    var tx=db.transaction('snaps','readwrite'),st=tx.objectStore('snaps'),q=st.index('hk').getAll(hk);
+    q.onsuccess=function(){
+      var rows=(q.result||[]).sort(function(a,b){return b.t-a.t;}),days={},cut=Date.now()-90*864e5;
+      rows.forEach(function(r,i){
+        var day=new Date(r.t).toDateString();
+        if(i<50){days[day]=1;return;}
+        if(r.t>=cut&&!days[day]){days[day]=1;return;}
+        st.delete(r.id);
+      });
+    };
+  }).catch(function(){});
+}
+function _listSnaps(){
+  return _idb().then(function(db){return new Promise(function(res){
+    var q=db.transaction('snaps').objectStore('snaps').index('hk').getAll(_hk());
+    q.onsuccess=function(){res((q.result||[]).sort(function(a,b){return b.t-a.t;}));};q.onerror=function(){res([]);};
+  });}).catch(function(){return [];});
+}
+function _reloadHotelState(){
+  clearTimeout(_st);
+  curId=null;results={};notes={};samples={};tstamps={};bsResults={};bsChecks={};bsNotes={};
+  prepChecks={};prepTypes={};prepRemarks={};testSheetData={};generalPrepChecks={};
+  loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();
+  updPrg();
+  if(BS_ONLY){if(viewMode==='bsnotes')selBSNotes();else selBSGuide();}else selDash();
+}
+function _restoreSnap(id){
+  _idb().then(function(db){return new Promise(function(res){
+    var q=db.transaction('snaps').objectStore('snaps').get(id);q.onsuccess=function(){res(q.result);};q.onerror=function(){res(null);};
+  });}).then(function(r){
+    if(!r||r.hk!==_hk())return;
+    var t=_bkT();
+    if(!confirm(t.restoreQ+'\n\n'+new Date(r.t).toLocaleString()))return;
+    save();_snapshot('before-restore');
+    _DATA_BASES.forEach(function(b){var k=hotelKey(b);if(r.data[b]!=null)localStorage.setItem(k,r.data[b]);else localStorage.removeItem(k);});
+    _reloadHotelState();
+    _renderBackupModal();
+    alert(t.restored);
+  }).catch(function(){});
+}
+/* Auto file backup (File System Access API — Edge / Chrome) */
+var _fsDir=null,_fsState='off',_fsLastT=0,_fsBusy=false,_fsErr='',_fsSig={};
+function _fsSupported(){return typeof window.showDirectoryPicker==='function';}
+function _fsInit(){
+  if(!_fsSupported()){_fsState='unsupported';_bkBtn();return;}
+  _kvGet('fsDir').then(function(h){
+    if(!h){_fsState='off';_bkBtn();return;}
+    _fsDir=h;
+    return h.queryPermission({mode:'readwrite'}).then(function(p){
+      _fsState=p==='granted'?'ok':'reconnect';_bkBtn();
+      if(p==='granted')_fsBackup(true);
+    });
+  }).catch(function(){_fsState='off';_bkBtn();});
+}
+function _fsConnect(){
+  if(!_fsSupported()){alert(_bkT().unsupported);return;}
+  window.showDirectoryPicker({id:'cpa2026-backup',mode:'readwrite',startIn:'documents'}).then(function(h){
+    _fsDir=h;return _kvSet('fsDir',h);
+  }).then(function(){
+    _fsState='ok';_fsSig={};_bkBtn();_fsBackup(true);_renderBackupModal();
+  }).catch(function(e){if(e&&e.name!=='AbortError')alert((e&&e.message)||e);});
+}
+function _fsReconnect(){
+  if(!_fsDir){_fsConnect();return;}
+  _fsDir.requestPermission({mode:'readwrite'}).then(function(p){
+    _fsState=p==='granted'?'ok':'reconnect';_bkBtn();
+    if(p==='granted')_fsBackup(true);
+    _renderBackupModal();
+  }).catch(function(){_fsConnect();});
+}
+function _fileTag(){return (document.getElementById('hi-hotel').value||currentHotel||'Hotel').trim().replace(/[\\\/:*?"<>|]+/g,'').replace(/\s+/g,'_');}
+function _localStamp(withTime){
+  var n=new Date(),p=function(x){return String(x).padStart(2,'0');};
+  return n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate())+(withTime?'_'+p(n.getHours())+p(n.getMinutes()):'');
+}
+function _fsWrite(name,text){
+  return _fsDir.getFileHandle(name,{create:true}).then(function(fh){return fh.createWritable();})
+    .then(function(w){return w.write(text).then(function(){return w.close();});});
+}
+function _fsRead(name){
+  return _fsDir.getFileHandle(name).then(function(fh){return fh.getFile();}).then(function(f){return f.text();}).catch(function(){return null;});
+}
+function _fsBackup(force){
+  if(_fsState!=='ok'||!_fsDir||!currentHotel||_fsBusy)return;
+  var hk=_hk(),data=_collectHotel(),sig=_hash(JSON.stringify(data));
+  if(!force&&_fsSig[hk]===sig)return;
+  if(!_anyContent(data))return; // never overwrite a backup with an empty state
+  var d=_buildExportObj(['PREP'].concat(getAuditSecs(),['BS Guide']));
+  d.autoBackupAt=new Date().toISOString();
+  var text=JSON.stringify(d,null,2);
+  var base='CPA_2026_'+_fileTag()+'_'+(currentServiceType==='focused'?'Focus':'Full');
+  var lenKey='cpa_fs_len__'+hk,lastLen=parseInt(localStorage.getItem(lenKey)||'0',10);
+  _fsBusy=true;
+  /* if the data suddenly shrinks a lot, keep a copy of the previous LATEST file first */
+  var pre=(lastLen&&text.length<lastLen*0.6)
+    ?_fsRead(base+'_LATEST.json').then(function(old){if(old)return _fsWrite(base+'_before-shrink_'+_localStamp(true)+'.json',old);})
+    :Promise.resolve();
+  pre.then(function(){return _fsWrite(base+'_LATEST.json',text);})
+    .then(function(){return _fsWrite(base+'_'+_localStamp(false)+'.json',text);})
+    .then(function(){
+      _fsSig[hk]=sig;_fsLastT=Date.now();_fsErr='';
+      try{localStorage.setItem(lenKey,String(text.length));}catch(e){}
+      _bkBtn();
+      var bm=document.getElementById('bk-modal');if(bm&&bm.style.display==='flex')_renderBackupModal();
+    })
+    .catch(function(e){
+      _fsErr=(e&&e.message)||String(e);
+      if(e&&(e.name==='NotAllowedError'||e.name==='SecurityError'))_fsState='reconnect';
+      _bkBtn();
+    })
+    .then(function(){_fsBusy=false;});
+}
+var _lastAutoSnapT=0;
+function _bkTick(force){
+  if(!currentHotel)return;
+  var now=Date.now();
+  if(force||now-_lastAutoSnapT>=300000){_lastAutoSnapT=now;_snapshot('auto');}
+  _fsBackup(force);
+}
+var _bkTxt={
+  ko:{title:'🛟 백업 / 복원',fileH:'자동 파일 백업',
+    fileDesc:'선택한 폴더에 <b>…_LATEST.json</b>(항상 최신)과 날짜별 파일이 내용이 바뀔 때마다 자동 저장됩니다. 복원은 상단 Import로 그 파일을 불러오면 됩니다. OneDrive 폴더를 고르면 브라우저 데이터가 지워져도 안전합니다.',
+    stOk:'켜짐',stOff:'설정 안 됨',stRe:'다시 연결 필요 (브라우저를 새로 열면 한 번 눌러 주세요)',stUns:'이 브라우저는 지원하지 않습니다 (Edge 또는 Chrome 사용)',
+    folder:'폴더',last:'마지막 저장',pick:'폴더 선택',change:'폴더 변경',reconnect:'다시 연결',now:'지금 저장',
+    snapH:'복원 지점 (이 브라우저, 현재 호텔)',snapNone:'아직 복원 지점이 없습니다.',restore:'복원',close:'닫기',
+    restoreQ:'이 시점으로 되돌릴까요? 현재 상태도 복원 지점으로 먼저 저장됩니다.',restored:'복원 완료',
+    unsupported:'이 브라우저는 폴더 자동 저장을 지원하지 않습니다. Edge 또는 Chrome에서 열어 주세요.',
+    r:{auto:'자동','before-import':'Import 직전','before-reset':'Reset 직전','before-restore':'복원 직전','before-recovery':'예전 데이터 복구 직전'},
+    cnt:function(a,b){return '결과 '+a+'건 · Test sheet '+b+'개';}},
+  en:{title:'🛟 Backup / Restore',fileH:'Auto file backup',
+    fileDesc:'<b>…_LATEST.json</b> (always newest) and a dated file are written to the chosen folder whenever data changes. To restore, load that file with Import. Choosing a OneDrive folder keeps it safe even if browser data is cleared.',
+    stOk:'On',stOff:'Not set up',stRe:'Reconnect needed (click once after reopening the browser)',stUns:'Not supported in this browser (use Edge or Chrome)',
+    folder:'Folder',last:'Last saved',pick:'Choose folder',change:'Change folder',reconnect:'Reconnect',now:'Save now',
+    snapH:'Restore points (this browser, current hotel)',snapNone:'No restore points yet.',restore:'Restore',close:'Close',
+    restoreQ:'Restore to this point? The current state is saved as a restore point first.',restored:'Restored',
+    unsupported:'This browser cannot auto-save to a folder. Please open the dashboard in Edge or Chrome.',
+    r:{auto:'Auto','before-import':'Before import','before-reset':'Before reset','before-restore':'Before restore','before-recovery':'Before legacy recovery'},
+    cnt:function(a,b){return a+' results · '+b+' test sheets';}},
+  ja:{title:'🛟 バックアップ / 復元',fileH:'自動ファイルバックアップ',
+    fileDesc:'選択したフォルダに <b>…_LATEST.json</b>（常に最新）と日付別ファイルが変更のたびに自動保存されます。復元は上部の Import でそのファイルを読み込みます。OneDrive フォルダを選ぶとブラウザのデータが消えても安全です。',
+    stOk:'オン',stOff:'未設定',stRe:'再接続が必要（ブラウザを開き直したら一度クリック）',stUns:'このブラウザは非対応（Edge または Chrome を使用）',
+    folder:'フォルダ',last:'最終保存',pick:'フォルダを選択',change:'フォルダを変更',reconnect:'再接続',now:'今すぐ保存',
+    snapH:'復元ポイント（このブラウザ・現在のホテル）',snapNone:'復元ポイントはまだありません。',restore:'復元',close:'閉じる',
+    restoreQ:'この時点に戻しますか？現在の状態も先に復元ポイントとして保存されます。',restored:'復元しました',
+    unsupported:'このブラウザはフォルダへの自動保存に対応していません。Edge または Chrome で開いてください。',
+    r:{auto:'自動','before-import':'Import 直前','before-reset':'Reset 直前','before-restore':'復元直前','before-recovery':'旧データ復旧直前'},
+    cnt:function(a,b){return '結果 '+a+'件 · Test sheet '+b+'件';}}
+};
+function _bkT(){return _bkTxt[lang]||_bkTxt.en;}
+function _hhmm(t){var d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function _bkBtn(){
+  var b=document.getElementById('bk-btn');if(!b)return;
+  if(_fsState==='ok'){b.textContent='🛟 Auto ✓'+(_fsLastT?' '+_hhmm(_fsLastT):'');b.style.cssText='color:#9be7b4;border-color:#9be7b4';}
+  else if(_fsState==='reconnect'){b.textContent='🛟 Reconnect';b.style.cssText='background:#e0a030;color:#1B2A41;border-color:#e0a030';}
+  else{b.textContent='🛟 Backup';b.style.cssText=_fsState==='off'?'border-color:#e0a030':'';}
+  if(_fsErr)b.title=_fsErr;
+}
+function openBackupModal(){
+  var m=document.getElementById('bk-modal');
+  if(!m){
+    m=document.createElement('div');m.id='bk-modal';
+    m.style.cssText='display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px';
+    m.addEventListener('click',function(e){if(e.target===m)m.style.display='none';});
+    document.body.appendChild(m);
+  }
+  if(currentHotel)save();
+  _renderBackupModal();
+  m.style.display='flex';
+}
+function _renderBackupModal(){
+  var m=document.getElementById('bk-modal');if(!m)return;
+  var t=_bkT();
+  var st=_fsState==='ok'?t.stOk:_fsState==='reconnect'?t.stRe:_fsState==='unsupported'?t.stUns:t.stOff;
+  var stCol=_fsState==='ok'?'#3C6E58':'#c0392b';
+  var btn='padding:6px 12px;border-radius:6px;border:1px solid #1B2A41;cursor:pointer;font-size:12px;font-weight:600;';
+  var fileBtns='';
+  if(_fsState==='reconnect')fileBtns+='<button style="'+btn+'background:#e0a030;color:#1B2A41;border-color:#e0a030" onclick="_fsReconnect()">'+t.reconnect+'</button> ';
+  if(_fsState==='ok')fileBtns+='<button style="'+btn+'background:#1B2A41;color:#fff" onclick="_fsBackup(true)">'+t.now+'</button> ';
+  if(_fsState!=='unsupported')fileBtns+='<button style="'+btn+'background:#fff;color:#1B2A41" onclick="_fsConnect()">'+(_fsDir?t.change:t.pick)+'</button>';
+  m.innerHTML='<div style="background:#fff;border-radius:14px;padding:24px;max-width:560px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.25);color:#1B2A41">'
+    +'<div style="font-size:16px;font-weight:800;margin-bottom:14px">'+t.title+(currentHotel?' <span style="font-size:12px;font-weight:600;color:#8B93A0">· '+_esc(currentHotel)+'</span>':'')+'</div>'
+    +'<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#495057;margin-bottom:6px">'+t.fileH+'</div>'
+    +'<div style="font-size:12px;color:#495057;line-height:1.5;margin-bottom:8px">'+t.fileDesc+'</div>'
+    +'<div style="font-size:12px;margin-bottom:4px"><b style="color:'+stCol+'">● '+st+'</b></div>'
+    +(_fsDir?'<div style="font-size:12px;color:#495057;margin-bottom:4px">'+t.folder+': <b>'+_esc(_fsDir.name)+'</b>'+(_fsLastT?' · '+t.last+' '+_hhmm(_fsLastT):'')+'</div>':'')
+    +(_fsErr?'<div style="font-size:11px;color:#c0392b;margin-bottom:4px">'+_esc(_fsErr)+'</div>':'')
+    +'<div style="margin:10px 0 18px">'+fileBtns+'</div>'
+    +'<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#495057;margin-bottom:6px">'+t.snapH+'</div>'
+    +'<div id="bk-snaps" style="font-size:12px;color:#8B93A0">…</div>'
+    +'<div style="text-align:right;margin-top:16px"><button style="'+btn+'background:#fff;color:#1B2A41" onclick="document.getElementById(\'bk-modal\').style.display=\'none\'">'+t.close+'</button></div>'
+    +'</div>';
+  if(!currentHotel){document.getElementById('bk-snaps').textContent=t.snapNone;return;}
+  _listSnaps().then(function(rows){
+    var el=document.getElementById('bk-snaps');if(!el)return;
+    if(!rows.length){el.textContent=t.snapNone;return;}
+    el.innerHTML=rows.map(function(r){
+      var nr=0,nt=0;
+      try{nr=Object.keys((JSON.parse(r.data.cpa2026v2||'{}').results)||{}).length;}catch(e){}
+      try{nt=Object.keys(JSON.parse(r.data.cpa_ts||'{}')||{}).length;}catch(e){}
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #eef0f3;color:#1B2A41">'
+        +'<div style="flex:1;min-width:0"><b>'+_esc(new Date(r.t).toLocaleString())+'</b> <span style="color:#8B93A0">· '+_esc(t.r[r.reason]||r.reason)+'</span>'
+        +'<div style="color:#8B93A0;font-size:11px">'+t.cnt(nr,nt)+'</div></div>'
+        +'<button style="'+btn+'background:#fff;color:#1B2A41;padding:4px 10px" onclick="_restoreSnap('+r.id+')">'+t.restore+'</button></div>';
+    }).join('');
+  });
+}
+setInterval(function(){_bkTick(false);},15000);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&currentHotel){save();_bkTick(true);}});
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(e){}
+_fsInit();
 // INIT
 if(sessionStorage.getItem('cpa_auth')==='1'){
   document.getElementById('pw-gate').style.display='none';
@@ -3802,6 +4187,7 @@ if(sessionStorage.getItem('cpa_auth')==='1'){
   if(_sh){
     currentServiceType=sessionStorage.getItem('cpa_service_type')||'full';
     currentHotel=_sh;
+    _recoverLegacy();
     loadStore();loadPrepChecks();loadPrepTypes();loadPrepRemarks();loadTestSheetData();updPrg();_restoreNav();
     updateHotelBtn();
   }else{
