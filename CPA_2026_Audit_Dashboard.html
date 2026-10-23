@@ -3966,16 +3966,18 @@ function _snapshot(reason){
     tx.oncomplete=function(){_pruneSnaps(hk);};
   }).catch(function(){});
 }
-/* keep the newest 50, plus the newest one per day for 90 days */
+var _KEEP_DAYS=30;
+/* keep the last 30 days only: the newest 50, plus the newest one per day */
 function _pruneSnaps(hk){
   _idb().then(function(db){
     var tx=db.transaction('snaps','readwrite'),st=tx.objectStore('snaps'),q=st.index('hk').getAll(hk);
     q.onsuccess=function(){
-      var rows=(q.result||[]).sort(function(a,b){return b.t-a.t;}),days={},cut=Date.now()-90*864e5;
+      var rows=(q.result||[]).sort(function(a,b){return b.t-a.t;}),days={},cut=Date.now()-_KEEP_DAYS*864e5;
       rows.forEach(function(r,i){
         var day=new Date(r.t).toDateString();
+        if(r.t<cut){st.delete(r.id);return;}
         if(i<50){days[day]=1;return;}
-        if(r.t>=cut&&!days[day]){days[day]=1;return;}
+        if(!days[day]){days[day]=1;return;}
         st.delete(r.id);
       });
     };
@@ -4071,6 +4073,7 @@ function _fsBackup(force){
     .then(function(){
       _fsSig[hk]=sig;_fsLastT=Date.now();_fsErr='';
       try{localStorage.setItem(lenKey,String(text.length));}catch(e){}
+      _fsPrune(base,hk);
       _bkBtn();
       var bm=document.getElementById('bk-modal');if(bm&&bm.style.display==='flex')_renderBackupModal();
     })
@@ -4081,6 +4084,22 @@ function _fsBackup(force){
     })
     .then(function(){_fsBusy=false;});
 }
+/* delete this hotel's dated / before-shrink backup files older than 30 days (LATEST and other files untouched); once per session */
+var _fsPruned={};
+function _fsPrune(base,hk){
+  if(_fsPruned[hk]||!_fsDir||typeof _fsDir.keys!=='function')return;
+  _fsPruned[hk]=1;
+  var esc=base.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  var re=new RegExp('^'+esc+'_(?:before-shrink_)?(\\d{4})-(\\d{2})-(\\d{2})(?:_\\d{4})?\\.json$');
+  var cut=Date.now()-_KEEP_DAYS*864e5,old=[];
+  (async function(){
+    for await (var name of _fsDir.keys()){
+      var m=name.match(re);
+      if(m&&new Date(+m[1],+m[2]-1,+m[3]).getTime()<cut)old.push(name);
+    }
+    for(var i=0;i<old.length;i++){try{await _fsDir.removeEntry(old[i]);}catch(e){}}
+  })().catch(function(){});
+}
 var _lastAutoSnapT=0;
 function _bkTick(force){
   if(!currentHotel)return;
@@ -4090,7 +4109,7 @@ function _bkTick(force){
 }
 var _bkTxt={
   ko:{title:'🛟 백업 / 복원',fileH:'자동 파일 백업',
-    fileDesc:'선택한 폴더에 <b>…_LATEST.json</b>(항상 최신)과 날짜별 파일이 내용이 바뀔 때마다 자동 저장됩니다. 복원은 상단 Import로 그 파일을 불러오면 됩니다. OneDrive 폴더를 고르면 브라우저 데이터가 지워져도 안전합니다.',
+    fileDesc:'선택한 폴더에 <b>…_LATEST.json</b>(항상 최신)과 날짜별 파일이 내용이 바뀔 때마다 자동 저장됩니다(날짜별 파일과 복원 지점은 최근 30일치만 보관).복원은 상단 Import로 그 파일을 불러오면 됩니다. OneDrive 폴더를 고르면 브라우저 데이터가 지워져도 안전합니다.',
     stOk:'켜짐',stOff:'설정 안 됨',stRe:'다시 연결 필요 (브라우저를 새로 열면 한 번 눌러 주세요)',stUns:'이 브라우저는 지원하지 않습니다 (Edge 또는 Chrome 사용)',
     folder:'폴더',last:'마지막 저장',pick:'폴더 선택',change:'폴더 변경',reconnect:'다시 연결',now:'지금 저장',
     snapH:'복원 지점 (이 브라우저, 현재 호텔)',snapNone:'아직 복원 지점이 없습니다.',restore:'복원',close:'닫기',
@@ -4099,7 +4118,7 @@ var _bkTxt={
     r:{auto:'자동','before-import':'Import 직전','before-reset':'Reset 직전','before-restore':'복원 직전','before-recovery':'예전 데이터 복구 직전'},
     cnt:function(a,b){return '결과 '+a+'건 · Test sheet '+b+'개';}},
   en:{title:'🛟 Backup / Restore',fileH:'Auto file backup',
-    fileDesc:'<b>…_LATEST.json</b> (always newest) and a dated file are written to the chosen folder whenever data changes. To restore, load that file with Import. Choosing a OneDrive folder keeps it safe even if browser data is cleared.',
+    fileDesc:'<b>…_LATEST.json</b> (always newest) and a dated file are written to the chosen folder whenever data changes (dated files and restore points are kept for the last 30 days).To restore, load that file with Import. Choosing a OneDrive folder keeps it safe even if browser data is cleared.',
     stOk:'On',stOff:'Not set up',stRe:'Reconnect needed (click once after reopening the browser)',stUns:'Not supported in this browser (use Edge or Chrome)',
     folder:'Folder',last:'Last saved',pick:'Choose folder',change:'Change folder',reconnect:'Reconnect',now:'Save now',
     snapH:'Restore points (this browser, current hotel)',snapNone:'No restore points yet.',restore:'Restore',close:'Close',
@@ -4108,7 +4127,7 @@ var _bkTxt={
     r:{auto:'Auto','before-import':'Before import','before-reset':'Before reset','before-restore':'Before restore','before-recovery':'Before legacy recovery'},
     cnt:function(a,b){return a+' results · '+b+' test sheets';}},
   ja:{title:'🛟 バックアップ / 復元',fileH:'自動ファイルバックアップ',
-    fileDesc:'選択したフォルダに <b>…_LATEST.json</b>（常に最新）と日付別ファイルが変更のたびに自動保存されます。復元は上部の Import でそのファイルを読み込みます。OneDrive フォルダを選ぶとブラウザのデータが消えても安全です。',
+    fileDesc:'選択したフォルダに <b>…_LATEST.json</b>（常に最新）と日付別ファイルが変更のたびに自動保存されます（日付別ファイルと復元ポイントは直近30日分のみ保管）。復元は上部の Import でそのファイルを読み込みます。OneDrive フォルダを選ぶとブラウザのデータが消えても安全です。',
     stOk:'オン',stOff:'未設定',stRe:'再接続が必要（ブラウザを開き直したら一度クリック）',stUns:'このブラウザは非対応（Edge または Chrome を使用）',
     folder:'フォルダ',last:'最終保存',pick:'フォルダを選択',change:'フォルダを変更',reconnect:'再接続',now:'今すぐ保存',
     snapH:'復元ポイント（このブラウザ・現在のホテル）',snapNone:'復元ポイントはまだありません。',restore:'復元',close:'閉じる',
